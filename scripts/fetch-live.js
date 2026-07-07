@@ -142,6 +142,27 @@ function mapLineup(lu) {
     }).filter(Boolean).slice(0, 6);
   } catch (e) { console.error('youtube fail', e.message); }
 
+  // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색 (세로 썸네일 + 조회수)
+  let shorts = [];
+  try {
+    const seen = new Set();
+    for (const q of ['케이티위즈', 'kt위즈']) {
+      const r = await fetch('https://www.youtube.com/results?search_query=' + encodeURIComponent(q) + '&sp=EgIYAw%253D%253D', {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
+        signal: AbortSignal.timeout(15000)
+      });
+      const html = await r.text();
+      const re = /"reelWatchEndpoint":\{"videoId":"([a-zA-Z0-9_\-]{11})"/g;
+      let m;
+      while ((m = re.exec(html)) && shorts.length < 12) {
+        const id = m[1];
+        if (seen.has(id)) continue;
+        seen.add(id);
+        shorts.push({ id });
+      }
+    }
+  } catch (e) { console.error('shorts fail', e.message); }
+
   // 6) kt위즈 갤러리 최신 글 (욕설/공지 필터) — 차단 시 빈 배열
   let gall = [];
   try {
@@ -171,7 +192,7 @@ function mapLineup(lu) {
     games: todayGames,
     standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
     kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box },
-    youtube, gall
+    youtube, shorts, gall
   };
 
   const file = path.join(__dirname, '..', 'data', 'live.json');

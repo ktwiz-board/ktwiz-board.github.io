@@ -261,6 +261,15 @@
   .yt .ti{padding:13px 16px 15px;font-size:13.5px;font-weight:700;line-height:1.45}
   .yt .ti span{display:block;margin-top:5px;font-size:11px;color:var(--muted);font-weight:500}
 
+  /* ---------- 쇼츠 ---------- */
+  .shorts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .shorts a{position:relative;display:block;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#111 center/cover no-repeat;text-decoration:none}
+  .shorts a img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease)}
+  .shorts a:hover img{transform:scale(1.06)}
+  .shorts a::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.55));z-index:1}
+  .shorts a::after{content:"▶ Shorts";position:absolute;left:10px;bottom:10px;z-index:2;font-size:11px;font-weight:800;color:#fff;letter-spacing:.02em;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+  @media (max-width:520px){.shorts{grid-template-columns:repeat(3,1fr)}}
+
   /* ---------- 갤러리 ---------- */
   .gallbox{background:var(--panel);border-radius:22px;padding:10px 26px}
   .gallbox ul{list-style:none;margin:0;padding:0}
@@ -334,6 +343,25 @@
     </div>
     <div class="board reveal d1" id="board"></div>
     <p class="board-note reveal d2">스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다.</p>
+  </section>
+
+  <!-- ================= wiz TV ================= -->
+  <section id="ytSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">wiz TV</p>
+      <h2>공식 유튜브 최신 영상</h2>
+    </div>
+    <div class="yt reveal d1" id="ytGrid"></div>
+  </section>
+
+  <!-- ================= 유튜브 쇼츠 ================= -->
+  <section id="shortsSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Shorts</p>
+      <h2>kt위즈 쇼츠</h2>
+      <p class="sub">'케이티위즈' 유튜브 검색 인기 쇼츠</p>
+    </div>
+    <div class="shorts reveal d1" id="shortsGrid"></div>
   </section>
 
   <!-- ================= 오늘 경기 기록 (박스스코어) ================= -->
@@ -556,15 +584,6 @@
         <p>LG·삼성이 1게임차 선두 다툼 중인 가운데 kt가 5게임차 3위. 4위 KIA와 1.5게임차 — 후반기 2위 도전과 방어전이 동시에 걸렸다.</p>
       </div>
     </div>
-  </section>
-
-  <!-- ================= wiz TV ================= -->
-  <section id="ytSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">wiz TV</p>
-      <h2>공식 유튜브 최신 영상</h2>
-    </div>
-    <div class="yt reveal d1" id="ytGrid"></div>
   </section>
 
   <!-- ================= 팬 이야기 ================= -->
@@ -934,6 +953,17 @@
     ).join('');
   }
 
+  /* ---------- 쇼츠 ---------- */
+  function renderShorts(list){
+    if(!list || !list.length) return;
+    document.getElementById('shortsSec').style.display = 'block';
+    document.getElementById('shortsGrid').innerHTML = list.map(s =>
+      '<a href="https://www.youtube.com/shorts/' + esc(s.id) + '" target="_blank" rel="noopener" aria-label="kt위즈 쇼츠">' +
+      '<img loading="lazy" src="https://i.ytimg.com/vi/' + esc(s.id) + '/oardefault.jpg" ' +
+      'onerror="this.src=&quot;https://i.ytimg.com/vi/' + esc(s.id) + '/hqdefault.jpg&quot;" alt=""></a>'
+    ).join('');
+  }
+
   /* ---------- 갤러리 ---------- */
   function renderGall(posts){
     if(!posts || !posts.length) return; // 수집 실패 시 기본 바로가기 링크 유지
@@ -967,6 +997,7 @@
         renderBox(j.kt, j.games);
         renderMagic(j.standings);
         renderYT(j.youtube);
+        renderShorts(j.shorts);
         renderGall(j.gall);
         celebrate(j.games);
         return;
