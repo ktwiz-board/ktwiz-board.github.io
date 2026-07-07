@@ -360,6 +360,15 @@
   @media (max-width:600px){
     .wrap{padding:0 15px}
     section{padding:60px 0 0}
+
+    /* 히어로·성: 화면 안에 로고+성 전체가 들어오도록 세로 스택으로 재조정 */
+    .hero{min-height:0;height:auto;padding:48px 0 0;flex-direction:column}
+    .hero .wrap{order:1;margin-bottom:0}
+    .hero .emblem{width:clamp(210px,58vw,300px);margin:0 auto 14px}
+    .hero .sub{font-size:13px;padding:0 10px}
+    .hero .place{margin-top:10px}
+    .castle{position:relative;order:2;height:150px;margin-top:22px;flex:none}
+    .hero::after{height:64px}
     .sec-head{margin-bottom:22px}
     .sec-head .tag,.sec-head .sub{margin-left:0}
     .sec-head .live-head{margin-left:0}
