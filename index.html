@@ -49,9 +49,23 @@
   .wrap{max-width:980px;margin:0 auto;padding:0 24px}
 
   /* ---------- hero: 로고 중심 미니멀 ---------- */
-  .hero{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:44px 0 36px;
-    background:radial-gradient(680px 320px at 50% 48%, #171216, #000 78%)}
-  .hero .wrap{text-align:center;width:100%}
+  .hero{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    min-height:clamp(500px,64svh,720px);padding:56px 0 0;
+    background:radial-gradient(760px 440px at 50% 40%, #17120c, #000 80%)}
+  .hero .wrap{text-align:center;width:100%;position:relative;z-index:2;margin-bottom:auto;padding-top:2vh}
+  .castle{position:absolute;left:0;right:0;bottom:0;width:100%;height:min(52%,320px);z-index:1;pointer-events:none}
+  .castle .ink{fill:none;stroke:rgba(217,169,76,.30);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+  .castle .spire{stroke:rgba(233,200,119,.5);stroke-width:1.6}
+  .castle .win{fill:rgba(233,200,119,.6);stroke:none}
+  .castle .moon{fill:none;stroke:rgba(233,200,119,.42);stroke-width:1.5}
+  .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,transparent,#000)}
+  @media (prefers-reduced-motion:no-preference){
+    .castle .win{animation:twinkle 3.4s ease-in-out infinite}
+    .castle .win:nth-of-type(2n){animation-delay:1.1s}
+    .castle .win:nth-of-type(3n){animation-delay:2.2s}
+    @keyframes twinkle{0%,100%{opacity:.35}50%{opacity:.9}}
+  }
   .hero .emblem{width:clamp(280px,42vw,440px);height:auto;display:block;margin:0 auto 18px;filter:drop-shadow(0 16px 54px rgba(232,16,47,.26))}
   h1{font-size:clamp(30px,4.6vw,52px);line-height:1.1;margin:0 0 12px;font-weight:800;letter-spacing:-.03em;text-wrap:balance}
   .hero .sub{font-size:clamp(14px,1.8vw,17px);color:var(--muted);margin:0;font-weight:500}
@@ -362,6 +376,7 @@
 
 <!-- ================= HERO ================= -->
 <div class="hero">
+  <svg class="castle" id="castle" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
   <div class="wrap">
     <img class="emblem" src="img/biginning.png" alt="THE BIGINNING — 마법의 시작, 위대한 도약 GREAT KT" width="800" height="447">
     <p class="sub">kt wiz 팬을 위한 KBO 상황판 — 스코어·라인업·순위 자동 갱신</p>
@@ -681,6 +696,107 @@
     const finish = () => { close(); document.body.style.overflow = ''; };
     const timer = setTimeout(finish, 3200);
     document.getElementById('spellSkip').addEventListener('click', () => { clearTimeout(timer); finish(); });
+  })();
+
+  /* ---------- 라인아트 성 (호그와트 · 수원 화성 모티브) ---------- */
+  (function castle(){
+    const svg = document.getElementById('castle');
+    if(!svg) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const baseY = 288;
+    const paths = [];      // {d, cls}
+    const add = (d, cls) => paths.push({ d, cls: cls || 'ink' });
+
+    // 흉벽(크레넬레이션) 상단 라인
+    function cren(x1, x2, y){
+      const n = Math.max(3, Math.round((x2 - x1) / 24));
+      const step = (x2 - x1) / n, h = 10, m = step * 0.55;
+      let d = 'M' + x1 + ' ' + y;
+      for(let i = 0; i < n; i++){
+        const xa = x1 + i * step;
+        d += 'L' + xa.toFixed(1) + ' ' + (y - h) + 'L' + (xa + m).toFixed(1) + ' ' + (y - h) +
+             'L' + (xa + m).toFixed(1) + ' ' + y + 'L' + (xa + step).toFixed(1) + ' ' + y;
+      }
+      return d;
+    }
+    // 탑 (지붕: cone=원뿔 / spire=첨탑 / flat=흉벽)
+    function tower(cx, w, topY, roof){
+      const x1 = cx - w/2, x2 = cx + w/2;
+      add('M' + x1 + ' ' + baseY + ' V' + topY + ' M' + x2 + ' ' + baseY + ' V' + topY);
+      if(roof === 'cone'){
+        add('M' + x1 + ' ' + topY + ' H' + x2);
+        add('M' + (x1+3) + ' ' + topY + ' L' + cx + ' ' + (topY-56) + ' L' + (x2-3) + ' ' + topY, 'ink spire');
+      } else if(roof === 'spire'){
+        add(cren(x1, x2, topY));
+        add('M' + (x1+2) + ' ' + (topY-6) + ' L' + cx + ' ' + (topY-78) + ' L' + (x2-2) + ' ' + (topY-6), 'ink spire');
+      } else {
+        add(cren(x1, x2, topY));
+      }
+      add('M' + (cx-6) + ' ' + (topY+30) + ' h12 v18 a6 6 0 0 1 -12 0 z', 'ink win-arch'); // 아치창 외곽
+    }
+    function wall(x1, x2, y){
+      add('M' + x1 + ' ' + baseY + ' V' + y + ' M' + x2 + ' ' + baseY + ' V' + y);
+      add(cren(x1, x2, y));
+    }
+
+    add('M0 ' + baseY + ' H1440');                 // 지면
+    tower(120, 82, 150, 'cone');                    // 좌 외곽 원뿔탑
+    wall(161, 335, 236);
+    tower(400, 76, 118, 'spire');                   // 좌 첨탑
+    wall(438, 556, 236);
+    // 중앙 성채(게이트하우스)
+    wall(556, 884, 150);
+    tower(620, 40, 96, 'spire');                    // 좌 플랭킹 첨탑
+    tower(820, 40, 96, 'spire');                    // 우 플랭킹 첨탑
+    add('M700 150 V70 M740 150 V70');               // 중앙 대첨탑 몸통
+    add(cren(700, 740, 70));
+    add('M702 64 L720 6 L738 64', 'ink spire');     // 중앙 대첨탑 꼭대기
+    add('M720 6 V-6', 'ink spire');                 // 깃대
+    add('M690 ' + baseY + ' V214 A30 30 0 0 1 750 214 V' + baseY, 'ink'); // 아치 정문
+    add('M705 ' + baseY + ' V206 M720 ' + baseY + ' V200 M735 ' + baseY + ' V206', 'ink'); // 포탑살
+    wall(884, 1002, 236);
+    tower(1040, 76, 118, 'spire');                  // 우 첨탑
+    wall(1105, 1279, 236);
+    tower(1320, 82, 150, 'cone');                   // 우 외곽 원뿔탑
+
+    // 창문(반짝이는 불빛)
+    const wins = [[120,196],[400,168],[620,132],[720,110],[820,132],[1040,168],[1320,196],[335,262],[1105,262],[500,262],[940,262]];
+
+    // 요소 생성
+    for(const p of paths){
+      const el = document.createElementNS(NS, 'path');
+      el.setAttribute('d', p.d); el.setAttribute('class', p.cls);
+      svg.appendChild(el);
+    }
+    // 달
+    const moon = document.createElementNS(NS, 'circle');
+    moon.setAttribute('cx', 1180); moon.setAttribute('cy', 66); moon.setAttribute('r', 30); moon.setAttribute('class', 'moon');
+    svg.appendChild(moon);
+    const moon2 = document.createElementNS(NS, 'path');
+    moon2.setAttribute('d', 'M1192 42 a30 30 0 0 0 0 48 a24 24 0 0 1 0 -48'); moon2.setAttribute('class', 'moon');
+    svg.appendChild(moon2);
+    // 창문
+    for(const [x, y] of wins){
+      const w = document.createElementNS(NS, 'rect');
+      w.setAttribute('x', x-3); w.setAttribute('y', y); w.setAttribute('width', 6); w.setAttribute('height', 9);
+      w.setAttribute('rx', 2); w.setAttribute('class', 'win');
+      svg.appendChild(w);
+    }
+
+    // 잉크가 그려지는 애니메이션 (draw-on, 스태거)
+    if(reduce) return;
+    const strokes = svg.querySelectorAll('path, circle');
+    strokes.forEach((el, i) => {
+      let len;
+      try { len = el.getTotalLength(); } catch(e){ return; }
+      if(!len) return;
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = len;
+      el.style.transition = 'stroke-dashoffset 1.3s cubic-bezier(.22,1,.36,1) ' + (0.3 + i * 0.03) + 's';
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      strokes.forEach(el => { el.style.strokeDashoffset = '0'; });
+    }));
   })();
 
   /* ---------- 잉크 스크롤 트레일 (지도 발자국 경로) ---------- */
