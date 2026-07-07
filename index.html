@@ -841,8 +841,8 @@
       {v: rem(kt), l: '남은 경기', red: false},
       {v: kt.rank + '위', l: '현재 순위', red: true},
       {v: psMagic, l: 'PS 매직넘버', red: true},
-      {v: gbTo(r2.name === 'KT' ? r1 : r2), l: (r2.name === 'KT' ? r1.name : r2.name) + '와 게임차', red: false},
-      {v: gbTo(r1), l: r1.name + '(1위)와 게임차', red: false}
+      {v: gbTo(r2.name === 'KT' ? r1 : r2), l: '2위 ' + (r2.name === 'KT' ? r1.name : r2.name) + ' 게임차', red: false},
+      {v: gbTo(r1), l: '1위 ' + r1.name + ' 게임차', red: false}
     ];
     row.innerHTML = items.map(i => '<div class="m"><b class="' + (i.red ? 'red' : '') + '">' + i.v + '</b><span>' + esc(i.l) + '</span></div>').join('');
     note.innerHTML = 'PS 매직넘버 <b>' + psMagic + '</b> — 6위 ' + esc(r6.name) + '가 남은 ' + rem(r6) + '경기를 전승해도, kt가 <b>' + psMagic + '승</b>만 더 거두면 가을야구가 확정됩니다.';
