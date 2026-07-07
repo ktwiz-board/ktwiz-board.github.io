@@ -158,8 +158,10 @@ function mapLineup(lu) {
       title: m[3].replace(/<[^>]+>/g, '').trim(),
       date: (m[5] || '').trim()
     }))
-    .filter(p => p.title && !bad.test(p.title) && !/공지|설문|이벤트 안내/.test(p.title))
+    .filter(p => p.title && !bad.test(p.title) && !/공지|설문|이벤트 안내|일정표|이용 안내/.test(p.title))
     .slice(0, 8);
+    // 봇 차단으로 축소 페이지(공지만)를 받은 경우 → 빈 배열 (페이지는 바로가기 링크 폴백)
+    if (gall.length < 3) gall = [];
   } catch (e) { console.error('gall fail', e.message); }
 
   const out = {
