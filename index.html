@@ -699,13 +699,16 @@
 
   async function loadData(){
     const urls = [
-      'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/live.json?t=' + Date.now(),
-      'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/main/data/live.json?t=' + Date.now(),
-      './data/live.json?t=' + Date.now()
+      // 1순위: GitHub API (캐시 없음 — 2분 내 최신, 방문자당 시간 60회 제한이라 75초 주기와 함께 사용)
+      {u:'https://api.github.com/repos/ktwiz-board/ktwiz-board.github.io/contents/data/live.json?ref=data', o:{headers:{Accept:'application/vnd.github.raw+json'}}},
+      // 2순위: raw CDN (최대 5분 캐시)
+      {u:'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/live.json?t=' + Date.now(), o:{}},
+      {u:'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/main/data/live.json?t=' + Date.now(), o:{}},
+      {u:'./data/live.json?t=' + Date.now(), o:{}}
     ];
-    for(const url of urls){
+    for(const {u:url, o:opts} of urls){
       try{
-        const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
+        const r = await fetch(url, {...opts, cache:'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
         if(!r.ok) continue;
         const j = await r.json();
         if(!j || !j.games) continue;
@@ -723,7 +726,7 @@
   }
   render(SEED, false);
   loadData().then(fetchWeather);
-  setInterval(loadData, 60000);
+  setInterval(loadData, 75000);
   setInterval(fetchWeather, 600000);
 })();
 </script>
