@@ -1,0 +1,28 @@
+name: live-data
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-data
+  cancel-in-progress: true
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch live data
+        run: node scripts/fetch-live.js
+      - name: Commit if changed
+        run: |
+          git config user.name "live-bot"
+          git config user.email "actions@github.com"
+          git add data/live.json
+          git diff --cached --quiet || git commit -m "live: update data [skip ci]"
+          git push

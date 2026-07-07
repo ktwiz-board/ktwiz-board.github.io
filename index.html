@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="kt wiz 팬을 위한 KBO 리그 실시간 대시보드 - 구장별 현황판, 날씨, 라인업, 순위">
+<meta name="description" content="kt wiz 팬을 위한 KBO 리그 실시간 대시보드">
 <meta charset="utf-8">
 <title>wiz board — KBO 한눈에</title>
 <style>
@@ -99,6 +99,35 @@
   .game .status.live{background:rgba(48,209,88,.14);color:var(--ok)}
   .game .status.end{background:rgba(217,169,76,.14);color:var(--gold)}
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
+  .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
+
+  /* ---------- KT 캘린더 · 폼 ---------- */
+  .cal{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+  @media (max-width:760px){.cal{grid-template-columns:1fr}}
+  .calbox{background:var(--panel);border-radius:22px;padding:26px 28px}
+  .calbox h4{margin:0 0 18px;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .week{list-style:none;margin:0;padding:0}
+  .week li{display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .week li:last-child{border-bottom:none}
+  .week .d{font-size:12.5px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+  .week .d.today{color:var(--red-soft);font-weight:800}
+  .week .m b{font-weight:700}
+  .week .m .ha{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:8px;letter-spacing:.04em;vertical-align:1px}
+  .week .m .ha.h{background:rgba(232,16,47,.14);color:var(--red-soft)}
+  .week .m .ha.a{background:rgba(255,255,255,.08);color:var(--muted)}
+  .week .t{font-size:12.5px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .form{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+  .form .f{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:16px}
+  .form .f.W{background:rgba(232,16,47,.16);color:var(--red-soft)}
+  .form .f.L{background:rgba(255,255,255,.07);color:var(--muted)}
+  .form .f.D{background:rgba(217,169,76,.14);color:var(--gold)}
+  .formlist{list-style:none;margin:0;padding:0}
+  .formlist li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:#c8c8cc}
+  .formlist li:last-child{border-bottom:none}
+  .formlist .r{font-weight:800}
+  .formlist .r.W{color:var(--red-soft)}
+  .formlist .r.L{color:var(--muted)}
+  .formlist .sc2{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:500}
 
   /* ---------- last game ---------- */
   .lastgame{background:var(--panel);border-radius:22px;overflow:hidden}
@@ -228,6 +257,25 @@
     <p class="board-note reveal d2">스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다.</p>
   </section>
 
+  <!-- ================= KT 캘린더 · 폼 ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <p class="kicker">Schedule &amp; Form</p>
+      <h2>KT 일정 · 최근 흐름</h2>
+    </div>
+    <div class="cal">
+      <div class="calbox reveal d1">
+        <h4>이번 주 kt wiz</h4>
+        <ul class="week" id="ktWeek"><li><span class="d">—</span><span class="m">데이터 수집 대기 중</span><span class="t"></span></li></ul>
+      </div>
+      <div class="calbox reveal d2">
+        <h4>최근 5경기</h4>
+        <div class="form" id="ktForm"></div>
+        <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 지난 경기 ================= -->
   <section>
     <div class="sec-head reveal">
@@ -275,9 +323,9 @@
     </div>
     <div class="lineups">
       <div class="lu today reveal d1">
-        <div class="lu-head"><h4>오늘 확정 라인업</h4><span class="lock">발표 완료</span><span class="when">7/7 · 수원</span></div>
-        <p class="sp">선발 <b>소형준</b> (10경기 3승 · ERA 3.67) vs 키움 <b>안우진</b> (12경기 2승 4패 · ERA 3.60)</p>
-        <ol>
+        <div class="lu-head"><h4 id="luTitle">오늘 확정 라인업</h4><span class="lock" id="luLock">발표 완료</span><span class="when" id="luWhen">7/7 · 수원</span></div>
+        <p class="sp" id="luStarter">선발 <b>소형준</b> vs 키움 <b>안우진</b></p>
+        <ol id="luList">
           <li><b>최원준</b><span class="ps">DH</span></li>
           <li><b>김민혁</b><span class="ps">LF</span></li>
           <li><b>안현민</b><span class="ps">RF</span></li>
@@ -319,7 +367,7 @@
     <div class="tablebox reveal d1">
       <table>
         <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
-        <tbody>
+        <tbody id="standBody">
           <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
           <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
           <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
@@ -561,40 +609,99 @@
       '</div>';
     }).join('');
     const now = new Date();
-    stamp.textContent = (live ? '실시간 · ' : '기본 데이터 · ') + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
+    stamp.textContent = live
+      ? '자동 수집 · ' + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST 기준 (약 5분 주기)'
+      : '기본 데이터 · ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
     dot.style.background = live ? 'var(--ok)' : '#86868b';
   }
 
-  function kstToday(){
-    const k = new Date(Date.now() + (9*60 + new Date().getTimezoneOffset()) * 60000);
-    return k.getFullYear() + '-' + String(k.getMonth()+1).padStart(2,'0') + '-' + String(k.getDate()).padStart(2,'0');
+  /* ---------- 자동 수집 JSON (GitHub Actions, 5분 주기) ---------- */
+  let updatedKST = '';
+
+  function renderWeek(week, today){
+    const el = document.getElementById('ktWeek');
+    if(!week || !week.length){ el.innerHTML = '<li><span class="d">—</span><span class="m">이번 주 예정 경기 없음</span><span class="t"></span></li>'; return; }
+    const DOW = ['일','월','화','수','목','금','토'];
+    el.innerHTML = week.map(g => {
+      const ktHome = g.home === 'KT';
+      const opp = ktHome ? g.away : g.home;
+      const dt = new Date(g.date + 'T00:00:00');
+      const isToday = g.date === today;
+      const done = g.code === 'RESULT' || g.code === 'ENDED';
+      const right = done
+        ? ((ktHome ? g.hs : g.as) + ':' + (ktHome ? g.as : g.hs) + (((ktHome?g.hs:g.as) > (ktHome?g.as:g.hs)) ? ' 승' : ((ktHome?g.hs:g.as) < (ktHome?g.as:g.hs)) ? ' 패' : ' 무'))
+        : (g.code === 'CANCEL' ? '취소' : g.time + ' · ' + g.stadium);
+      return '<li><span class="d' + (isToday ? ' today' : '') + '">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')' + '</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
+        '<span class="t">' + esc(right) + '</span></li>';
+    }).join('');
   }
 
-  async function fetchBoard(){
-    const d = kstToday();
-    const api = 'https://api-gw.sports.naver.com/schedule/games?fields=basic,stadium,statusNum,homeStarterName,awayStarterName&upperCategoryId=kbaseball&categoryId=kbo&fromDate=' + d + '&toDate=' + d + '&size=50';
-    const tries = [api, 'https://api.allorigins.win/raw?url=' + encodeURIComponent(api)];
-    for(const url of tries){
+  function renderForm(recent){
+    const f = document.getElementById('ktForm'), l = document.getElementById('ktFormList');
+    if(!recent || !recent.length){ l.innerHTML = '<li>최근 경기 데이터 없음</li>'; return; }
+    f.innerHTML = recent.map(g => '<span class="f ' + g.r + '">' + (g.r === 'W' ? '승' : g.r === 'L' ? '패' : '무') + '</span>').join('');
+    l.innerHTML = recent.slice().reverse().map(g =>
+      '<li><span><span class="r ' + g.r + '">' + g.r + '</span> vs ' + esc(g.opp) + '</span><span class="sc2">' + g.my + ':' + g.op + ' · ' + g.date.slice(5).replace('-','.') + '</span></li>'
+    ).join('');
+  }
+
+  function renderStandings(st){
+    if(!st || st.length < 10) return;
+    const max = Math.max(...st.map(t => t.w - t.l));
+    document.getElementById('standBody').innerHTML = st.map(t => {
+      const gb = ((max - (t.w - t.l)) / 2).toFixed(1);
+      const isKT = t.name === 'KT';
+      const games = t.w + t.l + t.d;
+      REC[t.name] = t.w + '-' + t.l + '-' + t.d;
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + t.rank + '</span></td>' +
+        '<td>' + esc(t.name) + (t.rank <= 5 ? '<span class="po">PS</span>' : '') + '</td>' +
+        '<td>' + games + '</td><td>' + t.w + '</td><td>' + t.l + '</td><td>' + t.d + '</td>' +
+        '<td>' + ('' + t.wra).replace(/^0\./,'.') + '</td>' +
+        '<td>' + (gb === '0.0' ? '—' : '<span class="gbbar" style="width:' + Math.min(140, gb * 6) + 'px"></span>' + gb) + '</td></tr>';
+    }).join('');
+  }
+
+  function renderLineup(kt, games){
+    if(!kt || !kt.lineup) return; // 미발표 시 기존(직전) 내용 유지
+    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    const opp = g ? (g.home === 'KT' ? g.away : g.home) : '';
+    const oppStarter = g ? (g.home === 'KT' ? g.ap : g.hp) : '';
+    document.getElementById('luTitle').textContent = '오늘 확정 라인업';
+    document.getElementById('luLock').textContent = '발표 완료';
+    if(g) document.getElementById('luWhen').textContent = g.date.slice(5).replace('-','/') + ' · ' + g.stadium;
+    document.getElementById('luStarter').innerHTML = '선발 <b>' + esc(kt.lineup.starter) + '</b>' + (opp ? ' vs ' + esc(opp) + ' <b>' + esc(oppStarter) + '</b>' : '');
+    const POS = {'지명타자':'DH','포수':'C','1루수':'1B','2루수':'2B','3루수':'3B','유격수':'SS','좌익수':'LF','중견수':'CF','우익수':'RF','투수':'P'};
+    document.getElementById('luList').innerHTML = kt.lineup.batters.map(b =>
+      '<li><b>' + esc(b.name) + '</b><span class="ps">' + (POS[b.pos] || esc(b.pos)) + '</span></li>').join('');
+  }
+
+  async function loadData(){
+    const urls = [
+      'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/main/data/live.json?t=' + Date.now(),
+      './data/live.json?t=' + Date.now()
+    ];
+    for(const url of urls){
       try{
-        const r = await fetch(url, {signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined});
+        const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
         if(!r.ok) continue;
         const j = await r.json();
-        const gs = j?.result?.games;
-        if(!gs || !gs.length) continue;
-        render(gs.map(g => ({
-          stadium: g.stadium, away: g.awayTeamName, home: g.homeTeamName,
-          as: g.awayTeamScore, hs: g.homeTeamScore,
-          status: g.cancel ? '우천취소' : g.statusInfo, code: g.cancel ? 'ENDED' : g.statusCode,
-          ap: g.awayStarterName, hp: g.homeStarterName
-        })), true);
+        if(!j || !j.games) continue;
+        updatedKST = j.updatedKST || '';
+        renderStandings(j.standings);
+        if(j.games.length) render(j.games, true);
+        else { board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>'; stamp.textContent = '자동 수집 · ' + updatedKST + ' KST'; }
+        renderWeek(j.kt && j.kt.week, j.date);
+        renderForm(j.kt && j.kt.recent);
+        renderLineup(j.kt, j.games);
         return;
-      }catch(e){ /* 다음 경로 시도 */ }
+      }catch(e){ /* 다음 경로 */ }
     }
     render(SEED, false);
   }
   render(SEED, false);
-  fetchBoard().then(fetchWeather);
-  setInterval(fetchBoard, 60000);
+  loadData().then(fetchWeather);
+  setInterval(loadData, 60000);
   setInterval(fetchWeather, 600000);
 })();
 </script>
