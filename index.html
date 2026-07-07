@@ -7,193 +7,189 @@
 <title>wiz board — KBO 한눈에</title>
 <style>
   :root{
-    --bg:#0c0a0d;
-    --bg2:#141016;
-    --card:rgba(255,255,255,.035);
+    --bg:#000;
+    --panel:#101012;
+    --card:#161618;
     --line:rgba(255,255,255,.09);
-    --ink:#f3eef1;
-    --muted:#9a8f96;
+    --ink:#f5f5f7;
+    --muted:#86868b;
     --red:#e8102f;
     --red-soft:#ff4d63;
+    --ok:#30d158;
     --gold:#d9a94c;
+    --ease:cubic-bezier(.22,1,.36,1);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.65;margin:0;overflow-x:hidden}
+  body{background:var(--bg);color:var(--ink);margin:0;overflow-x:hidden;line-height:1.6;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased}
   ::selection{background:var(--red);color:#fff}
-  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
 
-  /* ---------- hero ---------- */
-  .hero{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;
-    background:
-      radial-gradient(900px 500px at 75% -10%, rgba(232,16,47,.22), transparent 60%),
-      radial-gradient(700px 480px at 10% 110%, rgba(217,169,76,.08), transparent 60%),
-      linear-gradient(180deg,#100c12,#0c0a0d)}
-  #stars{position:absolute;inset:0;width:100%;height:100%}
-  .hero .wrap{position:relative;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:48px;padding-top:60px;padding-bottom:60px}
-  .hero-copy{flex:1 1 380px}
-  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.3em;color:var(--red-soft);font-weight:700;text-transform:uppercase}
-  .eyebrow::before{content:"";width:34px;height:1px;background:var(--red)}
-  h1{font-size:clamp(40px,7vw,74px);line-height:1.06;margin:18px 0 14px;font-weight:900;letter-spacing:-.03em;text-wrap:balance}
-  h1 em{font-style:normal;background:linear-gradient(100deg,#ff4d63,#e8102f 55%,#ff8da0);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero p.sub{color:var(--muted);font-size:16px;max-width:44ch;margin:0 0 30px}
-  .hero-stats{display:flex;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;backdrop-filter:blur(6px);background:rgba(255,255,255,.03);max-width:520px}
-  .hs{flex:1;padding:16px 8px;text-align:center;border-right:1px solid var(--line)}
-  .hs:last-child{border-right:none}
-  .hs b{display:block;font-size:clamp(20px,3.4vw,30px);font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .hs b .u{font-size:12px;color:var(--muted);font-weight:600}
-  .hs span{font-size:10.5px;letter-spacing:.18em;color:var(--muted);font-weight:700;text-transform:uppercase}
-  .hs.hot b{color:var(--red-soft);text-shadow:0 0 24px rgba(232,16,47,.5)}
-
-  /* emblem */
-  .emblem{flex:0 1 320px;margin:0 auto;position:relative;filter:drop-shadow(0 0 44px rgba(232,16,47,.35))}
-  .emblem svg{width:100%;height:auto;display:block}
+  /* ---------- hero: 수원 kt wiz park ---------- */
+  .hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden}
+  .hero-bg{position:absolute;inset:-12% 0;background:url("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/20150531_KT_Wiz_vs_Doosan_Bears_%281%29.jpg/1920px-20150531_KT_Wiz_vs_Doosan_Bears_%281%29.jpg") center 30%/cover no-repeat;will-change:transform;filter:saturate(.92)}
+  .hero::after{content:"";position:absolute;inset:0;background:
+    linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.18) 34%,rgba(0,0,0,.62) 72%,#000 100%)}
+  .hero .wrap{position:relative;z-index:2;padding-bottom:9vh;width:100%}
+  .hero .brand{font-size:14px;font-weight:700;letter-spacing:.32em;color:rgba(255,255,255,.85);text-transform:uppercase}
+  .hero .brand b{color:var(--red-soft)}
+  h1{font-size:clamp(44px,8.4vw,104px);line-height:1.02;margin:14px 0 12px;font-weight:800;letter-spacing:-.035em;text-wrap:balance}
+  .hero .sub{font-size:clamp(16px,2.2vw,21px);color:rgba(255,255,255,.72);margin:0;max-width:40ch;font-weight:500}
+  .hero .place{margin-top:26px;font-size:12.5px;color:rgba(255,255,255,.5);letter-spacing:.14em;font-weight:600}
   @media (prefers-reduced-motion:no-preference){
-    .emblem{animation:float 6s ease-in-out infinite}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-    .hero-copy>*{opacity:0;transform:translateY(22px);animation:up .8s cubic-bezier(.2,.7,.2,1) forwards}
-    .hero-copy>*:nth-child(2){animation-delay:.1s}
-    .hero-copy>*:nth-child(3){animation-delay:.2s}
-    .hero-copy>*:nth-child(4){animation-delay:.32s}
+    .hero .wrap>*{opacity:0;transform:translateY(28px);animation:up 1.1s var(--ease) forwards}
+    .hero .wrap>*:nth-child(2){animation-delay:.08s}
+    .hero .wrap>*:nth-child(3){animation-delay:.16s}
+    .hero .wrap>*:nth-child(4){animation-delay:.26s}
     @keyframes up{to{opacity:1;transform:none}}
   }
 
-  .scrollcue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);color:var(--muted);font-size:11px;letter-spacing:.3em;z-index:2}
+  /* ---------- KT today: 타이포그래피 배너 ---------- */
+  .ktbanner{position:relative;padding:15vh 0 13vh;overflow:hidden;background:#000}
+  .ktbanner .ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+    font-size:clamp(120px,24vw,320px);font-weight:900;letter-spacing:-.04em;line-height:1;white-space:nowrap;
+    color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.10);user-select:none;pointer-events:none;will-change:transform}
+  .ktbanner .wrap{position:relative;text-align:center}
+  .ktbanner .today{font-size:13px;letter-spacing:.3em;color:var(--red-soft);font-weight:700;text-transform:uppercase}
+  .ktbanner .match{font-size:clamp(40px,7.4vw,88px);font-weight:800;letter-spacing:-.03em;margin:16px 0 6px;line-height:1.05}
+  .ktbanner .match .at{color:var(--muted);font-weight:600;font-size:.5em;vertical-align:.22em;padding:0 .35em}
+  .ktbanner .match .live-score{color:var(--red-soft);font-variant-numeric:tabular-nums}
+  .ktbanner .detail{font-size:15px;color:var(--muted);font-weight:500}
+  .ktbanner .detail b{color:var(--ink);font-weight:700}
 
   /* ---------- sections ---------- */
-  section{padding:74px 0 10px}
-  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:26px}
-  .sec-head .num{font-size:12px;color:var(--red-soft);font-weight:800;letter-spacing:.2em}
-  h2{font-size:clamp(22px,3.4vw,30px);margin:0;font-weight:900;letter-spacing:-.02em}
-  .sec-head .tag{font-size:12px;color:var(--muted);margin-left:auto;letter-spacing:.06em}
+  section{padding:110px 0 0}
+  .sec-head{margin-bottom:34px}
+  .sec-head .kicker{font-size:13px;letter-spacing:.22em;color:var(--red-soft);font-weight:700;text-transform:uppercase}
+  h2{font-size:clamp(30px,4.6vw,46px);margin:8px 0 0;font-weight:800;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+  .sec-head .sub{font-size:15px;color:var(--muted);margin:10px 0 0;font-weight:500}
 
-  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
   .reveal.on{opacity:1;transform:none}
+  .reveal.d1{transition-delay:.07s}.reveal.d2{transition-delay:.14s}.reveal.d3{transition-delay:.21s}
   @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
-  /* standings */
-  .tablebox{border:1px solid var(--line);border-radius:16px;overflow-x:auto;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
-  table{border-collapse:collapse;width:100%;min-width:680px;font-size:14.5px}
-  th{font-size:10.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;text-align:right;padding:15px 16px;border-bottom:1px solid var(--line);font-weight:700}
-  th:nth-child(2){text-align:left}
-  td{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right;font-variant-numeric:tabular-nums;color:#d9d2d6}
-  td:nth-child(2){text-align:left;font-weight:700;color:var(--ink)}
-  tbody tr{transition:background .2s}
-  tbody tr:hover{background:rgba(255,255,255,.035)}
-  tr:last-child td{border-bottom:none}
-  tr.kt{background:linear-gradient(90deg,rgba(232,16,47,.16),rgba(232,16,47,.03));box-shadow:inset 3px 0 0 var(--red)}
-  tr.kt td:nth-child(2){color:var(--red-soft)}
-  .rank{display:inline-block;min-width:24px;text-align:center;font-weight:800;color:var(--muted)}
-  tr.kt .rank{color:#fff;background:var(--red);border-radius:7px;box-shadow:0 0 16px rgba(232,16,47,.6)}
-  .po{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:1.5px;letter-spacing:.08em}
-  .po.in{background:rgba(217,169,76,.14);color:var(--gold);border:1px solid rgba(217,169,76,.35)}
-  .gbbar{display:inline-block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red),#5a1220);vertical-align:2px;margin-right:8px;opacity:.75}
-
-  /* spotlight */
-  .spot{position:relative;border:1px solid var(--line);border-radius:20px;padding:38px 36px;overflow:hidden;
-    background:
-      radial-gradient(560px 300px at 88% 0%, rgba(232,16,47,.24), transparent 65%),
-      linear-gradient(120deg,#17121a,#100c12)}
-  .spot::after{content:"1";position:absolute;right:12px;bottom:-64px;font-size:260px;font-weight:900;color:rgba(255,255,255,.04);line-height:1;pointer-events:none}
-  .spot .pos{font-size:11px;letter-spacing:.26em;color:var(--red-soft);font-weight:800;text-transform:uppercase}
-  .spot .name{font-size:clamp(34px,5vw,52px);font-weight:900;margin:6px 0 8px;letter-spacing:-.02em}
-  .spot p{margin:0 0 26px;font-size:14.5px;color:var(--muted);max-width:52ch}
-  .spot .nums{display:flex;gap:14px;flex-wrap:wrap}
-  .spot .n{border:1px solid var(--line);border-radius:12px;padding:14px 22px;text-align:center;background:rgba(255,255,255,.03);transition:transform .25s,border-color .25s}
-  .spot .n:hover{transform:translateY(-4px);border-color:rgba(232,16,47,.5)}
-  .spot .n b{display:block;font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-  .spot .n span{font-size:10.5px;color:var(--muted);letter-spacing:.18em;font-weight:700}
-
-  /* news */
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-  .card{position:relative;border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));transition:transform .3s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
-  .card:hover{transform:translateY(-6px);border-color:rgba(232,16,47,.45);box-shadow:0 18px 44px rgba(0,0,0,.45),0 0 0 1px rgba(232,16,47,.15)}
-  .card .date{font-size:11px;color:var(--muted);letter-spacing:.14em;font-weight:700}
-  .card h3{margin:0;font-size:17px;line-height:1.45;text-wrap:balance;font-weight:800}
-  .card p{margin:0;font-size:13.5px;color:#b6acb2}
-  .chip{align-self:flex-start;font-size:10.5px;font-weight:800;color:var(--red-soft);background:rgba(232,16,47,.12);border:1px solid rgba(232,16,47,.3);padding:3px 11px;border-radius:99px;letter-spacing:.1em}
-
-  /* links */
-  .links{display:flex;flex-wrap:wrap;gap:12px;padding-bottom:8px}
-  .links a{position:relative;display:inline-block;border:1px solid var(--line);border-radius:99px;padding:11px 22px;font-size:13.5px;font-weight:700;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.03);transition:border-color .2s,box-shadow .2s,transform .2s}
-  .links a:hover,.links a:focus-visible{border-color:var(--red);box-shadow:0 0 22px rgba(232,16,47,.35);transform:translateY(-2px);outline:none}
-  .links a.primary{background:linear-gradient(100deg,var(--red),#a30c22);border-color:transparent}
-
-  footer{margin:80px 0 0;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding:22px 0 56px}
-
-  /* ---------- live scoreboard ---------- */
-  .live-head{display:flex;align-items:center;gap:10px;margin-left:auto}
-  .dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 10px rgba(61,220,132,.8)}
-  @media (prefers-reduced-motion:no-preference){.dot.pulse{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.35}}}
-  .board{border:1px solid var(--line);border-radius:16px;overflow-x:auto;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
-  .game{display:grid;grid-template-columns:96px 1fr auto 1fr 92px;align-items:center;gap:8px;min-width:660px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);transition:background .2s}
+  /* ---------- live board ---------- */
+  .live-head{display:flex;align-items:center;gap:9px;margin-top:14px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+  @media (prefers-reduced-motion:no-preference){.dot.pulse{animation:pulse 1.8s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}}
+  .live-head .tag{font-size:13px;color:var(--muted);font-weight:500}
+  .board{background:var(--panel);border-radius:22px;overflow-x:auto}
+  .game{display:grid;grid-template-columns:96px 1fr auto 1fr 92px;align-items:center;gap:8px;min-width:660px;padding:19px 26px;border-bottom:1px solid var(--line)}
   .game:last-child{border-bottom:none}
-  .game:hover{background:rgba(255,255,255,.03)}
-  .game.kt-game{background:linear-gradient(90deg,rgba(232,16,47,.14),rgba(232,16,47,.02));box-shadow:inset 3px 0 0 var(--red)}
-  .game .stadium{display:flex;flex-direction:column;gap:2px;font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:800}
+  .game.kt-game{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 70%)}
+  .game .stadium{display:flex;flex-direction:column;gap:2px;font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700}
   .game.kt-game .stadium{color:var(--red-soft)}
-  .game .wx{font-size:11px;letter-spacing:0;color:#cfc7cc;font-weight:600;white-space:nowrap}
+  .game .wx{font-size:11.5px;letter-spacing:0;color:#c8c8cc;font-weight:500;white-space:nowrap}
   .game .wx .pp{color:#6fb7ff}
-  .game .wx .pp.rainy{color:#ff8da0;font-weight:800}
+  .game .wx .pp.rainy{color:var(--red-soft);font-weight:700}
   .game .side{display:flex;flex-direction:column;gap:1px;min-width:0}
   .game .side.away{align-items:flex-end;text-align:right}
-  .game .side .team{font-size:15.5px;font-weight:800;white-space:nowrap}
-  .game .side .team .rec{font-size:11px;color:var(--muted);font-weight:600;margin:0 5px}
-  .game .side .sp{font-size:11.5px;color:var(--muted);white-space:nowrap}
-  .game .side .sp b{color:#cfc7cc;font-weight:700}
-  .game .mid{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 14px}
-  .game .mid .sc{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap}
+  .game .side .team{font-size:16px;font-weight:700;white-space:nowrap;letter-spacing:-.01em}
+  .game .side .team .rec{font-size:11.5px;color:var(--muted);font-weight:500;margin:0 6px}
+  .game .side .sp{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:500}
+  .game .side .sp b{color:#c8c8cc;font-weight:600}
+  .game .mid{display:flex;flex-direction:column;align-items:center;padding:0 16px}
+  .game .mid .sc{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.01em}
   .game .mid .sc .w{color:var(--red-soft)}
-  .game .mid .sc .d{color:var(--muted);font-size:16px;padding:0 6px}
-  .game .status{justify-self:end;font-size:10.5px;font-weight:800;padding:4px 11px;border-radius:99px;letter-spacing:.06em;background:rgba(255,255,255,.07);color:var(--muted);white-space:nowrap}
-  .game .status.live{background:rgba(61,220,132,.12);color:#3ddc84;border:1px solid rgba(61,220,132,.35)}
-  .game .status.end{background:rgba(217,169,76,.12);color:var(--gold)}
-  .board-note{font-size:11.5px;color:var(--muted);margin-top:12px}
+  .game .mid .sc .d{color:var(--muted);font-size:15px;padding:0 7px;font-weight:600}
+  .game .status{justify-self:end;font-size:11px;font-weight:700;padding:5px 12px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--muted);white-space:nowrap}
+  .game .status.live{background:rgba(48,209,88,.14);color:var(--ok)}
+  .game .status.end{background:rgba(217,169,76,.14);color:var(--gold)}
+  .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
 
   /* ---------- last game ---------- */
-  .lastgame{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
-  .lg-hero{display:flex;flex-wrap:wrap;align-items:center;gap:20px;padding:26px 28px;border-bottom:1px solid var(--line);background:radial-gradient(500px 200px at 12% 0%,rgba(232,16,47,.16),transparent 65%)}
-  .lg-hero .matchup{display:flex;align-items:center;gap:18px}
+  .lastgame{background:var(--panel);border-radius:22px;overflow:hidden}
+  .lg-hero{display:flex;flex-wrap:wrap;align-items:center;gap:22px;padding:32px 34px;border-bottom:1px solid var(--line)}
+  .lg-hero .matchup{display:flex;align-items:center;gap:22px}
   .lg-hero .t{text-align:center}
-  .lg-hero .t .nm{font-size:15px;font-weight:800}
-  .lg-hero .t .sc{font-size:44px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
-  .lg-hero .t.w .sc{color:var(--red-soft);text-shadow:0 0 24px rgba(232,16,47,.4)}
-  .lg-hero .vs{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.2em}
-  .lg-hero .meta{margin-left:auto;text-align:right;font-size:12.5px;color:var(--muted);line-height:1.8}
-  .lg-hero .meta b{color:var(--ink)}
-  .wbadge{display:inline-block;font-size:10.5px;font-weight:900;background:var(--red);color:#fff;padding:2px 10px;border-radius:99px;letter-spacing:.1em;margin-bottom:6px}
-  .lg-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0}
-  .lg-col{padding:22px 28px}
+  .lg-hero .t .nm{font-size:15px;font-weight:600;color:var(--muted)}
+  .lg-hero .t .sc{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.05;letter-spacing:-.02em}
+  .lg-hero .t.w .nm{color:var(--ink)}
+  .lg-hero .t.w .sc{color:var(--red-soft)}
+  .lg-hero .vs{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.22em}
+  .lg-hero .meta{margin-left:auto;text-align:right;font-size:13.5px;color:var(--muted);line-height:1.8;font-weight:500}
+  .lg-hero .meta b{color:var(--ink);font-weight:700}
+  .wbadge{display:inline-block;font-size:10.5px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:99px;letter-spacing:.1em;margin-bottom:8px}
+  .lg-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .lg-col{padding:26px 34px}
   .lg-col + .lg-col{border-left:1px solid var(--line)}
   @media (max-width:660px){.lg-col + .lg-col{border-left:none;border-top:1px solid var(--line)}}
-  .lg-col h4{margin:0 0 14px;font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
-  .key-plays{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-  .key-plays li{display:flex;gap:12px;font-size:13.5px;color:#cfc7cc}
-  .key-plays .inn{flex:0 0 38px;font-size:11px;font-weight:800;color:var(--red-soft);letter-spacing:.06em;padding-top:2px}
-  .key-plays b{color:var(--ink)}
-  .pit{display:flex;flex-direction:column;gap:9px;font-size:13.5px}
-  .pit .p{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:rgba(255,255,255,.025)}
-  .pit .p b{font-weight:800}
-  .pit .p span{color:var(--muted);font-size:12.5px}
+  .lg-col h4{margin:0 0 16px;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .key-plays{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+  .key-plays li{display:flex;gap:14px;font-size:14px;color:#c8c8cc}
+  .key-plays .inn{flex:0 0 38px;font-size:11.5px;font-weight:700;color:var(--red-soft);padding-top:2px}
+  .key-plays b{color:var(--ink);font-weight:700}
+  .pit{display:flex;flex-direction:column;gap:10px;font-size:14px}
+  .pit .p{display:flex;justify-content:space-between;gap:10px;background:var(--card);border-radius:14px;padding:12px 16px}
+  .pit .p b{font-weight:700}
+  .pit .p span{color:var(--muted);font-size:12.5px;font-weight:500}
 
   /* ---------- lineups ---------- */
-  .lineups{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-  .lu{border:1px solid var(--line);border-radius:16px;padding:22px 24px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
-  .lu.today{border-color:rgba(232,16,47,.4)}
-  .lu .lu-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
-  .lu .lu-head h4{margin:0;font-size:16px;font-weight:900}
-  .lu .lock{font-size:10px;font-weight:800;color:#3ddc84;background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.35);padding:2px 8px;border-radius:99px;letter-spacing:.06em;margin-left:4px;vertical-align:2px}
-  .lu .lu-head span{font-size:11px;color:var(--muted);letter-spacing:.1em;font-weight:700}
-  .lu .sp{font-size:12.5px;color:var(--muted);margin:0 0 14px}
-  .lu .sp b{color:var(--red-soft)}
+  .lineups{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+  .lu{background:var(--panel);border-radius:22px;padding:28px 30px}
+  .lu.today{background:linear-gradient(160deg,#1b1114,var(--panel) 55%)}
+  .lu .lu-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+  .lu .lu-head h4{margin:0;font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .lu .lock{font-size:10px;font-weight:800;color:var(--ok);background:rgba(48,209,88,.12);padding:3px 9px;border-radius:99px;letter-spacing:.06em;vertical-align:2px}
+  .lu .lu-head span.when{font-size:12px;color:var(--muted);font-weight:500}
+  .lu .sp{font-size:13px;color:var(--muted);margin:0 0 16px;font-weight:500}
+  .lu .sp b{color:var(--red-soft);font-weight:700}
   .lu ol{list-style:none;margin:0;padding:0;counter-reset:bat}
-  .lu ol li{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
+  .lu ol li{display:flex;align-items:center;gap:13px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}
   .lu ol li:last-child{border-bottom:none}
-  .lu ol li::before{counter-increment:bat;content:counter(bat);flex:0 0 22px;height:22px;display:grid;place-items:center;font-size:11px;font-weight:900;color:var(--muted);border:1px solid var(--line);border-radius:6px}
-  .lu ol li b{font-weight:800}
-  .lu ol li .ps{margin-left:auto;font-size:11px;color:var(--muted);letter-spacing:.1em;font-weight:700}
-  .lu .note{font-size:11.5px;color:var(--muted);margin:14px 0 0}
+  .lu ol li::before{counter-increment:bat;content:counter(bat);flex:0 0 23px;height:23px;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--muted);background:var(--card);border-radius:7px}
+  .lu ol li b{font-weight:700}
+  .lu ol li .ps{margin-left:auto;font-size:11px;color:var(--muted);letter-spacing:.1em;font-weight:600}
+  .lu .note{font-size:12px;color:var(--muted);margin:16px 0 0;font-weight:500}
   .lu .note a{color:var(--red-soft);text-decoration:none;font-weight:700}
+
+  /* ---------- standings ---------- */
+  .tablebox{background:var(--panel);border-radius:22px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:680px;font-size:14.5px}
+  th{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;text-align:right;padding:16px 18px;border-bottom:1px solid var(--line);font-weight:700}
+  th:nth-child(2){text-align:left}
+  td{padding:13px 18px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;color:#c8c8cc}
+  td:nth-child(2){text-align:left;font-weight:700;color:var(--ink)}
+  tr:last-child td{border-bottom:none}
+  tr.kt{background:linear-gradient(90deg,rgba(232,16,47,.13),transparent 75%)}
+  tr.kt td:nth-child(2){color:var(--red-soft)}
+  .rank{display:inline-block;min-width:24px;text-align:center;font-weight:800;color:var(--muted)}
+  tr.kt .rank{color:#fff;background:var(--red);border-radius:7px}
+  .po{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:1.5px;letter-spacing:.08em;background:rgba(217,169,76,.14);color:var(--gold)}
+  .gbbar{display:inline-block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red),rgba(232,16,47,.25));vertical-align:2px;margin-right:8px;opacity:.7}
+
+  /* ---------- spotlight ---------- */
+  .spot{position:relative;background:var(--panel);border-radius:22px;padding:44px 40px;overflow:hidden}
+  .spot .ghostnum{position:absolute;right:-8px;bottom:-70px;font-size:280px;font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07);line-height:1;pointer-events:none;user-select:none}
+  .spot .pos{font-size:11.5px;letter-spacing:.26em;color:var(--red-soft);font-weight:700;text-transform:uppercase}
+  .spot .name{font-size:clamp(36px,5.4vw,56px);font-weight:800;margin:8px 0 10px;letter-spacing:-.03em}
+  .spot p{margin:0 0 30px;font-size:15px;color:var(--muted);max-width:54ch;font-weight:500}
+  .spot .nums{display:flex;gap:12px;flex-wrap:wrap}
+  .spot .n{background:var(--card);border-radius:16px;padding:16px 24px;text-align:center}
+  .spot .n b{display:block;font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .spot .n span{font-size:10.5px;color:var(--muted);letter-spacing:.16em;font-weight:700}
+
+  /* ---------- news ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .card{background:var(--panel);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:10px;transition:transform .5s var(--ease)}
+  .card:hover{transform:translateY(-5px)}
+  .card .date{font-size:11.5px;color:var(--muted);letter-spacing:.12em;font-weight:600}
+  .card h3{margin:0;font-size:18px;line-height:1.42;text-wrap:balance;font-weight:800;letter-spacing:-.01em}
+  .card p{margin:0;font-size:14px;color:var(--muted);font-weight:500}
+  .chip{align-self:flex-start;font-size:10.5px;font-weight:800;color:var(--red-soft);background:rgba(232,16,47,.12);padding:4px 12px;border-radius:99px;letter-spacing:.1em}
+
+  /* ---------- links ---------- */
+  .links{display:flex;flex-wrap:wrap;gap:12px}
+  .links a{display:inline-block;background:var(--panel);border-radius:99px;padding:13px 24px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;transition:transform .4s var(--ease),background .3s}
+  .links a:hover,.links a:focus-visible{transform:translateY(-3px);background:#1d1d20;outline:none}
+  .links a.primary{background:var(--red);color:#fff}
+  .links a.primary:hover{background:#c40e28}
+
+  footer{margin:120px 0 0;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding:26px 0 64px;font-weight:500;line-height:1.9}
+  footer a{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -201,70 +197,44 @@
 
 <!-- ================= HERO ================= -->
 <div class="hero">
-  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="hero-bg" id="heroBg" role="img" aria-label="수원 케이티 위즈 파크 전경"></div>
   <div class="wrap">
-    <div class="hero-copy">
-      <span class="eyebrow">2026 신한 SOL KBO 리그 · 7. 6 기준</span>
-      <h1>마법은<br><em>아직 끝나지<br>않았다</em></h1>
-      <p class="sub">수원의 마법사들, 선두 LG를 5게임차로 추격 중. kt wiz 팬을 위한 KBO 리그 상황판.</p>
-      <div class="hero-stats">
-        <div class="hs hot"><b data-count="3">0</b><span>순위</span></div>
-        <div class="hs"><b data-count="45">0</b><span>승</span></div>
-        <div class="hs"><b data-count="35">0</b><span>패</span></div>
-        <div class="hs"><b>.563</b><span>승률</span></div>
-        <div class="hs"><b>5.0<span class="u"> GB</span></b><span>1위와</span></div>
-      </div>
-    </div>
-
-    <!-- kt wiz 스타일 엠블럼 (자체 제작 SVG) -->
-    <div class="emblem" role="img" aria-label="kt wiz 엠블럼">
-      <svg viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#ff3b55"/><stop offset="1" stop-color="#b30c24"/>
-          </linearGradient>
-          <linearGradient id="sh" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#231c26"/><stop offset="1" stop-color="#120e14"/>
-          </linearGradient>
-        </defs>
-        <!-- shield -->
-        <path d="M150 8 L282 52 V180 C282 258 224 310 150 332 C76 310 18 258 18 180 V52 Z" fill="url(#sh)" stroke="url(#rg)" stroke-width="5"/>
-        <path d="M150 30 L262 67 V178 C262 244 214 290 150 310 C86 290 38 244 38 178 V67 Z" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="2"/>
-        <!-- wizard hat -->
-        <path d="M150 52 L192 138 H108 Z" fill="url(#rg)"/>
-        <path d="M96 138 H204 L212 152 H88 Z" fill="#f3eef1"/>
-        <circle cx="150" cy="50" r="7" fill="#f3eef1"/>
-        <!-- stars -->
-        <path d="M150 90 l4.5 9.5 10.5 1.5 -7.5 7.3 1.8 10.4 -9.3 -4.9 -9.3 4.9 1.8 -10.4 -7.5 -7.3 10.5 -1.5 Z" fill="#f3eef1"/>
-        <path d="M228 96 l3 6.4 7 1 -5 4.9 1.2 7 -6.2 -3.3 -6.2 3.3 1.2 -7 -5 -4.9 7 -1 Z" fill="url(#rg)"/>
-        <path d="M72 96 l3 6.4 7 1 -5 4.9 1.2 7 -6.2 -3.3 -6.2 3.3 1.2 -7 -5 -4.9 7 -1 Z" fill="url(#rg)"/>
-        <!-- wordmark -->
-        <text x="150" y="215" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900" fill="#f3eef1" letter-spacing="-2">ktwiz</text>
-        <text x="150" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="url(#rg)" letter-spacing="6">SUWON · 2015</text>
-        <!-- baseball seams -->
-        <circle cx="150" cy="282" r="16" fill="#f3eef1"/>
-        <path d="M139 271 q6 11 0 22 M161 271 q-6 11 0 22" stroke="#e8102f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      </svg>
-    </div>
+    <p class="brand"><b>kt wiz</b> · KBO 리그 2026</p>
+    <h1>마법은 아직<br>끝나지 않았다</h1>
+    <p class="sub">수원의 마법사들, 선두를 5게임차로 추격 중. kt wiz 팬을 위한 KBO 상황판.</p>
+    <p class="place">SUWON KT WIZ PARK</p>
   </div>
-  <div class="scrollcue">SCROLL ▾</div>
+</div>
+
+<!-- ================= KT TODAY : VICTORY 타이포 ================= -->
+<div class="ktbanner">
+  <div class="ghost" id="ghostType" aria-hidden="true">VICTORY</div>
+  <div class="wrap">
+    <p class="today">Today · kt wiz game</p>
+    <div class="match" id="ktMatch">키움 <span class="at">vs</span> KT</div>
+    <p class="detail" id="ktDetail">오늘 18:30 · 수원 kt wiz 파크 · 선발 <b>소형준</b> vs 안우진</p>
+  </div>
 </div>
 
 <div class="wrap">
   <!-- ================= 구장별 현황판 ================= -->
   <section>
     <div class="sec-head reveal">
-      <span class="num">01</span><h2>오늘의 현황판</h2>
+      <p class="kicker">Scoreboard</p>
+      <h2>오늘의 현황판</h2>
       <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
     </div>
-    <div class="board reveal" id="board"></div>
-    <p class="board-note">구장별 스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다. 연결이 안 되면 마지막 저장 데이터가 표시됩니다.</p>
+    <div class="board reveal d1" id="board"></div>
+    <p class="board-note reveal d2">스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다.</p>
   </section>
 
   <!-- ================= 지난 경기 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">02</span><h2>지난 경기</h2><span class="tag">7. 5 (일) · 수원 kt위즈파크</span></div>
-    <div class="lastgame reveal">
+    <div class="sec-head reveal">
+      <p class="kicker">Last game · 7. 5 (일) 수원</p>
+      <h2>지난 경기</h2>
+    </div>
+    <div class="lastgame reveal d1">
       <div class="lg-hero">
         <div class="matchup">
           <div class="t"><div class="nm">롯데</div><div class="sc">2</div></div>
@@ -273,7 +243,7 @@
         </div>
         <div class="meta">
           <b>3연패 탈출</b> · 김현수 8회 결승 투런포<br>
-          선발 사우어 vs 박세웅 · 관중과 함께한 일요일 홈경기
+          선발 사우어 vs 박세웅
         </div>
       </div>
       <div class="lg-body">
@@ -281,9 +251,9 @@
           <h4>주요 장면</h4>
           <ul class="key-plays">
             <li><span class="inn">3회</span><span><b>권동진</b> 적시 2루타 — kt 선취점</span></li>
-            <li><span class="inn">4회</span><span>황성빈 희생플라이로 동점 허용 직후, <b>힐리어드</b> 솔로 홈런으로 재역전</span></li>
+            <li><span class="inn">4회</span><span>동점 허용 직후 <b>힐리어드</b> 솔로 홈런으로 재역전</span></li>
             <li><span class="inn">6회</span><span>김세민 적시 2루타 — 다시 2-2 동점</span></li>
-            <li><span class="inn">8회</span><span><b>최원준</b> 출루 후 <b>김현수</b> 우월 결승 투런포 💥</span></li>
+            <li><span class="inn">8회</span><span><b>최원준</b> 출루 후 <b>김현수</b> 우월 결승 투런포</span></li>
           </ul>
         </div>
         <div class="lg-col">
@@ -297,12 +267,15 @@
     </div>
   </section>
 
-  <!-- ================= 오늘의 라인업 ================= -->
+  <!-- ================= 라인업 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">03</span><h2>라인업</h2><span class="tag">오늘 vs 키움 (수원 18:30)</span></div>
+    <div class="sec-head reveal">
+      <p class="kicker">Lineup · vs 키움 18:30</p>
+      <h2>라인업</h2>
+    </div>
     <div class="lineups">
-      <div class="lu today reveal">
-        <div class="lu-head"><h4>오늘 확정 라인업 <span class="lock">발표 완료</span></h4><span>vs 키움 · 7/7 18:30 수원</span></div>
+      <div class="lu today reveal d1">
+        <div class="lu-head"><h4>오늘 확정 라인업</h4><span class="lock">발표 완료</span><span class="when">7/7 · 수원</span></div>
         <p class="sp">선발 <b>소형준</b> (10경기 3승 · ERA 3.67) vs 키움 <b>안우진</b> (12경기 2승 4패 · ERA 3.60)</p>
         <ol>
           <li><b>최원준</b><span class="ps">DH</span></li>
@@ -315,10 +288,10 @@
           <li><b>조대현</b><span class="ps">C</span></li>
           <li><b>권동진</b><span class="ps">SS</span></li>
         </ol>
-        <p class="note">7/7 KT 공식 발표 라인업(선발 소형준). 김현수가 4번, 배정대·조대현이 새로 선발 출전합니다. 원문: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+        <p class="note">7/7 KT 공식 발표 라인업. 김현수 4번, 배정대·조대현 선발 출전. <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
       </div>
-      <div class="lu reveal">
-        <div class="lu-head"><h4>지난 경기 라인업</h4><span>7. 5 vs 롯데 · 4-2 승</span></div>
+      <div class="lu reveal d2">
+        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when">7. 5 vs 롯데 · 4-2 승</span></div>
         <p class="sp">선발 <b>사우어</b> — 6이닝 2실점</p>
         <ol>
           <li><b>최원준</b><span class="ps">DH</span></li>
@@ -338,16 +311,20 @@
 
   <!-- ================= 순위 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">04</span><h2>팀 순위</h2><span class="tag">2026. 7. 6 · 상위 5팀 포스트시즌</span></div>
-    <div class="tablebox reveal">
+    <div class="sec-head reveal">
+      <p class="kicker">Standings · 2026. 7. 6</p>
+      <h2>팀 순위</h2>
+      <p class="sub">상위 5팀 포스트시즌 진출</p>
+    </div>
+    <div class="tablebox reveal d1">
       <table>
         <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
         <tbody>
-          <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po in">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
-          <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po in">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
-          <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po in">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
-          <tr><td><span class="rank">4</span></td><td>KIA 타이거즈<span class="po in">PS</span></td><td>83</td><td>44</td><td>37</td><td>2</td><td>.543</td><td><span class="gbbar" style="width:39px"></span>6.5</td></tr>
-          <tr><td><span class="rank">5</span></td><td>두산 베어스<span class="po in">PS</span></td><td>84</td><td>42</td><td>40</td><td>2</td><td>.512</td><td><span class="gbbar" style="width:54px"></span>9.0</td></tr>
+          <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
+          <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
+          <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
+          <tr><td><span class="rank">4</span></td><td>KIA 타이거즈<span class="po">PS</span></td><td>83</td><td>44</td><td>37</td><td>2</td><td>.543</td><td><span class="gbbar" style="width:39px"></span>6.5</td></tr>
+          <tr><td><span class="rank">5</span></td><td>두산 베어스<span class="po">PS</span></td><td>84</td><td>42</td><td>40</td><td>2</td><td>.512</td><td><span class="gbbar" style="width:54px"></span>9.0</td></tr>
           <tr><td><span class="rank">6</span></td><td>한화 이글스</td><td>80</td><td>39</td><td>39</td><td>2</td><td>.500</td><td><span class="gbbar" style="width:60px"></span>10.0</td></tr>
           <tr><td><span class="rank">7</span></td><td>NC 다이노스</td><td>80</td><td>38</td><td>41</td><td>1</td><td>.481</td><td><span class="gbbar" style="width:69px"></span>11.5</td></tr>
           <tr><td><span class="rank">8</span></td><td>롯데 자이언츠</td><td>82</td><td>36</td><td>44</td><td>2</td><td>.450</td><td><span class="gbbar" style="width:84px"></span>14.0</td></tr>
@@ -360,8 +337,12 @@
 
   <!-- ================= 스포트라이트 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">05</span><h2>스포트라이트</h2><span class="tag">이 주의 마법사</span></div>
-    <div class="spot reveal">
+    <div class="sec-head reveal">
+      <p class="kicker">Spotlight</p>
+      <h2>이 주의 마법사</h2>
+    </div>
+    <div class="spot reveal d1">
+      <div class="ghostnum" aria-hidden="true">3</div>
       <div class="pos">OF · 리드오프 · FA 4년 최대 48억</div>
       <div class="name">최원준</div>
       <p>허리 통증으로 4경기 결장, 그리고 7월 5일 롯데전 1번 지명타자 복귀. 전날 대타 안타로 몸 상태를 증명했다 — "이 악물고 뛸게요."</p>
@@ -376,23 +357,26 @@
     </div>
   </section>
 
-  <!-- ================= 뉴스 ================= -->
+  <!-- ================= 소식 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">06</span><h2>wiz 최근 소식</h2></div>
+    <div class="sec-head reveal">
+      <p class="kicker">News</p>
+      <h2>wiz 최근 소식</h2>
+    </div>
     <div class="cards">
-      <div class="card reveal">
+      <div class="card reveal d1">
         <span class="date">7월 5일 · 수원 kt위즈파크</span>
         <span class="chip">복귀</span>
         <h3>최원준, 리드오프 복귀 — "이 악물고 뛸게요"</h3>
         <p>허리 통증 결장을 딛고 롯데전 1번 지명타자로 선발 출전. 곧바로 라인업의 심장으로 돌아왔다.</p>
       </div>
-      <div class="card reveal">
+      <div class="card reveal d2">
         <span class="date">7월 5일 · 수원</span>
         <span class="chip">타격</span>
         <h3>더운 여름 날린 홈런 개장</h3>
         <p>롯데와의 홈 시리즈에서 장타쇼로 여름 더위를 날렸다. 수원의 여름 야구가 뜨겁다.</p>
       </div>
-      <div class="card reveal">
+      <div class="card reveal d3">
         <span class="date">시즌 중간 점검</span>
         <span class="chip">순위 경쟁</span>
         <h3>3위 kt, 선두권 5게임차 추격전</h3>
@@ -403,8 +387,11 @@
 
   <!-- ================= 링크 ================= -->
   <section>
-    <div class="sec-head reveal"><span class="num">07</span><h2>실시간 확인</h2><span class="tag">최신 결과·일정은 여기서</span></div>
-    <div class="links reveal">
+    <div class="sec-head reveal">
+      <p class="kicker">Links</p>
+      <h2>실시간 확인</h2>
+    </div>
+    <div class="links reveal d1">
       <a class="primary" href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식 홈페이지</a>
       <a href="https://www.koreabaseball.com/Record/TeamRank/TeamRankDaily.aspx" target="_blank" rel="noopener">KBO 공식 순위표</a>
       <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠 kt wiz</a>
@@ -412,7 +399,10 @@
     </div>
   </section>
 
-  <footer>순위·기록은 2026년 7월 6일 기준 (KBO 공식 기록실·스타뉴스 보도 참고). 정적 페이지라 실시간 갱신되지 않습니다 — 최신 스코어는 위 링크에서 확인하세요.</footer>
+  <footer>
+    순위·기록은 2026년 7월 6일 기준 (KBO 공식 기록실·스타뉴스 보도 참고). 스코어·날씨는 실시간 자동 갱신.<br>
+    배경 사진: <a href="https://commons.wikimedia.org/wiki/File:20150531_KT_Wiz_vs_Doosan_Bears_(1).jpg" target="_blank" rel="noopener">수원 케이티 위즈 파크, Wikimedia Commons</a> (CC BY-SA 4.0)
+  </footer>
 </div>
 
 <script>
@@ -422,7 +412,7 @@
   /* scroll reveal */
   const io = new IntersectionObserver(es => es.forEach(e => {
     if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }
-  }), {threshold:.12});
+  }), {threshold:.1, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   /* count-up */
@@ -431,7 +421,7 @@
     const el = e.target, target = +el.dataset.count;
     cu.unobserve(el);
     if(reduce){ el.textContent = target; return; }
-    const t0 = performance.now(), dur = 1100;
+    const t0 = performance.now(), dur = 1200;
     (function tick(t){
       const p = Math.min((t - t0)/dur, 1), ease = 1 - Math.pow(1-p, 3);
       el.textContent = Math.round(target * ease);
@@ -440,13 +430,38 @@
   }), {threshold:.6});
   document.querySelectorAll('[data-count]').forEach(el => cu.observe(el));
 
-  /* fallback: 3초 내 관찰자가 발화하지 않으면 즉시 표시 (백그라운드 탭 등) */
+  /* fallback: 3초 내 관찰자 미발화 시 즉시 표시 */
   setTimeout(() => {
+    document.querySelectorAll('.hero .wrap > *').forEach(el => {
+      if(getComputedStyle(el).opacity === '0'){ el.style.opacity = '1'; el.style.transform = 'none'; }
+    });
     document.querySelectorAll('.reveal:not(.on)').forEach(el => el.classList.add('on'));
     document.querySelectorAll('[data-count]').forEach(el => {
       if(el.textContent === '0' && +el.dataset.count !== 0) el.textContent = el.dataset.count;
     });
   }, 3000);
+
+  /* parallax: hero 사진 + VICTORY 고스트 타이포 */
+  const heroBg = document.getElementById('heroBg');
+  const ghost = document.getElementById('ghostType');
+  if(!reduce){
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if(ticking) return; ticking = true;
+      requestAnimationFrame(() => {
+        const y = scrollY;
+        if(heroBg && y < innerHeight * 1.4) heroBg.style.transform = 'translateY(' + (y * .28) + 'px)';
+        if(ghost){
+          const r = ghost.parentElement.getBoundingClientRect();
+          if(r.bottom > 0 && r.top < innerHeight){
+            const p = (innerHeight - r.top) / (innerHeight + r.height);
+            ghost.style.transform = 'translate(calc(-50% + ' + ((p - .5) * -120) + 'px), -52%)';
+          }
+        }
+        ticking = false;
+      });
+    }, {passive:true});
+  }
 
   /* ---------- 구장별 라이브 현황판 ---------- */
   const SEED = [
@@ -472,7 +487,7 @@
     '창원':[35.2225,128.5822],'광주':[35.1683,126.8889],'문학':[37.437,126.6933],
     '포항':[36.008,129.359],'울산':[35.532,129.265],'청주':[36.639,127.470]
   };
-  const WX = {}; // stadium -> {t, icon, pp}
+  const WX = {};
   let lastGames = SEED, lastLive = false;
 
   function wmoIcon(c){
@@ -501,8 +516,25 @@
     }catch(e){ /* 날씨 없이 표시 */ }
   }
 
+  /* KT 타이포 배너 갱신 */
+  function updateBanner(games){
+    const g = games.find(x => x.home === 'KT' || x.away === 'KT');
+    if(!g) return;
+    const m = document.getElementById('ktMatch'), d = document.getElementById('ktDetail');
+    const done = g.code === 'RESULT' || g.code === 'ENDED';
+    const playing = g.code === 'STARTED' || g.code === 'LIVE';
+    if(playing || done){
+      m.innerHTML = esc(g.away) + ' <span class="live-score">' + g.as + '</span><span class="at">:</span><span class="live-score">' + g.hs + '</span> ' + esc(g.home);
+      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · 수원 kt wiz 파크';
+    }else{
+      m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
+      d.innerHTML = '오늘 18:30 · 수원 kt wiz 파크 · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '');
+    }
+  }
+
   function render(games, live){
     lastGames = games; lastLive = live;
+    updateBanner(games);
     games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
     board.innerHTML = games.map(g => {
       const isKT = g.home === 'KT' || g.away === 'KT';
@@ -530,8 +562,7 @@
     }).join('');
     const now = new Date();
     stamp.textContent = (live ? '실시간 · ' : '기본 데이터 · ') + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
-    dot.style.background = live ? '#3ddc84' : '#8d858a';
-    dot.style.boxShadow = live ? '0 0 10px rgba(61,220,132,.8)' : 'none';
+    dot.style.background = live ? 'var(--ok)' : '#86868b';
   }
 
   function kstToday(){
@@ -565,38 +596,6 @@
   fetchBoard().then(fetchWeather);
   setInterval(fetchBoard, 60000);
   setInterval(fetchWeather, 600000);
-
-  /* hero particles */
-  const cv = document.getElementById('stars');
-  if(cv && !reduce){
-    const ctx = cv.getContext('2d');
-    let W, H, ps = [];
-    function size(){
-      W = cv.width = cv.offsetWidth * devicePixelRatio;
-      H = cv.height = cv.offsetHeight * devicePixelRatio;
-    }
-    size(); addEventListener('resize', size);
-    const N = 70;
-    for(let i=0;i<N;i++) ps.push({
-      x: Math.random(), y: Math.random(),
-      r: Math.random()*1.6 + .4,
-      s: Math.random()*.00022 + .00006,
-      tw: Math.random()*Math.PI*2,
-      red: Math.random() < .3
-    });
-    (function draw(t){
-      ctx.clearRect(0,0,W,H);
-      for(const p of ps){
-        p.y -= p.s; if(p.y < -0.02){ p.y = 1.02; p.x = Math.random(); }
-        const a = .25 + .55 * Math.abs(Math.sin(t*.0012 + p.tw));
-        ctx.beginPath();
-        ctx.arc(p.x*W, p.y*H, p.r*devicePixelRatio, 0, 7);
-        ctx.fillStyle = p.red ? `rgba(255,77,99,${a})` : `rgba(243,238,241,${a*.8})`;
-        ctx.fill();
-      }
-      requestAnimationFrame(draw);
-    })(0);
-  }
 })();
 </script>
 
