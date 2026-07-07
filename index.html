@@ -122,6 +122,23 @@
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
   .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
 
+  /* ---------- 박스스코어 ---------- */
+  #boxSec{display:none}
+  .boxgrid{display:grid;gap:18px}
+  .boxpanel{background:var(--panel);border-radius:22px;padding:24px 26px;overflow-x:auto}
+  .boxpanel h4{margin:0 0 14px;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .boxpanel table{min-width:0;width:100%;font-size:13.5px}
+  .boxpanel th,.boxpanel td{padding:8px 10px}
+  .boxpanel td:first-child,.boxpanel th:first-child{text-align:left}
+  .line td.win{color:var(--red-soft);font-weight:800}
+  .bx b{font-weight:700}
+  .bx .hot td{color:var(--red-soft)}
+  .keyrec{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  .keyrec li{display:flex;gap:12px;font-size:13.5px;color:#c8c8cc}
+  .keyrec .k{flex:0 0 62px;font-size:11px;font-weight:800;color:var(--red-soft);padding-top:2px;letter-spacing:.04em}
+  .boxcols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media (max-width:760px){.boxcols{grid-template-columns:1fr}}
+
   /* ---------- KT 캘린더 · 폼 ---------- */
   .cal{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
   @media (max-width:760px){.cal{grid-template-columns:1fr}}
@@ -276,6 +293,27 @@
     </div>
     <div class="board reveal d1" id="board"></div>
     <p class="board-note reveal d2">스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다.</p>
+  </section>
+
+  <!-- ================= 오늘 경기 기록 (박스스코어) ================= -->
+  <section id="boxSec">
+    <div class="sec-head reveal on">
+      <p class="kicker">Box score</p>
+      <h2 id="boxTitle">오늘 경기 기록</h2>
+      <p class="sub" id="boxSub"></p>
+    </div>
+    <div class="boxgrid">
+      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
+      <div class="boxpanel"><h4>kt 타자 기록</h4>
+        <table class="bx"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
+      </div>
+      <div class="boxcols">
+        <div class="boxpanel"><h4>kt 투수 기록</h4>
+          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
+        </div>
+        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
+      </div>
+    </div>
   </section>
 
   <!-- ================= KT 캘린더 · 폼 ================= -->
@@ -697,6 +735,39 @@
       '<li><b>' + esc(b.name) + '</b><span class="ps">' + (POS[b.pos] || esc(b.pos)) + '</span></li>').join('');
   }
 
+  function renderBox(kt, games){
+    const box = kt && kt.box;
+    const sec = document.getElementById('boxSec');
+    if(!box || !box.batters || !box.batters.length){ sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    const g = (games || []).find(x => x.id === kt.gameId);
+    const done = g && (g.code === 'RESULT' || g.code === 'ENDED');
+    document.getElementById('boxTitle').textContent = done ? '오늘 경기 최종 기록' : '오늘 경기 기록 (진행 중)';
+    if(g) document.getElementById('boxSub').textContent = g.away + ' ' + g.as + ' : ' + g.hs + ' ' + g.home + ' · ' + g.stadium + (done ? ' · 경기 종료' : ' · ' + g.status);
+    /* 라인스코어 */
+    if(box.inn && box.rheb && g){
+      const innN = Math.max(box.inn.away.length, box.inn.home.length, 9);
+      const head = '<tr><th></th>' + Array.from({length:innN}, (_,i) => '<th>' + (i+1) + '</th>').join('') + '<th>R</th><th>H</th><th>E</th></tr>';
+      const row = (nm, arr, rh, win) => '<tr>' + '<td' + (win ? ' class="win"' : '') + '><b>' + esc(nm) + '</b></td>' +
+        Array.from({length:innN}, (_,i) => '<td>' + (arr[i] == null ? '-' : arr[i]) + '</td>').join('') +
+        '<td' + (win ? ' class="win"' : '') + '>' + rh.r + '</td><td>' + rh.h + '</td><td>' + rh.e + '</td></tr>';
+      const awayWin = done && g.as > g.hs, homeWin = done && g.hs > g.as;
+      document.getElementById('lineScore').innerHTML = head + row(g.away, box.inn.away, box.rheb.away, awayWin) + row(g.home, box.inn.home, box.rheb.home, homeWin);
+    }
+    /* 타자 */
+    document.getElementById('batBox').innerHTML = box.batters.map(b =>
+      '<tr' + (b.h >= 2 || b.hr > 0 ? ' class="hot"' : '') + '><td>' + b.o + '</td><td><b>' + esc(b.name) + '</b> <span style="color:var(--muted);font-size:11px">' + esc(b.pos) + '</span></td>' +
+      '<td>' + b.ab + '</td><td>' + b.h + '</td><td>' + b.rbi + '</td><td>' + b.r + '</td><td>' + b.hr + '</td><td>' + b.bb + '</td><td>' + b.kk + '</td><td>' + esc(b.avg) + '</td></tr>'
+    ).join('') + (box.batTotal ? '<tr><td></td><td><b>팀 합계</b></td><td>' + box.batTotal.ab + '</td><td>' + box.batTotal.hit + '</td><td>' + box.batTotal.rbi + '</td><td>' + box.batTotal.run + '</td><td colspan="4"></td></tr>' : '');
+    /* 투수 */
+    document.getElementById('pitBox').innerHTML = box.pitchers.map(p =>
+      '<tr' + (p.wls === '승' || p.wls === '세' ? ' class="hot"' : '') + '><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.inn) + '</td><td>' + p.h + '</td><td>' + p.r + '</td><td>' + p.er + '</td><td>' + p.kk + '</td><td>' + ({'승':'승리','패':'패전','세':'세이브','홀':'홀드'}[p.wls] || '—') + '</td></tr>'
+    ).join('');
+    /* 주요 기록 */
+    document.getElementById('keyRec').innerHTML = (box.keys || []).map(k =>
+      '<li><span class="k">' + esc(k.how) + '</span><span>' + esc(k.result) + '</span></li>').join('') || '<li>기록 없음</li>';
+  }
+
   async function loadData(){
     const urls = [
       // 1순위: GitHub API (캐시 없음 — 2분 내 최신, 방문자당 시간 60회 제한이라 75초 주기와 함께 사용)
@@ -719,6 +790,7 @@
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
         renderLineup(j.kt, j.games);
+        renderBox(j.kt, j.games);
         return;
       }catch(e){ /* 다음 경로 */ }
     }

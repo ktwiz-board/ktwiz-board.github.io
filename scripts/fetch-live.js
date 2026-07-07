@@ -86,6 +86,32 @@ function mapLineup(lu) {
     } catch (e) { console.error('preview fail', g.id, e.message); }
   }
 
+  // 2.5) KT 경기 박스스코어 (선수 기록 — 경기 중/종료 시)
+  let box = null;
+  if (ktGameId) {
+    try {
+      const rec = await j(`${API}/schedule/games/${ktGameId}/record`);
+      const rd = rec.result && rec.result.recordData;
+      const g = todayGames.find(x => x.id === ktGameId);
+      if (rd && rd.battersBoxscore && g) {
+        const side = g.home === 'KT' ? 'home' : 'away';
+        const opSide = side === 'home' ? 'away' : 'home';
+        const mapBat = b => ({ o: b.batOrder, name: b.name, pos: b.pos, ab: b.ab, h: b.hit, rbi: b.rbi, r: b.run, hr: b.hr, bb: b.bb, kk: b.kk, avg: b.hra });
+        const mapPit = p => ({ name: p.name, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, era: p.era, wls: p.wls || '' });
+        box = {
+          rheb: rd.scoreBoard && rd.scoreBoard.rheb,
+          inn: rd.scoreBoard && rd.scoreBoard.inn,
+          ktSide: side,
+          batters: (rd.battersBoxscore[side] || []).map(mapBat),
+          batTotal: rd.battersBoxscore[side + 'Total'] || null,
+          pitchers: (rd.pitchersBoxscore[side] || []).map(mapPit),
+          oppPitchers: (rd.pitchersBoxscore[opSide] || []).map(mapPit),
+          keys: (rd.etcRecords || []).slice(0, 8).map(e => ({ how: e.how, result: e.result }))
+        };
+      }
+    } catch (e) { console.error('record fail', e.message); }
+  }
+
   // 3) KT 주간 일정 (오늘 ~ +7일)
   const week = (await games(today, ymd(addDays(now, 7))))
     .map(mapGame)
@@ -108,7 +134,7 @@ function mapLineup(lu) {
     date: today,
     games: todayGames,
     standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
-    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent }
+    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box }
   };
 
   const file = path.join(__dirname, '..', 'data', 'live.json');
