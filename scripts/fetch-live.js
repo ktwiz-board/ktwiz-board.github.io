@@ -128,13 +128,48 @@ function mapLineup(lu) {
       return { ...g, opp: ktHome ? g.away : g.home, my, op, r: my > op ? 'W' : (my < op ? 'L' : 'D') };
     });
 
+  // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
+  let youtube = [];
+  try {
+    const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const xml = await r.text();
+    const entries = xml.split('<entry>').slice(1, 9);
+    youtube = entries.map(e => {
+      const id = (e.match(/<yt:videoId>([^<]+)</) || [])[1];
+      const title = (e.match(/<media:title>([^<]+)</) || [])[1] || '';
+      const pub = ((e.match(/<published>([^<]+)</) || [])[1] || '').slice(0, 10);
+      return id ? { id, title, pub } : null;
+    }).filter(Boolean).slice(0, 6);
+  } catch (e) { console.error('youtube fail', e.message); }
+
+  // 6) kt위즈 갤러리 최신 글 (욕설/공지 필터) — 차단 시 빈 배열
+  let gall = [];
+  try {
+    const r = await fetch('https://gall.dcinside.com/board/lists?id=ktwiz', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
+      signal: AbortSignal.timeout(15000)
+    });
+    const html = await r.text();
+    const bad = /(씨발|시발|씨빨|병신|븅신|지랄|좆|졷|개새|새끼|썅|엠창|염병|느금|니미|닥쳐|꺼져|미친놈|미친년|호로|걸레|한남|김치녀)/;
+    const rows = [...html.matchAll(/<tr[^>]*data-no="(\d+)"[\s\S]*?class="gall_tit[^"]*"[^>]*>\s*<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="gall_date"[^>]*(?:title="([^"]*)")?[^>]*>([^<]*)</g)];
+    gall = rows.map(m => ({
+      no: m[1],
+      url: 'https://gall.dcinside.com' + m[2].replace(/&amp;/g, '&'),
+      title: m[3].replace(/<[^>]+>/g, '').trim(),
+      date: (m[5] || '').trim()
+    }))
+    .filter(p => p.title && !bad.test(p.title) && !/공지|설문|이벤트 안내/.test(p.title))
+    .slice(0, 8);
+  } catch (e) { console.error('gall fail', e.message); }
+
   const out = {
     updated: new Date().toISOString(),
     updatedKST: `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`,
     date: today,
     games: todayGames,
     standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
-    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box }
+    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box },
+    youtube, gall
   };
 
   const file = path.join(__dirname, '..', 'data', 'live.json');

@@ -228,6 +228,42 @@
   .po{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:1.5px;letter-spacing:.08em;background:rgba(217,169,76,.14);color:var(--gold)}
   .gbbar{display:inline-block;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red),rgba(232,16,47,.25));vertical-align:2px;margin-right:8px;opacity:.7}
 
+  /* ---------- 매직넘버 트래커 ---------- */
+  .magic{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+  .magic .m{background:var(--panel);border-radius:18px;padding:18px 20px;text-align:center}
+  .magic .m b{display:block;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .magic .m b.red{color:var(--red-soft)}
+  .magic .m span{font-size:10.5px;color:var(--muted);letter-spacing:.14em;font-weight:700;text-transform:uppercase}
+  .magic-note{font-size:12.5px;color:var(--muted);margin:0 0 22px;font-weight:500}
+  .magic-note b{color:var(--red-soft)}
+
+  /* ---------- 승리 축하 ---------- */
+  #confettiL,#confettiR{position:fixed;top:0;bottom:0;width:110px;pointer-events:none;z-index:50}
+  #confettiL{left:0}#confettiR{right:0}
+  .winbadge{display:inline-block;background:var(--red);color:#fff;font-size:12px;font-weight:900;letter-spacing:.2em;padding:5px 16px;border-radius:99px;margin-bottom:14px;animation:winpulse 1.6s ease-in-out infinite}
+  @keyframes winpulse{50%{box-shadow:0 0 24px rgba(232,16,47,.75)}}
+  @media (prefers-reduced-motion:reduce){.winbadge{animation:none}}
+
+  /* ---------- wiz TV ---------- */
+  .yt{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+  .yt a{display:flex;flex-direction:column;background:var(--panel);border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .4s var(--ease)}
+  .yt a:hover{transform:translateY(-5px)}
+  .yt .th{position:relative;aspect-ratio:16/9;background:#000 center/cover no-repeat}
+  .yt .th::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;font-size:30px;color:#fff;background:rgba(0,0,0,.22);opacity:0;transition:opacity .25s}
+  .yt a:hover .th::after{opacity:1}
+  .yt .ti{padding:13px 16px 15px;font-size:13.5px;font-weight:700;line-height:1.45}
+  .yt .ti span{display:block;margin-top:5px;font-size:11px;color:var(--muted);font-weight:500}
+
+  /* ---------- 갤러리 ---------- */
+  .gallbox{background:var(--panel);border-radius:22px;padding:10px 26px}
+  .gallbox ul{list-style:none;margin:0;padding:0}
+  .gallbox li{border-bottom:1px solid var(--line)}
+  .gallbox li:last-child{border-bottom:none}
+  .gallbox a{display:flex;justify-content:space-between;gap:14px;padding:13px 2px;text-decoration:none;color:#c8c8cc;font-size:14px;transition:color .2s}
+  .gallbox a:hover{color:var(--ink)}
+  .gallbox .gd{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .gall-note{font-size:11.5px;color:var(--muted);margin-top:12px;font-weight:500}
+
   /* ---------- spotlight ---------- */
   .spot{position:relative;background:var(--panel);border-radius:22px;padding:44px 40px;overflow:hidden}
   .spot .ghostnum{position:absolute;right:-8px;bottom:-70px;font-size:280px;font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07);line-height:1;pointer-events:none;user-select:none}
@@ -423,6 +459,8 @@
       <h2>팀 순위</h2>
       <p class="sub">상위 5팀 포스트시즌 진출</p>
     </div>
+    <div class="magic reveal" id="magicRow" style="display:none"></div>
+    <p class="magic-note reveal" id="magicNote" style="display:none"></p>
     <div class="tablebox reveal d1">
       <table>
         <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
@@ -490,6 +528,25 @@
         <p>LG·삼성이 1게임차 선두 다툼 중인 가운데 kt가 5게임차 3위. 4위 KIA와 1.5게임차 — 후반기 2위 도전과 방어전이 동시에 걸렸다.</p>
       </div>
     </div>
+  </section>
+
+  <!-- ================= wiz TV ================= -->
+  <section id="ytSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">wiz TV</p>
+      <h2>공식 유튜브 최신 영상</h2>
+    </div>
+    <div class="yt reveal d1" id="ytGrid"></div>
+  </section>
+
+  <!-- ================= 팬 이야기 ================= -->
+  <section id="gallSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Fan talk</p>
+      <h2>위즈 갤러리 이야기</h2>
+    </div>
+    <div class="gallbox reveal d1"><ul id="gallList"><li><a href="https://gall.dcinside.com/board/lists?id=ktwiz" target="_blank" rel="noopener"><span>kt위즈 갤러리 바로가기 →</span></a></li></ul></div>
+    <p class="gall-note reveal d2">제목 기준 자동 필터(욕설·공지 제외)를 거친 최신 글입니다. 외부 커뮤니티 글이며 본 사이트와 무관합니다.</p>
   </section>
 
   <!-- ================= 링크 ================= -->
@@ -768,6 +825,92 @@
       '<li><span class="k">' + esc(k.how) + '</span><span>' + esc(k.result) + '</span></li>').join('') || '<li>기록 없음</li>';
   }
 
+  /* ---------- 매직넘버 트래커 ---------- */
+  function renderMagic(st){
+    if(!st || st.length < 10) return;
+    const SEASON = 144;
+    const kt = st.find(t => t.name === 'KT'); if(!kt) return;
+    const g = t => t.w + t.l + t.d, rem = t => SEASON - g(t);
+    const r6 = st[5], r2 = st[1], r1 = st[0];
+    /* PS(5위 이내) 매직넘버: 6위가 남은 경기 전승해도 못 따라오게 하는 데 필요한 KT 추가 승수 */
+    const psMagic = Math.max(0, (r6.name === 'KT' ? 0 : r6.w + rem(r6)) - kt.w + 1);
+    const gbTo = t => (((t.w - t.l) - (kt.w - kt.l)) / 2).toFixed(1);
+    const row = document.getElementById('magicRow'), note = document.getElementById('magicNote');
+    row.style.display = 'grid'; note.style.display = 'block';
+    const items = [
+      {v: rem(kt), l: '남은 경기', red: false},
+      {v: kt.rank + '위', l: '현재 순위', red: true},
+      {v: psMagic, l: 'PS 매직넘버', red: true},
+      {v: gbTo(r2.name === 'KT' ? r1 : r2), l: (r2.name === 'KT' ? r1.name : r2.name) + '와 게임차', red: false},
+      {v: gbTo(r1), l: r1.name + '(1위)와 게임차', red: false}
+    ];
+    row.innerHTML = items.map(i => '<div class="m"><b class="' + (i.red ? 'red' : '') + '">' + i.v + '</b><span>' + esc(i.l) + '</span></div>').join('');
+    note.innerHTML = 'PS 매직넘버 <b>' + psMagic + '</b> — 6위 ' + esc(r6.name) + '가 남은 ' + rem(r6) + '경기를 전승해도, kt가 <b>' + psMagic + '승</b>만 더 거두면 가을야구가 확정됩니다.';
+  }
+
+  /* ---------- 승리 축하 모드 ---------- */
+  let celebrated = false;
+  function celebrate(games){
+    if(celebrated || reduce) return;
+    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    if(!g) return;
+    const done = g.code === 'RESULT' || g.code === 'ENDED';
+    const ktWin = done && ((g.home === 'KT' && g.hs > g.as) || (g.away === 'KT' && g.as > g.hs));
+    if(!ktWin) return;
+    celebrated = true;
+    const badge = document.createElement('div');
+    badge.className = 'winbadge'; badge.textContent = '🎉 WIZ WIN!';
+    const banner = document.querySelector('.ktbanner .wrap');
+    banner.insertBefore(badge, banner.firstChild);
+    /* 좌우 컨페티 (12초) */
+    const COLORS = ['#e8102f','#ff4d63','#f5f5f7','#d9a94c'];
+    ['confettiL','confettiR'].forEach(id => {
+      const cv = document.createElement('canvas'); cv.id = id; document.body.appendChild(cv);
+      const ctx = cv.getContext('2d');
+      cv.width = 110 * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+      const ps = Array.from({length: 42}, () => ({
+        x: Math.random(), y: Math.random() * -1, r: 4 + Math.random() * 6,
+        s: .002 + Math.random() * .004, sway: Math.random() * Math.PI * 2,
+        c: COLORS[Math.floor(Math.random() * COLORS.length)], rot: Math.random() * Math.PI
+      }));
+      const t0 = performance.now();
+      (function draw(t){
+        const life = (t - t0) / 12000;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        if(life >= 1){ cv.remove(); return; }
+        ctx.globalAlpha = life > .8 ? (1 - life) * 5 : 1;
+        for(const p of ps){
+          p.y += p.s; if(p.y > 1.05) p.y = -.05;
+          p.sway += .02; p.rot += .03;
+          const x = (p.x * 90 + Math.sin(p.sway) * 14 + 10) * devicePixelRatio;
+          ctx.save(); ctx.translate(x, p.y * cv.height); ctx.rotate(p.rot);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+          ctx.restore();
+        }
+        requestAnimationFrame(draw);
+      })(t0);
+    });
+  }
+
+  /* ---------- wiz TV ---------- */
+  function renderYT(vids){
+    if(!vids || !vids.length) return;
+    document.getElementById('ytSec').style.display = 'block';
+    document.getElementById('ytGrid').innerHTML = vids.map(v =>
+      '<a href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener">' +
+      '<span class="th" style="background-image:url(https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg)"></span>' +
+      '<span class="ti">' + esc(v.title) + '<span>' + esc(v.pub || '') + ' · kt wiz 공식</span></span></a>'
+    ).join('');
+  }
+
+  /* ---------- 갤러리 ---------- */
+  function renderGall(posts){
+    if(!posts || !posts.length) return; // 수집 실패 시 기본 바로가기 링크 유지
+    document.getElementById('gallList').innerHTML = posts.map(p =>
+      '<li><a href="' + esc(p.url) + '" target="_blank" rel="noopener nofollow"><span>' + esc(p.title) + '</span><span class="gd">' + esc(p.date) + '</span></a></li>'
+    ).join('') + '<li><a href="https://gall.dcinside.com/board/lists?id=ktwiz" target="_blank" rel="noopener"><span style="color:var(--red-soft);font-weight:700">갤러리 더 보기 →</span></a></li>';
+  }
+
   async function loadData(){
     const urls = [
       // 1순위: GitHub API (캐시 없음 — 2분 내 최신, 방문자당 시간 60회 제한이라 75초 주기와 함께 사용)
@@ -791,6 +934,10 @@
         renderForm(j.kt && j.kt.recent);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
+        renderMagic(j.standings);
+        renderYT(j.youtube);
+        renderGall(j.gall);
+        celebrate(j.games);
         return;
       }catch(e){ /* 다음 경로 */ }
     }
