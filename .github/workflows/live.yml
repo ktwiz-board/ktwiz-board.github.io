@@ -2,27 +2,41 @@ name: live-data
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 * * * *"   # 시간당 워치독 (루프가 죽었을 때 재기동)
   workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: live-data
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  fetch:
+  fetch-loop:
     runs-on: ubuntu-latest
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch live data
-        run: node scripts/fetch-live.js
-      - name: Commit if changed
+      - name: Fetch loop (2분 간격, 약 5.5시간)
         run: |
           git config user.name "live-bot"
           git config user.email "actions@github.com"
-          git add data/live.json
-          git diff --cached --quiet || git commit -m "live: update data [skip ci]"
-          git push
+          for i in $(seq 1 160); do
+            node scripts/fetch-live.js || true
+            if ! cmp -s data/live.json /tmp/last.json 2>/dev/null; then
+              cp data/live.json /tmp/last.json
+              git add data/live.json
+              git commit -q -m "live data" || true
+              # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시
+              git push -f -q origin HEAD:data || true
+              git reset -q --soft HEAD~1
+            fi
+            sleep 120
+          done
+      - name: Self re-dispatch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run live-data --repo ${{ github.repository }} || true
