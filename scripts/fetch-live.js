@@ -128,6 +128,34 @@ function mapLineup(lu) {
       return { ...g, opp: ktHome ? g.away : g.home, my, op, r: my > op ? 'W' : (my < op ? 'L' : 'D') };
     });
 
+  // 4.5) 지난 경기(오늘 이전 가장 최근 종료 경기) 상세
+  let lastGame = null;
+  const prevDone = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
+    .map(mapGame)
+    .filter(g => (g.home === 'KT' || g.away === 'KT') && (g.code === 'RESULT' || g.code === 'ENDED'));
+  const lg = prevDone[prevDone.length - 1];
+  if (lg) {
+    const ktHome = lg.home === 'KT';
+    lastGame = {
+      date: lg.date, stadium: lg.stadium, opp: ktHome ? lg.away : lg.home, ktHome,
+      my: ktHome ? lg.hs : lg.as, op: ktHome ? lg.as : lg.hs,
+      as: lg.as, hs: lg.hs, away: lg.away, home: lg.home,
+      starter: ktHome ? lg.hp : lg.ap, keys: [], pitchers: []
+    };
+    lastGame.r = lastGame.my > lastGame.op ? 'W' : (lastGame.my < lastGame.op ? 'L' : 'D');
+    try {
+      const rec = await j(`${API}/schedule/games/${lg.id}/record`);
+      const rd = rec.result && rec.result.recordData;
+      if (rd) {
+        const side = ktHome ? 'home' : 'away';
+        const mapPit = p => ({ name: p.name, inn: p.inn, h: p.hit, r: p.r, er: p.er, kk: p.kk, wls: p.wls || '' });
+        lastGame.keys = (rd.etcRecords || []).slice(0, 6).map(e => ({ how: e.how, result: e.result }));
+        lastGame.pitchers = ((rd.pitchersBoxscore && rd.pitchersBoxscore[side]) || []).map(mapPit)
+          .filter(p => p.wls || p.inn); // 선발/승패/세이브 위주
+      }
+    } catch (e) { console.error('lastGame record fail', e.message); }
+  }
+
   // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
   let youtube = [];
   try {
@@ -191,7 +219,7 @@ function mapLineup(lu) {
     date: today,
     games: todayGames,
     standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
-    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box },
+    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame },
     youtube, shorts, gall
   };
 
