@@ -345,14 +345,29 @@
   #spell.run .inkline{animation:inkGrow 1.3s var(--ease) .7s both}
   @keyframes inkGrow{to{width:min(340px,64vw)}}
 
-  /* ---------- 잉크 스크롤 트레일 (지도 위 발자국 경로) ---------- */
-  /* 전체 폭을 좌우로 오가며 콘텐츠 "뒤"에 깔리는 잉크 트레일 — 절대 텍스트를 가리지 않음 */
+  /* ---------- 마우더의 지도: 배경 전체에 깔리는 잉크 지도 (콘텐츠 뒤, 절대 안 가림) ---------- */
   #trail{position:absolute;top:0;left:0;width:100%;z-index:0;pointer-events:none;overflow:hidden}
   #trail svg{display:block;width:100%;height:100%}
-  #trail .path{fill:none;stroke:rgba(217,169,76,.16);stroke-width:2;stroke-dasharray:4 10;stroke-linecap:round}
-  #trail .prog{fill:none;stroke:rgba(233,200,119,.34);stroke-width:2.2;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(233,200,119,.22))}
-  #trail .foot{fill:rgba(233,200,119,.5);opacity:0;transition:opacity .4s}
+  /* 메인 동선 */
+  #trail .path{fill:none;stroke:rgba(217,169,76,.15);stroke-width:2;stroke-dasharray:3 11;stroke-linecap:round}
+  #trail .prog{fill:none;stroke:rgba(233,200,119,.4);stroke-width:2.4;stroke-linecap:round;filter:drop-shadow(0 0 7px rgba(233,200,119,.28))}
+  /* 보조 동선(복도) 2가닥 — 항상 은은하게 표시, 지도의 다른 통로 느낌 */
+  #trail .side{fill:none;stroke-linecap:round}
+  #trail .side.a{stroke:rgba(217,169,76,.11);stroke-width:1.4;stroke-dasharray:2 9}
+  #trail .side.b{stroke:rgba(217,169,76,.08);stroke-width:1.2;stroke-dasharray:6 14}
+  /* 발자국: 두 개가 한 쌍(좌우 교차), 이전보다 큼직하게 */
+  #trail .foot{fill:rgba(233,200,119,.55);opacity:0;transition:opacity .5s}
+  #trail .foot.dim{fill:rgba(217,169,76,.16)}
+  /* 갈림길 지점의 손글씨 지명 라벨 */
+  #trail .label{fill:rgba(233,200,119,.4);font-family:Georgia,"Apple SD Gothic Neo",serif;font-style:italic;letter-spacing:.02em}
+  #trail .label-en{fill:rgba(233,200,119,.24);font-family:Georgia,serif;font-style:italic}
+  #trail .spot{fill:none;stroke:rgba(233,200,119,.3);stroke-width:1;stroke-dasharray:1.5 3}
+  /* 나침반 로즈 (고정 데코, 페이지 상단 근처) */
+  #trail .compass{fill:none;stroke:rgba(233,200,119,.28);stroke-width:1.1}
+  #trail .compass-fill{fill:rgba(233,200,119,.22);stroke:none}
+  #trail .compass-txt{fill:rgba(233,200,119,.38);font-family:Georgia,serif;font-size:11px;font-weight:700;letter-spacing:.06em}
   @media (prefers-reduced-motion:reduce){#trail{display:none!important}}
+  @media (max-width:600px){#trail .label,#trail .label-en,#trail .compass-txt{display:none}}
   /* 각 wrap을 트레일 위에 놓기 위한 스태킹 컨텍스트 */
   .wrap,.hero,.ktbanner{position:relative;z-index:1}
 
@@ -445,9 +460,14 @@
 <!-- ================= 잉크 트레일 (콘텐츠 뒤, 전체 폭 지그재그) ================= -->
 <div id="trail" aria-hidden="true">
   <svg id="trailSvg" preserveAspectRatio="none">
+    <g id="trailSpots"></g>
+    <path class="side a" id="trailSideA"></path>
+    <path class="side b" id="trailSideB"></path>
     <path class="path" id="trailPath"></path>
     <path class="prog" id="trailProg"></path>
     <g id="trailFoot"></g>
+    <g id="trailLabels"></g>
+    <g id="trailCompass"></g>
   </svg>
 </div>
 
@@ -848,32 +868,43 @@
     }));
   })();
 
-  /* ---------- 잉크 스크롤 트레일: 전체 폭을 좌우로 오가며 콘텐츠 "뒤"에 깔림 ---------- */
+  /* ---------- 마우더의 지도: 배경 전체에 깔리는 잉크 지도 ---------- */
   (function trail(){
     const box = document.getElementById('trail');
     const svg = document.getElementById('trailSvg');
     const path = document.getElementById('trailPath');
     const prog = document.getElementById('trailProg');
+    const sideA = document.getElementById('trailSideA');
+    const sideB = document.getElementById('trailSideB');
     const footG = document.getElementById('trailFoot');
+    const labelG = document.getElementById('trailLabels');
+    const spotG = document.getElementById('trailSpots');
+    const compassG = document.getElementById('trailCompass');
     if(!box || !svg || reduce) return;
     const NS = 'http://www.w3.org/2000/svg';
     let L = 0, feet = [];
+    const isMobile = () => document.documentElement.clientWidth < 700;
 
-    function buildPath(W, H){
-      // 화면 폭의 18%~82% 사이에서 좌우로 오가는 완만한 지그재그 (짧은 페이지에서도 최소 파형 보장)
-      const margin = Math.max(60, W * 0.18);
-      const amp = Math.max(30, (W - margin * 2) / 2);
-      const midX = W / 2;
-      const wavelength = Math.max(520, Math.min(900, H / 5));
-      const steps = Math.max(4, Math.round(H / wavelength) + 1);
+    const WAYPOINTS = [
+      { ko: '수원 kt wiz 파크', en: 'Suwon' },
+      { ko: '오늘의 마법', en: 'Today’s Magic' },
+      { ko: '더그아웃', en: 'Dugout' },
+      { ko: '불펜', en: 'Bullpen' },
+      { ko: '위즈 갤러리', en: 'Great Hall' }
+    ];
+
+    function wavePts(W, H, midX, amp, wavelength, phase){
+      const steps = Math.max(3, Math.round(H / wavelength) + 1);
       const pts = [{ x: midX, y: 0 }];
       for(let i = 1; i <= steps; i++){
         const y = Math.min(H, i * wavelength);
-        const dir = i % 2 ? 1 : -1;
-        pts.push({ x: midX + dir * amp, y });
+        const dir = (i + phase) % 2 ? 1 : -1;
+        pts.push({ x: Math.max(20, Math.min(W - 20, midX + dir * amp)), y });
       }
-      if(pts[pts.length - 1].y < H) pts.push({ x: midX + (steps % 2 ? -amp : amp) * .3, y: H });
-      // Catmull-Rom → 부드러운 3차 베지어 곡선으로 변환
+      if(pts[pts.length - 1].y < H) pts.push({ x: midX, y: H });
+      return pts;
+    }
+    function smooth(pts){
       let d = 'M' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
       for(let i = 0; i < pts.length - 1; i++){
         const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
@@ -883,34 +914,105 @@
       }
       return d;
     }
+    function el(tag, attrs){
+      const e = document.createElementNS(NS, tag);
+      for(const k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    function buildCompass(cx, cy, r){
+      const g = document.createDocumentFragment();
+      const outer = el('circle', { cx, cy, r, class: 'compass' });
+      const inner = el('circle', { cx, cy, r: r * .6, class: 'compass' });
+      g.appendChild(outer); g.appendChild(inner);
+      // 4방위 침
+      const dirs = [[0, -1, 'N'], [1, 0, 'E'], [0, 1, 'S'], [-1, 0, 'W']];
+      for(const [dx, dy, lbl] of dirs){
+        const x1 = cx + dx * r * .6, y1 = cy + dy * r * .6;
+        const x2 = cx + dx * r, y2 = cy + dy * r;
+        g.appendChild(el('line', { x1, y1, x2, y2, class: 'compass' }));
+        const tx = cx + dx * (r + 14), ty = cy + dy * (r + 14) + 4;
+        const t = el('text', { x: tx, y: ty, class: 'compass-txt', 'text-anchor': 'middle' });
+        t.textContent = lbl; g.appendChild(t);
+      }
+      // 다이아몬드 침(북쪽 강조, 야구 마법사 지도 느낌의 별)
+      const star = el('path', {
+        d: 'M' + cx + ' ' + (cy - r * .82) + ' L' + (cx + r * .16) + ' ' + cy + ' L' + cx + ' ' + (cy + r * .82) + ' L' + (cx - r * .16) + ' ' + cy + ' Z',
+        class: 'compass-fill'
+      });
+      g.appendChild(star);
+      return g;
+    }
 
     function rebuild(){
       const W = document.documentElement.clientWidth;
       const H = document.documentElement.scrollHeight;
+      const mobile = isMobile();
       box.style.height = H + 'px';
       svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
       svg.setAttribute('width', W); svg.setAttribute('height', H);
-      const d = buildPath(W, H);
-      path.setAttribute('d', d); prog.setAttribute('d', d);
+
+      // 메인 동선
+      const margin = Math.max(56, W * 0.16);
+      const amp = Math.max(26, (W - margin * 2) / 2);
+      const midX = W / 2;
+      const wavelength = Math.max(460, Math.min(760, H / 7));
+      const dMain = smooth(wavePts(W, H, midX, amp, wavelength, 0));
+      path.setAttribute('d', dMain); prog.setAttribute('d', dMain);
       L = prog.getTotalLength();
       prog.style.strokeDasharray = L;
       prog.style.strokeDashoffset = L;
-      // 발자국: 대략 700px 페이지 높이마다 1쌍
+
+      // 보조 복도 2가닥 — 다른 파장·위상으로 메인과 어긋나게 교차 (지도의 다른 통로 느낌)
+      const dA = smooth(wavePts(W, H, midX * .62, amp * .8, wavelength * .72, 1));
+      const dB = smooth(wavePts(W, H, midX * 1.4, amp * .9, wavelength * 1.35, 0));
+      sideA.setAttribute('d', dA);
+      sideB.setAttribute('d', dB);
+
+      // 발자국: 촘촘하고 크게 — 약 300px 간격
       footG.innerHTML = ''; feet = [];
-      const n = Math.max(5, Math.min(26, Math.round(H / 700)));
+      const n = Math.max(8, Math.min(64, Math.round(H / 300)));
+      const footR = mobile ? 2.6 : 3.1;
       for(let i = 1; i <= n; i++){
         const at = i / (n + 1);
         const pt = prog.getPointAtLength(L * at);
         const nx = prog.getPointAtLength(Math.min(L, L * at + 1));
         const ang = Math.atan2(nx.y - pt.y, nx.x - pt.x) * 180 / Math.PI + 90;
-        const side = i % 2 ? 5 : -5;
-        const el = document.createElementNS(NS, 'ellipse');
-        el.setAttribute('cx', pt.x + side); el.setAttribute('cy', pt.y);
-        el.setAttribute('rx', 2.3); el.setAttribute('ry', 3.6);
-        el.setAttribute('class', 'foot');
-        el.setAttribute('transform', 'rotate(' + ang.toFixed(1) + ' ' + (pt.x + side).toFixed(1) + ' ' + pt.y.toFixed(1) + ')');
-        footG.appendChild(el); feet.push({ el, at });
+        const side = i % 2 ? footR * 2.1 : -footR * 2.1;
+        const e = el('ellipse', {
+          cx: (pt.x + side).toFixed(1), cy: pt.y.toFixed(1),
+          rx: footR, ry: (footR * 1.55).toFixed(1),
+          class: 'foot dim',
+          transform: 'rotate(' + ang.toFixed(1) + ' ' + (pt.x + side).toFixed(1) + ' ' + pt.y.toFixed(1) + ')'
+        });
+        footG.appendChild(e); feet.push({ el: e, at });
       }
+
+      // 지명 라벨 + 갈림길 마커 (데스크톱만 — 모바일은 CSS로 숨김, 좁은 화면 텍스트 겹침 방지)
+      labelG.innerHTML = ''; spotG.innerHTML = '';
+      if(!mobile){
+        WAYPOINTS.forEach((wp, i) => {
+          const at = (i + 1) / (WAYPOINTS.length + 1);
+          const pt = prog.getPointAtLength(L * at);
+          const toLeft = pt.x > W / 2;
+          const lx = toLeft ? Math.max(24, pt.x - amp - 46) : Math.min(W - 24, pt.x + amp + 46);
+          const anchor = toLeft ? 'end' : 'start';
+          const spot = el('circle', { cx: pt.x, cy: pt.y, r: 3.2, class: 'spot' });
+          spotG.appendChild(spot);
+          const lead = el('line', { x1: pt.x, y1: pt.y, x2: lx + (toLeft ? 14 : -14), y2: pt.y, class: 'spot' });
+          spotG.appendChild(lead);
+          const t1 = el('text', { x: lx, y: pt.y - 3, class: 'label', 'text-anchor': anchor, 'font-size': '15' });
+          t1.textContent = wp.ko; labelG.appendChild(t1);
+          const t2 = el('text', { x: lx, y: pt.y + 15, class: 'label-en', 'text-anchor': anchor, 'font-size': '10' });
+          t2.textContent = wp.en; labelG.appendChild(t2);
+        });
+      }
+
+      // 나침반 (히어로 하단 성 옆, 우측 상단 고정 좌표)
+      compassG.innerHTML = '';
+      const cR = mobile ? 26 : 34;
+      compassG.appendChild(buildCompass(W - cR - (mobile ? 22 : 40), cR + 34, cR));
+
       update();
     }
 
@@ -919,7 +1021,11 @@
       const max = document.documentElement.scrollHeight - innerHeight;
       const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
       prog.style.strokeDashoffset = L * (1 - p);
-      for(const f of feet) f.el.style.opacity = p >= f.at - .015 ? '.85' : '0';
+      for(const f of feet){
+        const on = p >= f.at - .012;
+        f.el.style.opacity = on ? '.85' : '';
+        f.el.classList.toggle('dim', !on);
+      }
     }
 
     rebuild();
