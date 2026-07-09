@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch loop (모드별 가변 주기: 경기중 5분 / 경기전 10분 / 종료후 30분·영상만, 약 5.5시간)
+      - name: "Fetch loop (경기중 5분 / 경기전 10분 / 종료후 30분·영상만, 약 5.5시간)"
         run: |
           git config user.name "live-bot"
           git config user.email "actions@github.com"
