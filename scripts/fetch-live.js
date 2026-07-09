@@ -293,6 +293,21 @@ async function pythagorean(today) {
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify(out, null, 1));
+
+  // 8) 순위 히스토리 스냅샷 — 하루 1개, 최대 90일 보관 (시즌 순위 변동 그래프용)
+  try {
+    if (out.standings.length >= 10) {
+      const histFile = path.join(__dirname, '..', 'data', 'standings-history.json');
+      let hist = [];
+      try { hist = JSON.parse(fs.readFileSync(histFile, 'utf8')); } catch (e) {}
+      if (!hist.length || hist[hist.length - 1].date !== today) {
+        hist.push({ date: today, teams: out.standings.map(t => ({ name: t.name, rank: t.rank, w: t.w, l: t.l, d: t.d })) });
+        if (hist.length > 90) hist = hist.slice(-90);
+        fs.writeFileSync(histFile, JSON.stringify(hist));
+      }
+    }
+  } catch (e) { console.error('history snapshot fail', e.message); }
+
   console.log(`ok(${mode}): ${todayGames.length} games, ${out.standings.length} teams, lineup=${!!ktLineup}, pythag=${!!pythag}`);
   console.log(`SLEEP=${SLEEP[mode]}`);
 })().catch(e => { console.error(e); process.exit(1); });

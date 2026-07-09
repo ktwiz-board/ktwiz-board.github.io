@@ -29,7 +29,7 @@ jobs:
             echo "$OUT" | tail -3
             if ! cmp -s data/live.json /tmp/last.json 2>/dev/null; then
               cp data/live.json /tmp/last.json
-              git add data/live.json
+              git add data/live.json data/standings-history.json 2>/dev/null || git add data/live.json
               git commit -q -m "live data" || true
               # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시
               git push -f -q origin HEAD:data || true

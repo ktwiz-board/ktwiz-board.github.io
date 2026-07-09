@@ -26,6 +26,12 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"wiz board","alternateName":"위즈보드","url":"https://ktwiz-board.github.io/","description":"kt wiz 팬을 위한 KBO 실시간 대시보드","inLanguage":"ko"}
 </script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="wiz board">
 <style>
   :root{
     --bg:#000;
@@ -90,6 +96,9 @@
   .ktbanner .match .live-score{color:var(--red-soft);font-variant-numeric:tabular-nums}
   .ktbanner .detail{font-size:15px;color:var(--muted);font-weight:500}
   .ktbanner .detail b{color:var(--ink);font-weight:700}
+  .quicklinks{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .quicklinks a{font-size:12.5px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.06);border-radius:99px;padding:8px 16px;text-decoration:none;transition:background .25s,transform .25s}
+  .quicklinks a:hover,.quicklinks a:focus-visible{background:rgba(232,16,47,.18);transform:translateY(-2px);outline:none}
   .playbadge{display:inline-block;margin-left:8px;font-size:12.5px;font-weight:700;padding:4px 12px;border-radius:99px;letter-spacing:.02em;vertical-align:1px}
   .playbadge.ok{background:rgba(48,209,88,.14);color:var(--ok)}
   .playbadge.warn{background:rgba(217,169,76,.16);color:var(--gold)}
@@ -183,6 +192,34 @@
   .formlist .r.W{color:var(--red-soft)}
   .formlist .r.L{color:var(--muted)}
   .formlist .sc2{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:500}
+
+  /* ---------- 내 직관 기록 ---------- */
+  .attend{background:var(--panel);border-radius:22px;padding:26px 28px}
+  .attend-stat{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .a-num{text-align:center;min-width:78px}
+  .a-num b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .a-num span{font-size:10.5px;color:var(--muted);letter-spacing:.12em;font-weight:700;text-transform:uppercase}
+  .a-badge{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--red-soft);background:rgba(232,16,47,.12);padding:8px 16px;border-radius:99px}
+  .attendlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .attendlist li{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line)}
+  .attendlist li:last-child{border-bottom:none}
+  .attendlist li.empty-hint{color:var(--muted);font-size:13.5px;padding:8px 4px}
+  .attendlist .ad{font-size:12px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;flex:0 0 74px}
+  .attendlist .am{font-size:14px;font-weight:700;flex:1}
+  .attendlist .ar{font-size:11px;font-weight:800;padding:2px 9px;border-radius:6px}
+  .attendlist .ar.W{background:rgba(232,16,47,.14);color:var(--red-soft)}
+  .attendlist .ar.L{background:rgba(255,255,255,.07);color:var(--muted)}
+  .attend-toggle{appearance:none;width:46px;height:26px;border-radius:99px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;flex:0 0 auto;transition:background .25s}
+  .attend-toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s}
+  .attend-toggle:checked{background:var(--red)}
+  .attend-toggle:checked::after{transform:translateX(20px)}
+
+  /* ---------- 시즌 순위 변동 차트 ---------- */
+  .chartbox{background:var(--panel);border-radius:22px;padding:26px 28px}
+  #rankCanvas{width:100%;height:280px;display:block}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;font-size:11.5px;color:var(--muted);font-weight:600}
+  .chart-legend span{display:inline-flex;align-items:center;gap:6px}
+  .chart-legend i{width:14px;height:2.5px;border-radius:2px;display:inline-block}
 
   /* ---------- last game ---------- */
   .lastgame{background:var(--panel);border-radius:22px;overflow:hidden}
@@ -499,6 +536,11 @@
     <p class="today">Today · kt wiz game</p>
     <div class="match" id="ktMatch">키움 <span class="at">vs</span> KT</div>
     <p class="detail" id="ktDetail">오늘 18:30 · 수원 kt wiz 파크 · 선발 <b>소형준</b> vs 안우진</p>
+    <div class="quicklinks">
+      <a href="https://www.tving.com/live/player/C05007" target="_blank" rel="noopener">📺 TVING 중계</a>
+      <a href="https://tkt.ktwiz.co.kr/" target="_blank" rel="noopener">🎟️ 티켓 예매</a>
+      <a href="https://sports.news.naver.com/kbaseball/schedule/index" target="_blank" rel="noopener">📊 문자중계</a>
+    </div>
   </div>
 </div>
 
@@ -570,6 +612,36 @@
         <div class="form" id="ktForm"></div>
         <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= 내 직관 기록 ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <p class="kicker">My Games</p>
+      <h2>내 직관 기록</h2>
+      <p class="sub">이 기기에만 저장됩니다 (서버 전송 없음) — 직관한 경기를 체크해보세요</p>
+    </div>
+    <div class="attend reveal d1">
+      <div class="attend-stat" id="attendStat">
+        <div class="a-num"><b id="attendCount">0</b><span>직관 경기</span></div>
+        <div class="a-num"><b id="attendWin">0</b><span>승</span></div>
+        <div class="a-num"><b id="attendRate">—</b><span>내 직관 승률</span></div>
+        <div class="a-badge" id="attendBadge"></div>
+      </div>
+      <ul class="attendlist" id="attendList"><li class="empty-hint">경기 데이터 수집 대기 중</li></ul>
+    </div>
+  </section>
+
+  <!-- ================= 시즌 순위 변동 ================= -->
+  <section id="rankChartSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Rank History</p>
+      <h2>시즌 순위 변동</h2>
+    </div>
+    <div class="chartbox reveal d1">
+      <canvas id="rankCanvas"></canvas>
+      <div class="chart-legend" id="rankLegend"></div>
     </div>
   </section>
 
@@ -1231,14 +1303,16 @@
       '</div>';
     }).join('');
     const now = new Date();
+    const ageMin = updatedISO ? Math.round((Date.now() - new Date(updatedISO).getTime()) / 60000) : null;
+    const stale = ageMin != null && ageMin > 40;
     stamp.textContent = live
-      ? '자동 수집 · ' + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST 기준 (약 5분 주기)'
+      ? (stale ? '⚠️ 갱신 지연 · ' : '자동 수집 · ') + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST' + (ageMin != null ? ' (' + ageMin + '분 전)' : '')
       : '기본 데이터 · ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
-    dot.style.background = live ? 'var(--ok)' : '#86868b';
+    dot.style.background = !live ? '#86868b' : (stale ? 'var(--gold)' : 'var(--ok)');
   }
 
   /* ---------- 자동 수집 JSON (GitHub Actions, 5분 주기) ---------- */
-  let updatedKST = '';
+  let updatedKST = '', updatedISO = null;
 
   function renderWeek(week, today){
     const el = document.getElementById('ktWeek');
@@ -1266,6 +1340,133 @@
     l.innerHTML = recent.slice().reverse().map(g =>
       '<li><span><span class="r ' + g.r + '">' + g.r + '</span> vs ' + esc(g.opp) + '</span><span class="sc2">' + g.my + ':' + g.op + ' · ' + g.date.slice(5).replace('-','.') + '</span></li>'
     ).join('');
+  }
+
+  /* ---------- 내 직관 기록 (localStorage, 서버 전송 없음) ---------- */
+  const ATTEND_KEY = 'wizAttendGames';
+  function attendLoad(){ try{ return JSON.parse(localStorage.getItem(ATTEND_KEY) || '{}'); }catch(e){ return {}; } }
+  function attendSave(obj){ try{ localStorage.setItem(ATTEND_KEY, JSON.stringify(obj)); }catch(e){} }
+
+  function renderAttend(kt){
+    const store = attendLoad();
+    const cands = [];
+    if(kt && kt.recent) cands.push(...kt.recent);
+    if(kt && kt.lastGame && !cands.some(g => g.id === kt.lastGame.gameId)){
+      const lg = kt.lastGame;
+      cands.push({ id: lg.date + '-' + lg.opp, date: lg.date, opp: lg.opp, my: lg.my, op: lg.op, r: lg.r });
+    }
+    if(!cands.length) return;
+    // 새 경기는 스토어에 attended:false로 등록(기존 값은 보존)
+    cands.forEach(g => { const id = g.id || (g.date + '-' + g.opp); if(!store[id]) store[id] = { date: g.date, opp: g.opp, my: g.my, op: g.op, r: g.r, attended: false }; });
+    attendSave(store);
+
+    function renderList(){
+      const entries = Object.entries(store).sort((a, b) => b[1].date.localeCompare(a[1].date)).slice(0, 20);
+      document.getElementById('attendList').innerHTML = entries.map(([id, g]) =>
+        '<li><span class="ad">' + fmtDate(g.date).replace(' (', '(').replace(')', ')') + '</span>' +
+        '<span class="am">vs ' + esc(g.opp) + ' <span class="sc2" style="font-weight:500;color:var(--muted)">' + g.my + ':' + g.op + '</span></span>' +
+        '<span class="ar ' + g.r + '">' + (g.r === 'W' ? '승' : g.r === 'L' ? '패' : '무') + '</span>' +
+        '<input type="checkbox" class="attend-toggle" data-id="' + esc(id) + '" ' + (g.attended ? 'checked' : '') + ' aria-label="직관 체크">' +
+        '</li>'
+      ).join('');
+      document.querySelectorAll('.attend-toggle').forEach(cb => {
+        cb.addEventListener('change', () => {
+          store[cb.dataset.id].attended = cb.checked;
+          attendSave(store);
+          renderStats();
+        });
+      });
+    }
+    function renderStats(){
+      const attended = Object.values(store).filter(g => g.attended);
+      const wins = attended.filter(g => g.r === 'W').length;
+      const losses = attended.filter(g => g.r === 'L').length;
+      document.getElementById('attendCount').textContent = attended.length;
+      document.getElementById('attendWin').textContent = wins;
+      const rate = attended.length ? Math.round(wins / attended.length * 100) : null;
+      document.getElementById('attendRate').textContent = rate == null ? '—' : rate + '%';
+      const badge = document.getElementById('attendBadge');
+      if(!attended.length){ badge.textContent = ''; }
+      else if(rate >= 70){ badge.textContent = '🍀 직관 요정'; }
+      else if(rate <= 30 && attended.length >= 3){ badge.textContent = '😅 직관 노잼러'; }
+      else { badge.textContent = '⚾ 위즈 팬'; }
+    }
+    renderList(); renderStats();
+  }
+
+  /* ---------- 시즌 순위 변동 차트 ---------- */
+  function renderRankChart(hist){
+    if(!hist || hist.length < 2) return;
+    const sec = document.getElementById('rankChartSec');
+    sec.style.display = 'block';
+    const cv = document.getElementById('rankCanvas');
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const cw = cv.clientWidth || cv.parentElement.clientWidth;
+    const ch = 280;
+    cv.width = cw * dpr; cv.height = ch * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cw, ch);
+    const padL = 30, padR = 14, padT = 14, padB = 24;
+    const plotW = cw - padL - padR, plotH = ch - padT - padB;
+    const n = hist.length;
+    const xAt = i => padL + (n === 1 ? 0 : (i / (n - 1)) * plotW);
+    const yAt = rank => padT + ((rank - 1) / 9) * plotH;
+    // 순위 격자선 + 라벨 (1,5,10위)
+    ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = '11px -apple-system,sans-serif'; ctx.textBaseline = 'middle';
+    [1, 5, 10].forEach(r => {
+      const y = yAt(r);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cw - padR, y); ctx.stroke();
+      ctx.fillText(r + '위', 2, y);
+    });
+    // 타 팀 (가는 회색선)
+    const teamNames = hist[hist.length - 1].teams.map(t => t.name);
+    teamNames.filter(nm => nm !== 'KT').forEach(nm => {
+      ctx.beginPath();
+      hist.forEach((h, i) => {
+        const t = h.teams.find(x => x.name === nm); if(!t) return;
+        const x = xAt(i), y = yAt(t.rank);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.lineWidth = 1.3; ctx.stroke();
+    });
+    // KT (굵은 레드)
+    ctx.beginPath();
+    let lastPt = null;
+    hist.forEach((h, i) => {
+      const t = h.teams.find(x => x.name === 'KT'); if(!t) return;
+      const x = xAt(i), y = yAt(t.rank);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      lastPt = { x, y };
+    });
+    ctx.strokeStyle = '#ff4d63'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(232,16,47,.5)'; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+    if(lastPt){ ctx.beginPath(); ctx.arc(lastPt.x, lastPt.y, 4.5, 0, 7); ctx.fillStyle = '#ff4d63'; ctx.fill(); }
+    // x축 날짜 라벨 (처음/끝)
+    ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.fillText(hist[0].date.slice(5).replace('-', '.'), padL, ch - 6);
+    ctx.textAlign = 'right';
+    ctx.fillText(hist[n - 1].date.slice(5).replace('-', '.'), cw - padR, ch - 6);
+    document.getElementById('rankLegend').innerHTML =
+      '<span><i style="background:#ff4d63"></i>kt wiz</span><span><i style="background:rgba(255,255,255,.3)"></i>다른 9팀</span>';
+  }
+
+  async function loadRankHistory(){
+    const urls = [
+      'https://api.github.com/repos/ktwiz-board/ktwiz-board.github.io/contents/data/standings-history.json?ref=data',
+      'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/standings-history.json?t=' + Date.now(),
+      './data/standings-history.json?t=' + Date.now()
+    ];
+    for(const url of urls){
+      try{
+        const opts = url.includes('api.github.com') ? { headers: { Accept: 'application/vnd.github.raw+json' } } : {};
+        const r = await fetch(url, {...opts, cache: 'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
+        if(!r.ok) continue;
+        const hist = await r.json();
+        if(Array.isArray(hist) && hist.length){ renderRankChart(hist); return; }
+      }catch(e){ /* 다음 경로 */ }
+    }
   }
 
   function renderStandings(st){
@@ -1407,7 +1608,7 @@
     document.getElementById('ytSec').style.display = 'block';
     document.getElementById('ytGrid').innerHTML = vids.map(v =>
       '<a href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener">' +
-      '<span class="th" style="background-image:url(https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg)"></span>' +
+      '<span class="th"><img loading="lazy" src="https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></span>' +
       '<span class="ti">' + esc(v.title) + '<span>' + esc(v.pub || '') + ' · kt wiz 공식</span></span></a>'
     ).join('');
   }
@@ -1521,11 +1722,13 @@
         const j = await r.json();
         if(!j || !j.games) continue;
         updatedKST = j.updatedKST || '';
+        updatedISO = j.updated || null;
         renderStandings(j.standings);
         if(j.games.length) render(j.games, true);
         else { board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>'; stamp.textContent = '자동 수집 · ' + updatedKST + ' KST'; }
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
+        renderAttend(j.kt);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
@@ -1544,6 +1747,8 @@
   loadData().then(fetchWeather);
   setInterval(loadData, 75000);
   setInterval(fetchWeather, 600000);
+  loadRankHistory();
+  setInterval(loadRankHistory, 1200000);
 })();
 </script>
 
