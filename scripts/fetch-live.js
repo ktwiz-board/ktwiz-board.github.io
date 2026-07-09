@@ -22,8 +22,8 @@ async function j(url) {
   return r.json();
 }
 
-async function games(from, to) {
-  const u = `${API}/schedule/games?fields=basic,stadium,statusNum,homeStarterName,awayStarterName,winPitcherName,losePitcherName&upperCategoryId=kbaseball&categoryId=kbo&fromDate=${from}&toDate=${to}&size=200`;
+async function games(from, to, size) {
+  const u = `${API}/schedule/games?fields=basic,stadium,statusNum,homeStarterName,awayStarterName,winPitcherName,losePitcherName&upperCategoryId=kbaseball&categoryId=kbo&fromDate=${from}&toDate=${to}&size=${size || 200}`;
   const d = await j(u);
   return (d.result && d.result.games) || [];
 }
@@ -54,12 +54,102 @@ function mapLineup(lu) {
   return { starter: starter ? starter.playerName : '', batters };
 }
 
+async function fetchYoutube() {
+  try {
+    const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const xml = await r.text();
+    return xml.split('<entry>').slice(1, 9).map(e => {
+      const id = (e.match(/<yt:videoId>([^<]+)</) || [])[1];
+      const title = (e.match(/<media:title>([^<]+)</) || [])[1] || '';
+      const pub = ((e.match(/<published>([^<]+)</) || [])[1] || '').slice(0, 10);
+      return id ? { id, title, pub } : null;
+    }).filter(Boolean).slice(0, 6);
+  } catch (e) { console.error('youtube fail', e.message); return []; }
+}
+
+async function fetchShorts() {
+  const shorts = [];
+  try {
+    const seen = new Set();
+    for (const q of ['케이티위즈', 'kt위즈']) {
+      const r = await fetch('https://www.youtube.com/results?search_query=' + encodeURIComponent(q) + '&sp=EgIYAw%253D%253D', {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
+        signal: AbortSignal.timeout(15000)
+      });
+      const html = await r.text();
+      const re = /"reelWatchEndpoint":\{"videoId":"([a-zA-Z0-9_\-]{11})"/g;
+      let m;
+      while ((m = re.exec(html)) && shorts.length < 12) {
+        const id = m[1];
+        if (seen.has(id)) continue;
+        seen.add(id);
+        shorts.push({ id });
+      }
+    }
+  } catch (e) { console.error('shorts fail', e.message); }
+  return shorts;
+}
+
+// 피타고라스 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
+async function pythagorean(today) {
+  const ranges = [['2026-03-01', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
+  const agg = {}; // name -> {rs, ra, w, l, d}
+  for (const [f, t] of ranges) {
+    if (f > today) break;
+    const gs = await games(f, t, 500);
+    for (const g of gs) {
+      if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
+      for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
+        if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
+        agg[me].rs += my; agg[me].ra += opsc;
+        if (my > opsc) agg[me].w++; else if (my < opsc) agg[me].l++; else agg[me].d++;
+      }
+    }
+  }
+  const E = 1.83;
+  return {
+    date: today,
+    teams: Object.entries(agg).map(([name, a]) => {
+      const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
+      const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
+      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3) };
+    }).sort((x, y) => y.exp - x.exp)
+  };
+}
+
 (async () => {
   const now = kstNow();
   const today = ymd(now);
 
+  // 이전 수집본 (모드 판단·부분 갱신용)
+  const file = path.join(__dirname, '..', 'data', 'live.json');
+  let prev = null;
+  try { prev = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
+
   // 1) 오늘 경기
   const todayGames = (await games(today, today)).map(mapGame);
+
+  // ---- 수집 모드 결정 ----
+  // live: 진행 중 경기 있음 → 5분 주기 풀 수집
+  // pre : 경기 전         → 10분 주기 풀 수집 (라인업 발표 감지)
+  // post: 전 경기 종료     → 유튜브·쇼츠만 갱신, 30분 주기
+  const anyLive = todayGames.some(g => g.code === 'STARTED' || g.code === 'LIVE');
+  const allDone = todayGames.length > 0 && todayGames.every(g => ['RESULT', 'ENDED', 'CANCEL'].includes(g.code));
+  const mode = anyLive ? 'live' : (allDone ? 'post' : 'pre');
+  const SLEEP = { live: 300, pre: 600, post: 1800 };
+
+  // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
+  if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today) {
+    const [yt2, sh2] = await Promise.all([fetchYoutube(), fetchShorts()]);
+    if (yt2.length) prev.youtube = yt2;
+    if (sh2.length) prev.shorts = sh2;
+    prev.updated = new Date().toISOString();
+    prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+    fs.writeFileSync(file, JSON.stringify(prev, null, 1));
+    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length}`);
+    console.log(`SLEEP=${SLEEP.post}`);
+    return;
+  }
 
   // 2) 순위표: 오늘 경기들의 preview에서 양팀 standings 수집 (10팀 커버)
   const standings = {};
@@ -157,39 +247,10 @@ function mapLineup(lu) {
   }
 
   // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
-  let youtube = [];
-  try {
-    const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
-    const xml = await r.text();
-    const entries = xml.split('<entry>').slice(1, 9);
-    youtube = entries.map(e => {
-      const id = (e.match(/<yt:videoId>([^<]+)</) || [])[1];
-      const title = (e.match(/<media:title>([^<]+)</) || [])[1] || '';
-      const pub = ((e.match(/<published>([^<]+)</) || [])[1] || '').slice(0, 10);
-      return id ? { id, title, pub } : null;
-    }).filter(Boolean).slice(0, 6);
-  } catch (e) { console.error('youtube fail', e.message); }
+  const youtube = await fetchYoutube();
 
-  // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색 (세로 썸네일 + 조회수)
-  let shorts = [];
-  try {
-    const seen = new Set();
-    for (const q of ['케이티위즈', 'kt위즈']) {
-      const r = await fetch('https://www.youtube.com/results?search_query=' + encodeURIComponent(q) + '&sp=EgIYAw%253D%253D', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
-        signal: AbortSignal.timeout(15000)
-      });
-      const html = await r.text();
-      const re = /"reelWatchEndpoint":\{"videoId":"([a-zA-Z0-9_\-]{11})"/g;
-      let m;
-      while ((m = re.exec(html)) && shorts.length < 12) {
-        const id = m[1];
-        if (seen.has(id)) continue;
-        seen.add(id);
-        shorts.push({ id });
-      }
-    }
-  } catch (e) { console.error('shorts fail', e.message); }
+  // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색
+  const shorts = await fetchShorts();
 
   // 6) kt위즈 갤러리 최신 글 (욕설/공지 필터) — 차단 시 빈 배열
   let gall = [];
@@ -213,18 +274,25 @@ function mapLineup(lu) {
     if (gall.length < 3) gall = [];
   } catch (e) { console.error('gall fail', e.message); }
 
+  // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
+  let pythag = (prev && prev.pythag && prev.pythag.date === today) ? prev.pythag : null;
+  if (!pythag) {
+    try { pythag = await pythagorean(today); } catch (e) { console.error('pythag fail', e.message); pythag = (prev && prev.pythag) || null; }
+  }
+
   const out = {
     updated: new Date().toISOString(),
     updatedKST: `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`,
     date: today,
+    mode,
     games: todayGames,
     standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
     kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame },
-    youtube, shorts, gall
+    youtube, shorts, gall, pythag
   };
 
-  const file = path.join(__dirname, '..', 'data', 'live.json');
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify(out, null, 1));
-  console.log(`ok: ${todayGames.length} games, ${out.standings.length} teams, lineup=${!!ktLineup}, week=${week.length}, recent=${recent.length}`);
+  console.log(`ok(${mode}): ${todayGames.length} games, ${out.standings.length} teams, lineup=${!!ktLineup}, pythag=${!!pythag}`);
+  console.log(`SLEEP=${SLEEP[mode]}`);
 })().catch(e => { console.error(e); process.exit(1); });

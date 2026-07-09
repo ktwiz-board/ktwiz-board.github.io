@@ -19,12 +19,14 @@ jobs:
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch loop (2분 간격, 약 5.5시간)
+      - name: Fetch loop (모드별 가변 주기: 경기중 5분 / 경기전 10분 / 종료후 30분·영상만, 약 5.5시간)
         run: |
           git config user.name "live-bot"
           git config user.email "actions@github.com"
-          for i in $(seq 1 160); do
-            node scripts/fetch-live.js || true
+          END=$((SECONDS + 19500))
+          while [ $SECONDS -lt $END ]; do
+            OUT=$(node scripts/fetch-live.js 2>&1) || true
+            echo "$OUT" | tail -3
             if ! cmp -s data/live.json /tmp/last.json 2>/dev/null; then
               cp data/live.json /tmp/last.json
               git add data/live.json
@@ -33,7 +35,8 @@ jobs:
               git push -f -q origin HEAD:data || true
               git reset -q --soft HEAD~1
             fi
-            sleep 120
+            NAP=$(echo "$OUT" | grep -o 'SLEEP=[0-9]*' | tail -1 | cut -d= -f2)
+            sleep "${NAP:-300}"
           done
       - name: Self re-dispatch
         if: always()

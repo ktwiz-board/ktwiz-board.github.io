@@ -29,11 +29,11 @@
 <style>
   :root{
     --bg:#000;
-    --panel:#101012;
-    --card:#161618;
-    --line:rgba(255,255,255,.09);
-    --ink:#f5f5f7;
-    --muted:#86868b;
+    --panel:#141416;
+    --card:#1c1c1f;
+    --line:rgba(255,255,255,.12);
+    --ink:#f7f7f9;
+    --muted:#a8a8b0;
     --red:#e8102f;
     --red-soft:#ff4d63;
     --ok:#30d158;
@@ -120,7 +120,7 @@
   .game.kt-game{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 70%)}
   .game .stadium{display:flex;flex-direction:column;gap:2px;font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700}
   .game.kt-game .stadium{color:var(--red-soft)}
-  .game .wx{font-size:11.5px;letter-spacing:0;color:#c8c8cc;font-weight:500;white-space:nowrap}
+  .game .wx{font-size:11.5px;letter-spacing:0;color:#dddde2;font-weight:500;white-space:nowrap}
   .game .wx .pp{color:#6fb7ff}
   .game .wx .pp.rainy{color:var(--red-soft);font-weight:700}
   .game .side{display:flex;flex-direction:column;gap:1px;min-width:0}
@@ -128,7 +128,7 @@
   .game .side .team{font-size:16px;font-weight:700;white-space:nowrap;letter-spacing:-.01em}
   .game .side .team .rec{font-size:11.5px;color:var(--muted);font-weight:500;margin:0 6px}
   .game .side .sp{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:500}
-  .game .side .sp b{color:#c8c8cc;font-weight:600}
+  .game .side .sp b{color:#dddde2;font-weight:600}
   .game .mid{display:flex;flex-direction:column;align-items:center;padding:0 16px}
   .game .mid .sc{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.01em}
   .game .mid .sc .w{color:var(--red-soft)}
@@ -151,7 +151,7 @@
   .bx b{font-weight:700}
   .bx .hot td{color:var(--red-soft)}
   .keyrec{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
-  .keyrec li{display:flex;gap:12px;font-size:13.5px;color:#c8c8cc}
+  .keyrec li{display:flex;gap:12px;font-size:13.5px;color:#dddde2}
   .keyrec .k{flex:0 0 62px;font-size:11px;font-weight:800;color:var(--red-soft);padding-top:2px;letter-spacing:.04em}
   .boxcols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   @media (max-width:760px){.boxcols{grid-template-columns:1fr}}
@@ -177,7 +177,7 @@
   .form .f.L{background:rgba(255,255,255,.07);color:var(--muted)}
   .form .f.D{background:rgba(217,169,76,.14);color:var(--gold)}
   .formlist{list-style:none;margin:0;padding:0}
-  .formlist li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:#c8c8cc}
+  .formlist li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:#dddde2}
   .formlist li:last-child{border-bottom:none}
   .formlist .r{font-weight:800}
   .formlist .r.W{color:var(--red-soft)}
@@ -203,7 +203,7 @@
   @media (max-width:660px){.lg-col + .lg-col{border-left:none;border-top:1px solid var(--line)}}
   .lg-col h4{margin:0 0 16px;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:700}
   .key-plays{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
-  .key-plays li{display:flex;gap:14px;font-size:14px;color:#c8c8cc}
+  .key-plays li{display:flex;gap:14px;font-size:14px;color:#dddde2}
   .key-plays .inn{flex:0 0 38px;font-size:11.5px;font-weight:700;color:var(--red-soft);padding-top:2px}
   .key-plays b{color:var(--ink);font-weight:700}
   .pit{display:flex;flex-direction:column;gap:10px;font-size:14px}
@@ -235,7 +235,7 @@
   table{border-collapse:collapse;width:100%;min-width:680px;font-size:14.5px}
   th{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;text-align:right;padding:16px 18px;border-bottom:1px solid var(--line);font-weight:700}
   th:nth-child(2){text-align:left}
-  td{padding:13px 18px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;color:#c8c8cc}
+  td{padding:13px 18px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;color:#dddde2}
   td:nth-child(2){text-align:left;font-weight:700;color:var(--ink)}
   tr:last-child td{border-bottom:none}
   tr.kt{background:linear-gradient(90deg,rgba(232,16,47,.13),transparent 75%)}
@@ -295,10 +295,21 @@
   .gallbox ul{list-style:none;margin:0;padding:0}
   .gallbox li{border-bottom:1px solid var(--line)}
   .gallbox li:last-child{border-bottom:none}
-  .gallbox a{display:flex;justify-content:space-between;gap:14px;padding:13px 2px;text-decoration:none;color:#c8c8cc;font-size:14px;transition:color .2s}
+  .gallbox a{display:flex;justify-content:space-between;gap:14px;padding:13px 2px;text-decoration:none;color:#dddde2;font-size:14px;transition:color .2s}
   .gallbox a:hover{color:var(--ink)}
   .gallbox .gd{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .gall-note{font-size:11.5px;color:var(--muted);margin-top:12px;font-weight:500}
+
+  /* ---------- 피타고라스 기대승률 ---------- */
+  .py-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;font-weight:500;line-height:1.8}
+  .py-note b{color:var(--ink)}
+  .pybar{position:relative;display:inline-block;width:74px;height:6px;border-radius:3px;background:rgba(255,255,255,.08);vertical-align:1px;margin-right:9px;overflow:hidden}
+  .pybar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,rgba(217,169,76,.55),#e9c877)}
+  tr.kt .pybar i{background:linear-gradient(90deg,rgba(232,16,47,.6),var(--red-soft))}
+  .pydiff{font-weight:700}
+  .pydiff.plus{color:var(--ok)}
+  .pydiff.minus{color:var(--red-soft)}
+  .pydiff.zero{color:var(--muted)}
 
   /* ---------- spotlight ---------- */
   .spot{position:relative;background:var(--panel);border-radius:22px;padding:44px 40px;overflow:hidden}
@@ -500,7 +511,7 @@
       <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
     </div>
     <div class="board reveal d1" id="board"></div>
-    <p class="board-note reveal d2">스코어는 네이버 스포츠 데이터로 60초마다, 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo로 10분마다 자동 갱신됩니다.</p>
+    <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터.</p>
   </section>
 
   <!-- ================= wiz TV ================= -->
@@ -641,6 +652,22 @@
         </tbody>
       </table>
     </div>
+  </section>
+
+  <!-- ================= 피타고라스 기대승률 ================= -->
+  <section id="pySec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Pythagorean</p>
+      <h2>피타고라스 기대승률</h2>
+      <p class="sub">득점·실점으로 계산한 "실력 기반" 승률 — 실제 승률과의 격차는 운(접전 승부)의 몫</p>
+    </div>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>순위</th><th>팀</th><th>득점</th><th>실점</th><th>기대승률</th><th>실제승률</th><th>격차(운)</th></tr></thead>
+        <tbody id="pyBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="pyNote"></p>
   </section>
 
   <!-- ================= 스포트라이트 ================= -->
@@ -1434,6 +1461,30 @@
     return { s: 'ok', t: '정상 개최 예상', d: '강수확률 ' + pp + '% — 날씨 양호' };
   }
 
+  /* ---------- 피타고라스 기대승률 ---------- */
+  function renderPythag(py){
+    if(!py || !py.teams || py.teams.length < 8) return;
+    document.getElementById('pySec').style.display = 'block';
+    const fmt = v => ('' + v.toFixed(3)).replace(/^0\./, '.');
+    document.getElementById('pyBody').innerHTML = py.teams.map((t, i) => {
+      const isKT = t.name === 'KT';
+      const dCls = t.diff > 0.005 ? 'plus' : (t.diff < -0.005 ? 'minus' : 'zero');
+      const dTxt = (t.diff > 0 ? '+' : '') + fmt2(t.diff);
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + (i + 1) + '</span></td>' +
+        '<td>' + esc(t.name) + '</td>' +
+        '<td>' + t.rs + '</td><td>' + t.ra + '</td>' +
+        '<td><span class="pybar"><i style="width:' + Math.round(t.exp * 100) + '%"></i></span>' + fmt(t.exp) + '</td>' +
+        '<td>' + fmt(t.act) + '</td>' +
+        '<td><span class="pydiff ' + dCls + '">' + dTxt + '</span></td></tr>';
+    }).join('');
+    function fmt2(v){ return ('' + Math.abs(v).toFixed(3)).replace(/^0\./, '.') ; }
+    const kt = py.teams.find(t => t.name === 'KT');
+    if(kt){
+      const luck = kt.diff > 0.01 ? '기대치보다 잘 이기고 있습니다 (접전에 강함)' : kt.diff < -0.01 ? '기대치보다 덜 이기고 있습니다 — 득실점 대비 순위 상승 여력이 있다는 뜻' : '실력 그대로의 승률입니다';
+      document.getElementById('pyNote').innerHTML = '<b>kt wiz</b>: 득점 ' + kt.rs + ' · 실점 ' + kt.ra + ' → 기대승률 <b>' + fmt(kt.exp) + '</b> (실제 ' + fmt(kt.act) + '). ' + luck + '. · 공식: 득점¹·⁸³ ÷ (득점¹·⁸³ + 실점¹·⁸³), ' + esc(py.date) + ' 기준';
+    }
+  }
+
   /* ---------- 쇼츠 ---------- */
   function renderShorts(list){
     if(!list || !list.length) return;
@@ -1478,6 +1529,7 @@
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
         renderMagic(j.standings);
+        renderPythag(j.pythag);
         renderYT(j.youtube);
         renderShorts(j.shorts);
         renderGall(j.gall);
