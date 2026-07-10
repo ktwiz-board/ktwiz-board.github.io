@@ -378,34 +378,43 @@
   footer{margin:120px 0 0;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding:26px 0 64px;font-weight:500;line-height:1.9}
   footer a{color:var(--muted)}
 
-  /* ---------- 마법 인트로 (마우더의 지도 주문) ---------- */
-  #spell{position:fixed;inset:0;z-index:200;background:radial-gradient(720px 480px at 50% 46%,#15100c,#050403 78%);display:grid;place-items:center;overflow:hidden;transition:opacity 1.1s ease,visibility 1.1s}
+  /* ---------- 마법 인트로: 지도가 펼쳐지는 연출 (자체 제작) ---------- */
+  #spell{position:fixed;inset:0;z-index:200;background:radial-gradient(760px 520px at 50% 46%,#15100c,#050403 78%);display:grid;place-items:center;overflow:hidden;transition:opacity 1s ease,visibility 1s}
   #spell.done{opacity:0;visibility:hidden;pointer-events:none}
-  #spell .quill{text-align:center;padding:0 24px}
-  #spell .inc{font-size:clamp(20px,3.6vw,34px);font-weight:600;line-height:1.7;color:#e9c877;letter-spacing:.02em;
-    font-family:"Apple SD Gothic Neo","Malgun Gothic",serif;text-shadow:0 0 26px rgba(217,169,76,.45);text-wrap:balance}
-  #spell .inc .en{display:block;margin-top:14px;font-size:.5em;letter-spacing:.34em;color:rgba(233,200,119,.62);font-weight:500;text-transform:uppercase}
-  #spell .inkline{margin:26px auto 0;height:1px;width:0;background:linear-gradient(90deg,transparent,#e9c877,transparent)}
+  #spell .mapfold{width:min(680px,92vw);perspective:1200px}
+  #spell .mapfold svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 34px rgba(217,169,76,.18))}
+  /* 접힌 지도가 좌우로 펼쳐짐 */
+  #spell.run .mapfold svg{animation:unfold 1.1s cubic-bezier(.22,1,.36,1) both}
+  @keyframes unfold{0%{transform:scaleX(.04) rotateY(28deg);opacity:.4}55%{opacity:1}100%{transform:scaleX(1) rotateY(0);opacity:1}}
+  #spell .map-cap{margin:26px 0 0;text-align:center;font-size:clamp(14px,2.2vw,17px);color:rgba(233,200,119,.85);font-weight:600;letter-spacing:.14em;opacity:0}
+  #spell.run .map-cap{animation:capIn 1s var(--ease) 1s both}
+  @keyframes capIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  /* 지도 내부 잉크 라인 공통 */
+  #spell .mi{fill:none;stroke:#d9a94c;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  #spell .mi.thin{stroke-width:1.2;stroke:rgba(217,169,76,.55)}
+  #spell .mi.dot{stroke-dasharray:3 9;stroke:rgba(233,200,119,.8);stroke-width:2.4}
+  #spell .mf{fill:rgba(233,200,119,.85);stroke:none}
+  #spell .mtx{fill:#e9c877;font-family:Georgia,"Apple SD Gothic Neo",serif;letter-spacing:.3em;font-weight:700}
+  #spell .mtx.sub{fill:rgba(233,200,119,.55);letter-spacing:.42em;font-weight:500}
   #spell .skip{position:absolute;right:22px;bottom:20px;font-size:11px;letter-spacing:.18em;color:rgba(233,200,119,.5);background:none;border:1px solid rgba(233,200,119,.28);border-radius:99px;padding:7px 15px;cursor:pointer;font-weight:600}
   #spell .skip:hover{color:#e9c877;border-color:rgba(233,200,119,.6)}
-  @keyframes incIn{0%{opacity:0;filter:blur(8px);letter-spacing:.14em}100%{opacity:1;filter:blur(0)}}
-  #spell.run .inc{animation:incIn 1.5s var(--ease) both}
-  #spell.run .inkline{animation:inkGrow 1.3s var(--ease) .7s both}
-  @keyframes inkGrow{to{width:min(340px,64vw)}}
 
   /* ---------- 마우더의 지도: 배경 전체에 깔리는 잉크 지도 (콘텐츠 뒤, 절대 안 가림) ---------- */
   #trail{position:absolute;top:0;left:0;width:100%;z-index:0;pointer-events:none;overflow:hidden}
   #trail svg{display:block;width:100%;height:100%}
   /* 메인 동선 */
-  #trail .path{fill:none;stroke:rgba(217,169,76,.24);stroke-width:2.8;stroke-dasharray:4 12;stroke-linecap:round}
-  #trail .prog{fill:none;stroke:rgba(233,200,119,.6);stroke-width:3.4;stroke-linecap:round;filter:drop-shadow(0 0 9px rgba(233,200,119,.45))}
-  /* 보조 동선(복도) 2가닥 — 항상 은은하게 표시, 지도의 다른 통로 느낌 */
+  #trail .path{fill:none;stroke:rgba(217,169,76,.32);stroke-width:3.2;stroke-dasharray:5 13;stroke-linecap:round}
+  #trail .prog{fill:none;stroke:rgba(233,200,119,.72);stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 11px rgba(233,200,119,.55))}
+  /* 보조 동선(복도) 2가닥 — 뚜렷하게, 지도의 다른 통로 느낌 */
   #trail .side{fill:none;stroke-linecap:round}
-  #trail .side.a{stroke:rgba(217,169,76,.15);stroke-width:1.8;stroke-dasharray:3 10}
-  #trail .side.b{stroke:rgba(217,169,76,.11);stroke-width:1.5;stroke-dasharray:7 15}
-  /* 발자국: 두 개가 한 쌍(좌우 교차), 큼직하게 */
-  #trail .foot{fill:rgba(233,200,119,.8);opacity:0;transition:opacity .5s;filter:drop-shadow(0 0 5px rgba(233,200,119,.5))}
-  #trail .foot.dim{fill:rgba(217,169,76,.22);filter:none}
+  #trail .side.a{stroke:rgba(217,169,76,.24);stroke-width:2.4;stroke-dasharray:4 11}
+  #trail .side.b{stroke:rgba(217,169,76,.18);stroke-width:2;stroke-dasharray:8 16}
+  /* 발자국: 발바닥+발가락 세트, 큼직하게 */
+  #trail .foot{fill:rgba(233,200,119,.9);opacity:0;transition:opacity .5s;filter:drop-shadow(0 0 7px rgba(233,200,119,.6))}
+  #trail .foot.dim{fill:rgba(217,169,76,.26);filter:none}
+  /* 스크롤 스파클 (진행 지점에서 터지는 금빛 별) */
+  #trail .spark{fill:rgba(233,200,119,.95);filter:drop-shadow(0 0 6px rgba(233,200,119,.8));animation:sparkle .9s ease-out forwards;transform-box:fill-box;transform-origin:center}
+  @keyframes sparkle{0%{opacity:0;transform:scale(.2) rotate(0deg)}25%{opacity:1}100%{opacity:0;transform:scale(1.5) rotate(140deg) translateY(-14px)}}
   /* 갈림길 지점의 손글씨 지명 라벨 */
   #trail .label{fill:rgba(233,200,119,.4);font-family:Georgia,"Apple SD Gothic Neo",serif;font-style:italic;letter-spacing:.02em}
   #trail .label-en{fill:rgba(233,200,119,.24);font-family:Georgia,serif;font-style:italic}
@@ -496,11 +505,40 @@
 <body>
 
 
-<!-- ================= 마법 인트로 ================= -->
+<!-- ================= 마법 인트로: 지도 펼침 ================= -->
 <div id="spell" aria-hidden="true">
-  <div class="quill">
-    <div class="inc">말썽을 부리겠다고 엄숙히 맹세합니다<span class="en">I solemnly swear that I am up to no good</span></div>
-    <div class="inkline"></div>
+  <div class="mapfold">
+    <svg id="introMap" viewBox="0 0 720 430" xmlns="http://www.w3.org/2000/svg">
+      <!-- 지도 테두리 (이중 액자) -->
+      <rect class="mi" x="10" y="10" width="700" height="410" rx="4"/>
+      <rect class="mi thin" x="22" y="22" width="676" height="386" rx="3"/>
+      <!-- 모서리 장식 -->
+      <path class="mi thin" d="M22 52 L52 22 M668 22 L698 52 M22 378 L52 408 M668 408 L698 378"/>
+      <!-- 타이틀 -->
+      <text class="mtx" x="360" y="66" text-anchor="middle" font-size="24">SUWON KT WIZ PARK</text>
+      <text class="mtx sub" x="360" y="90" text-anchor="middle" font-size="11">— MAGIC MAP OF THE BIG INNING —</text>
+      <!-- 성 실루엣 (미니) -->
+      <path class="mi" d="M120 300 V240 M160 300 V240 M120 240 H160 M126 240 L140 208 L154 240 M300 300 V220 M360 300 V220 M300 220 H316 V208 H330 V220 H346 V208 H360 V220 M322 300 V262 A8 8 0 0 1 338 262 V300 M560 300 V240 M600 300 V240 M560 240 H600 M566 240 L580 208 L594 240 M80 300 H640"/>
+      <path class="mi thin" d="M330 220 L330 180 M322 186 L330 168 L338 186"/>
+      <!-- 다이아몬드(내야) -->
+      <path class="mi thin" d="M360 358 L392 334 L360 310 L328 334 Z"/>
+      <circle class="mf" cx="360" cy="334" r="2.6"/>
+      <!-- 잉크 발자국 동선 -->
+      <path class="mi dot" d="M60 380 C 140 340, 200 380, 280 350 S 440 300, 520 340 S 630 330, 668 300"/>
+      <ellipse class="mf" cx="150" cy="357" rx="4" ry="6.4" transform="rotate(-14 150 357)"/>
+      <ellipse class="mf" cx="238" cy="362" rx="4" ry="6.4" transform="rotate(10 238 362)"/>
+      <ellipse class="mf" cx="410" cy="322" rx="4" ry="6.4" transform="rotate(8 410 322)"/>
+      <ellipse class="mf" cx="500" cy="332" rx="4" ry="6.4" transform="rotate(-6 500 332)"/>
+      <ellipse class="mf" cx="610" cy="318" rx="4" ry="6.4" transform="rotate(-18 610 318)"/>
+      <!-- 나침반 -->
+      <circle class="mi thin" cx="640" cy="130" r="30"/>
+      <circle class="mi thin" cx="640" cy="130" r="18"/>
+      <path class="mf" d="M640 104 L646 130 L640 156 L634 130 Z"/>
+      <text class="mtx sub" x="640" y="94" text-anchor="middle" font-size="11">N</text>
+      <!-- 마법 별 -->
+      <path class="mf" d="M90 130 l4 9 9.5 1.4 -6.8 6.6 1.6 9.4 -8.3 -4.4 -8.3 4.4 1.6 -9.4 -6.8 -6.6 9.5 -1.4 Z"/>
+    </svg>
+    <p class="map-cap">수원의 마법 지도가 펼쳐집니다 ⚾</p>
   </div>
   <button class="skip" id="spellSkip">건너뛰기 ✕</button>
 </div>
@@ -842,7 +880,7 @@
   <footer>
     스코어·순위·라인업·날씨는 자동 수집으로 갱신됩니다. 비공식 팬 페이지이며 kt wiz·KBO와 무관합니다.<br>
     배경 이미지: 수원 kt wiz 파크에서 직접 촬영.
-    <div class="mischief">장난 완료. — Mischief Managed 🪄</div>
+    <div class="mischief">오늘의 마법 끝. 내일 수원에서 다시 펼쳐집니다 🪄</div>
   </footer>
 </div>
 
@@ -860,9 +898,35 @@
     if(reduce || seen){ close(); return; }
     try { sessionStorage.setItem('spellSeen', '1'); } catch(e){}
     document.body.style.overflow = 'hidden';
-    requestAnimationFrame(() => spell.classList.add('run'));
+    /* 잉크 draw-on: 펼침(1.1s) 후 지도 내부 선들이 순서대로 그려짐 */
+    const strokes = spell.querySelectorAll('#introMap .mi');
+    strokes.forEach((el, i) => {
+      let len; try { len = el.getTotalLength(); } catch(e){ return; }
+      if(!len) return;
+      el.style.strokeDasharray = el.classList.contains('dot') ? '3 9' : len;
+      if(!el.classList.contains('dot')){
+        el.style.strokeDashoffset = len;
+        el.style.transition = 'stroke-dashoffset 1s cubic-bezier(.22,1,.36,1) ' + (0.9 + i * 0.08) + 's';
+      } else {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity .8s ease ' + (1.6 + i * 0.08) + 's';
+      }
+    });
+    const marks = spell.querySelectorAll('#introMap .mf, #introMap .mtx');
+    marks.forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity .7s ease ' + (1.4 + i * 0.06) + 's';
+    });
+    const go = () => {
+      if(spell.classList.contains('run')) return;
+      spell.classList.add('run');
+      strokes.forEach(el => { el.style.strokeDashoffset = '0'; el.style.opacity = '1'; });
+      marks.forEach(el => { el.style.opacity = '1'; });
+    };
+    requestAnimationFrame(() => requestAnimationFrame(go));
+    setTimeout(go, 120); // rAF가 억제되는 환경(백그라운드 탭 등) 폴백
     const finish = () => { close(); document.body.style.overflow = ''; };
-    const timer = setTimeout(finish, 3200);
+    const timer = setTimeout(finish, 4200);
     document.getElementById('spellSkip').addEventListener('click', () => { clearTimeout(timer); finish(); });
   })();
 
@@ -1068,23 +1132,32 @@
       sideA.setAttribute('d', dA);
       sideB.setAttribute('d', dB);
 
-      // 발자국: 촘촘하고 크게 — 약 300px 간격
+      // 발자국: 발바닥 + 발가락 3개 세트, 큼직하게 — 약 280px 간격
       footG.innerHTML = ''; feet = [];
-      const n = Math.max(8, Math.min(64, Math.round(H / 300)));
-      const footR = mobile ? 4 : 5;
+      const n = Math.max(8, Math.min(70, Math.round(H / 280)));
+      const footR = mobile ? 6 : 8;
       for(let i = 1; i <= n; i++){
         const at = i / (n + 1);
         const pt = prog.getPointAtLength(L * at);
         const nx = prog.getPointAtLength(Math.min(L, L * at + 1));
-        const ang = Math.atan2(nx.y - pt.y, nx.x - pt.x) * 180 / Math.PI + 90;
-        const side = i % 2 ? footR * 2.1 : -footR * 2.1;
-        const e = el('ellipse', {
-          cx: (pt.x + side).toFixed(1), cy: pt.y.toFixed(1),
-          rx: footR, ry: (footR * 1.55).toFixed(1),
+        const rad = Math.atan2(nx.y - pt.y, nx.x - pt.x);
+        const ang = rad * 180 / Math.PI + 90;
+        const side = (i % 2 ? 1 : -1) * footR * 2;
+        // 진행 방향 기준 좌우 오프셋
+        const px = pt.x + Math.cos(rad + Math.PI / 2) * side;
+        const py = pt.y + Math.sin(rad + Math.PI / 2) * side;
+        const g = el('g', {
           class: 'foot dim',
-          transform: 'rotate(' + ang.toFixed(1) + ' ' + (pt.x + side).toFixed(1) + ' ' + pt.y.toFixed(1) + ')'
+          transform: 'rotate(' + ang.toFixed(1) + ' ' + px.toFixed(1) + ' ' + py.toFixed(1) + ')'
         });
-        footG.appendChild(e); feet.push({ el: e, at });
+        // 발바닥
+        g.appendChild(el('ellipse', { cx: px.toFixed(1), cy: py.toFixed(1), rx: footR * .62, ry: footR }));
+        // 발가락 3개 (발끝 위쪽에 부채꼴)
+        const toeR = footR * .22;
+        [[-.45, -1.32], [0, -1.5], [.45, -1.32]].forEach(([ox, oy]) => {
+          g.appendChild(el('circle', { cx: (px + ox * footR).toFixed(1), cy: (py + oy * footR).toFixed(1), r: toeR.toFixed(1) }));
+        });
+        footG.appendChild(g); feet.push({ el: g, at, x: px, y: py });
       }
 
       // 지명 라벨 + 갈림길 마커 (데스크톱만 — 모바일은 CSS로 숨김, 좁은 화면 텍스트 겹침 방지)
@@ -1115,6 +1188,25 @@
       update();
     }
 
+    /* 스크롤 스파클: 진행 지점에서 금빛 별이 터짐 */
+    let lastSparkT = 0, lastSparkY = 0;
+    function spawnSparks(pt){
+      const t = performance.now();
+      if(t - lastSparkT < 120) return;
+      lastSparkT = t;
+      const STAR = 'M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6 Z';
+      const cnt = 3 + Math.floor(Math.random() * 3);
+      for(let i = 0; i < cnt; i++){
+        const ox = (Math.random() - .5) * 56, oy = (Math.random() - .5) * 40;
+        const s = .5 + Math.random() * .9;
+        // 위치는 바깥 g(속성 transform), 애니메이션은 안쪽 path(CSS transform) — 충돌 방지
+        const g = el('g', { transform: 'translate(' + (pt.x + ox).toFixed(1) + ' ' + (pt.y + oy).toFixed(1) + ') scale(' + s.toFixed(2) + ')' });
+        g.appendChild(el('path', { d: STAR, class: 'spark' }));
+        svg.appendChild(g);
+        setTimeout(() => g.remove(), 950);
+      }
+    }
+
     function update(){
       if(!L) return;
       // 진행 기준점 = 화면 정중앙: 지금 보고 있는 위치까지 발자국이 따라옴
@@ -1125,6 +1217,11 @@
         const on = p >= f.at - .012;
         f.el.style.opacity = on ? '.95' : '';
         f.el.classList.toggle('dim', !on);
+      }
+      // 충분히 스크롤이 이동했을 때만 진행 지점에서 스파클
+      if(Math.abs(scrollY - lastSparkY) > 90){
+        lastSparkY = scrollY;
+        try { spawnSparks(prog.getPointAtLength(L * p)); } catch(e){}
       }
     }
 
