@@ -320,7 +320,7 @@
 
   /* ---------- 쇼츠 ---------- */
   .shorts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-  .shorts a{position:relative;display:block;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#111 center/cover no-repeat;text-decoration:none}
+  .shorts a{position:relative;display:block;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);text-decoration:none}
   .shorts a img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease)}
   .shorts a:hover img{transform:scale(1.06)}
   .shorts a::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.55));z-index:1}
@@ -1349,10 +1349,26 @@
   }
 
   /* KT 타이포 배너 갱신 */
+  let ktWeekCache = null; // 다음 경기 안내용 (loadData에서 갱신)
+
   function updateBanner(games){
     const g = games.find(x => x.home === 'KT' || x.away === 'KT');
-    if(!g) return;
     const m = document.getElementById('ktMatch'), d = document.getElementById('ktDetail');
+    if(!g){
+      /* 오늘 KT 경기 없음 → 휴식일 표기 + 다음 경기 안내 */
+      m.innerHTML = '오늘은 <span class="live-score">경기가 없는 날</span>';
+      let next = '';
+      if(ktWeekCache && ktWeekCache.length){
+        const today = ktWeekCache[0] && ktWeekCache[0].date;
+        const n = ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
+        if(n){
+          const ktHome = n.home === 'KT';
+          next = '다음 경기: ' + n.date.slice(5).replace('-', '. ') + ' vs <b>' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + (ktHome ? ' (홈)' : ' (원정)');
+        }
+      }
+      d.innerHTML = next || '마법사들도 재정비 중 — 다음 경기에서 만나요 🧙';
+      return;
+    }
     const done = g.code === 'RESULT' || g.code === 'ENDED';
     const playing = g.code === 'STARTED' || g.code === 'LIVE';
     if(playing || done){
@@ -1790,7 +1806,7 @@
     document.getElementById('shortsSec').style.display = 'block';
     document.getElementById('shortsGrid').innerHTML = list.map(s =>
       '<a href="https://www.youtube.com/shorts/' + esc(s.id) + '" target="_blank" rel="noopener" aria-label="kt위즈 쇼츠">' +
-      '<img loading="lazy" src="https://i.ytimg.com/vi/' + esc(s.id) + '/oardefault.jpg" ' +
+      '<img src="https://i.ytimg.com/vi/' + esc(s.id) + '/oardefault.jpg" width="180" height="320" ' +
       'onerror="this.src=&quot;https://i.ytimg.com/vi/' + esc(s.id) + '/hqdefault.jpg&quot;" alt=""></a>'
     ).join('');
   }
@@ -1820,9 +1836,10 @@
         if(!j || !j.games) continue;
         updatedKST = j.updatedKST || '';
         updatedISO = j.updated || null;
+        ktWeekCache = (j.kt && j.kt.week) || null;
         renderStandings(j.standings);
         if(j.games.length) render(j.games, true);
-        else { board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>'; stamp.textContent = '자동 수집 · ' + updatedKST + ' KST'; }
+        else { board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>'; stamp.textContent = '자동 수집 · ' + updatedKST + ' KST'; dot.style.background = '#86868b'; updateBanner([]); }
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
         renderAttend(j.kt);

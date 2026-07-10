@@ -132,10 +132,11 @@ async function pythagorean(today) {
   // ---- 수집 모드 결정 ----
   // live: 진행 중 경기 있음 → 5분 주기 풀 수집
   // pre : 경기 전         → 10분 주기 풀 수집 (라인업 발표 감지)
-  // post: 전 경기 종료     → 유튜브·쇼츠만 갱신, 30분 주기
+  // post: 전 경기 종료 또는 경기 없는 날 → 하루 첫 스냅샷 후 유튜브·쇼츠만, 30분 주기
   const anyLive = todayGames.some(g => g.code === 'STARTED' || g.code === 'LIVE');
   const allDone = todayGames.length > 0 && todayGames.every(g => ['RESULT', 'ENDED', 'CANCEL'].includes(g.code));
-  const mode = anyLive ? 'live' : (allDone ? 'post' : 'pre');
+  const noGames = todayGames.length === 0;
+  const mode = anyLive ? 'live' : ((allDone || noGames) ? 'post' : 'pre');
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
@@ -286,7 +287,10 @@ async function pythagorean(today) {
     date: today,
     mode,
     games: todayGames,
-    standings: Object.values(standings).sort((a, b) => a.rank - b.rank),
+    // 경기 없는 날엔 preview가 없어 순위를 못 구함 → 직전 순위 유지
+    standings: Object.keys(standings).length >= 10
+      ? Object.values(standings).sort((a, b) => a.rank - b.rank)
+      : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank)),
     kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame },
     youtube, shorts, gall, pythag
   };
