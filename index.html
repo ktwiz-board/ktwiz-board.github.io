@@ -1376,6 +1376,12 @@
   function render(games, live){
     lastGames = games; lastLive = live;
     updateBanner(games);
+    if(!games.length){
+      board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>';
+      stamp.textContent = '자동 수집 · ' + updatedKST + ' KST';
+      dot.style.background = '#86868b';
+      return;
+    }
     games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
     board.innerHTML = games.map(g => {
       const isKT = g.home === 'KT' || g.away === 'KT';
@@ -1878,8 +1884,7 @@
         updatedISO = j.updated || null;
         ktWeekCache = (j.kt && j.kt.week) || null;
         renderStandings(j.standings);
-        if(j.games.length) render(j.games, true);
-        else { board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>'; stamp.textContent = '자동 수집 · ' + updatedKST + ' KST'; dot.style.background = '#86868b'; updateBanner([]); }
+        render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
         renderAttend(j.kt);
