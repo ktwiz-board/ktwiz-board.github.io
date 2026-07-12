@@ -90,6 +90,29 @@ async function fetchShorts() {
   return shorts;
 }
 
+// kt wiz 관련 뉴스 (구글 뉴스 RSS — 제목·링크·출처만 사용)
+async function fetchNews() {
+  try {
+    const r = await fetch('https://news.google.com/rss/search?q=%22kt%20%EC%9C%84%EC%A6%88%22%20OR%20%22kt%20wiz%22&hl=ko&gl=KR&ceid=KR:ko', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const xml = await r.text();
+    const items = [...xml.matchAll(/<item><title>([^<]+)<\/title><link>([^<]+)<\/link><guid[^>]*>[^<]*<\/guid><pubDate>([^<]+)<\/pubDate>[\s\S]*?<source url="[^"]*">([^<]+)<\/source>/g)];
+    const seen = new Set();
+    return items.map(m => {
+      const d = new Date(m[3]);
+      return {
+        title: m[1].replace(/ - [^-]+$/, '').trim(),
+        url: m[2],
+        src: m[4],
+        date: isNaN(d) ? '' : new Date(d.getTime() + 9 * 3600000).toISOString().slice(5, 10).replace('-', '.'),
+        ts: isNaN(d) ? 0 : d.getTime()
+      };
+    })
+    .filter(n => { const k = n.title.slice(0, 24); if (seen.has(k)) return false; seen.add(k); return n.title.length > 8; })
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 6);
+  } catch (e) { console.error('news fail', e.message); return []; }
+}
+
 // 피타고라스 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 async function pythagorean(today) {
   const ranges = [['2026-03-01', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
@@ -141,20 +164,21 @@ async function pythagorean(today) {
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today) {
-    const [yt2, sh2] = await Promise.all([fetchYoutube(), fetchShorts()]);
+    const [yt2, sh2, nw2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews()]);
     if (yt2.length) prev.youtube = yt2;
     if (sh2.length) prev.shorts = sh2;
+    if (nw2.length) prev.news = nw2;
     prev.updated = new Date().toISOString();
     prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
     fs.writeFileSync(file, JSON.stringify(prev, null, 1));
-    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length}`);
+    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length} news=${nw2.length}`);
     console.log(`SLEEP=${SLEEP.post}`);
     return;
   }
 
   // 2) 순위표: 오늘 경기들의 preview에서 양팀 standings 수집 (10팀 커버)
   const standings = {};
-  let ktLineup = null, oppLineup = null, ktGameId = null;
+  let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null;
   for (const g of todayGames) {
     try {
       const p = await j(`${API}/schedule/games/${g.id}/preview`);
@@ -173,6 +197,18 @@ async function pythagorean(today) {
         const opSide = g.home === 'KT' ? 'awayTeamLineUp' : 'homeTeamLineUp';
         ktLineup = mapLineup(pd[ktSide]);
         oppLineup = mapLineup(pd[opSide]);
+        // 오늘의 키플레이어 (네이버 프리뷰 선정) — 스포트라이트 자동 교체용
+        const tp = g.home === 'KT' ? pd.homeTopPlayer : pd.awayTopPlayer;
+        if (tp && tp.playerInfo) {
+          const st = tp.currentSeasonStats || {};
+          const r5 = tp.recentFiveGamesStats || {};
+          ktTop = {
+            name: tp.playerInfo.name, backnum: tp.playerInfo.backnum, hitType: tp.playerInfo.hitType,
+            opp: g.home === 'KT' ? g.away : g.home,
+            hra: st.hra, hr: st.hr, rbi: st.rbi, obp: st.obp, games: st.gameCount,
+            r5hra: r5.hra, r5hit: r5.hit, r5ab: r5.ab
+          };
+        }
       }
     } catch (e) { console.error('preview fail', g.id, e.message); }
   }
@@ -247,6 +283,9 @@ async function pythagorean(today) {
     } catch (e) { console.error('lastGame record fail', e.message); }
   }
 
+  // 4.7) 관련 뉴스
+  const news = await fetchNews();
+
   // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
   const youtube = await fetchYoutube();
 
@@ -291,7 +330,12 @@ async function pythagorean(today) {
     standings: Object.keys(standings).length >= 10
       ? Object.values(standings).sort((a, b) => a.rank - b.rank)
       : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank)),
-    kt: { gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame },
+    kt: {
+      gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame,
+      // 경기 없는 날엔 프리뷰가 없어 키플레이어를 못 구함 → 직전 값 유지
+      top: ktTop || (prev && prev.kt && prev.kt.top) || null
+    },
+    news: news.length ? news : ((prev && prev.news) || []),
     youtube, shorts, gall, pythag
   };
 

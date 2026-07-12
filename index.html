@@ -697,7 +697,7 @@
   <!-- ================= 라인업 ================= -->
   <section>
     <div class="sec-head reveal">
-      <p class="kicker">Lineup · vs 키움 18:30</p>
+      <p class="kicker" id="luKicker">Lineup</p>
       <h2>라인업</h2>
     </div>
     <div class="lineups">
@@ -787,17 +787,14 @@
       <h2>이 주의 마법사</h2>
     </div>
     <div class="spot reveal d1">
-      <div class="ghostnum" aria-hidden="true">3</div>
-      <div class="pos">OF · 리드오프 · FA 4년 최대 48억</div>
-      <div class="name">최원준</div>
-      <p>허리 통증으로 4경기 결장, 그리고 7월 5일 롯데전 1번 지명타자 복귀. 전날 대타 안타로 몸 상태를 증명했다 — "이 악물고 뛸게요."</p>
-      <div class="nums">
+      <div class="ghostnum" aria-hidden="true" id="spotNum">3</div>
+      <div class="pos" id="spotPos">오늘의 키플레이어</div>
+      <div class="name" id="spotName">최원준</div>
+      <p id="spotDesc">경기 데이터가 수집되면 이 자리에 그날의 키플레이어가 자동으로 표시됩니다.</p>
+      <div class="nums" id="spotNums">
         <div class="n"><b>.365</b><span>타율</span></div>
-        <div class="n"><b>.962</b><span>OPS</span></div>
-        <div class="n"><b data-count="7">0</b><span>홈런</span></div>
-        <div class="n"><b data-count="44">0</b><span>타점</span></div>
-        <div class="n"><b data-count="66">0</b><span>득점</span></div>
-        <div class="n"><b data-count="16">0</b><span>도루</span></div>
+        <div class="n"><b>7</b><span>홈런</span></div>
+        <div class="n"><b>44</b><span>타점</span></div>
       </div>
     </div>
   </section>
@@ -831,26 +828,15 @@
       <p class="kicker">News</p>
       <h2>wiz 최근 소식</h2>
     </div>
-    <div class="cards">
+    <div class="cards" id="newsCards">
       <div class="card reveal d1">
-        <span class="date">7월 5일 · 수원 kt위즈파크</span>
-        <span class="chip">복귀</span>
-        <h3>최원준, 리드오프 복귀 — "이 악물고 뛸게요"</h3>
-        <p>허리 통증 결장을 딛고 롯데전 1번 지명타자로 선발 출전. 곧바로 라인업의 심장으로 돌아왔다.</p>
-      </div>
-      <div class="card reveal d2">
-        <span class="date">7월 5일 · 수원</span>
-        <span class="chip">타격</span>
-        <h3>더운 여름 날린 홈런 개장</h3>
-        <p>롯데와의 홈 시리즈에서 장타쇼로 여름 더위를 날렸다. 수원의 여름 야구가 뜨겁다.</p>
-      </div>
-      <div class="card reveal d3">
-        <span class="date">시즌 중간 점검</span>
-        <span class="chip">순위 경쟁</span>
-        <h3>3위 kt, 선두권 5게임차 추격전</h3>
-        <p>LG·삼성이 1게임차 선두 다툼 중인 가운데 kt가 5게임차 3위. 4위 KIA와 1.5게임차 — 후반기 2위 도전과 방어전이 동시에 걸렸다.</p>
+        <span class="date">자동 수집 대기 중</span>
+        <span class="chip">뉴스</span>
+        <h3>kt wiz 관련 최신 기사가 이 자리에 자동으로 표시됩니다</h3>
+        <p>구글 뉴스에서 30분 주기로 수집됩니다.</p>
       </div>
     </div>
+    <p class="gall-note reveal d2">구글 뉴스 검색 결과의 제목·출처만 표시하며, 클릭 시 해당 언론사 기사로 이동합니다.</p>
   </section>
 
   <!-- ================= 팬 이야기 ================= -->
@@ -1599,8 +1585,32 @@
   }
 
   function renderLineup(kt, games){
-    if(!kt || !kt.lineup) return; // 미발표 시 기존(직전) 내용 유지
-    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    const gToday = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    /* 오늘 KT 경기 없음 → 낡은 라인업 대신 안내 + 다음 경기 */
+    if(!gToday){
+      document.getElementById('luTitle').textContent = '오늘 경기 없음';
+      document.getElementById('luLock').textContent = '휴식일';
+      document.getElementById('luWhen').textContent = '';
+      let nextTxt = '다음 경기 라인업은 발표 후 자동 표시됩니다.';
+      const n = ktWeekCache && ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
+      if(n){
+        const ktHome = n.home === 'KT';
+        nextTxt = '다음 경기: <b>' + n.date.slice(5).replace('-', '. ') + ' vs ' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + ' — 라인업은 발표 후 자동 표시';
+      }
+      document.getElementById('luStarter').innerHTML = nextTxt;
+      document.getElementById('luList').innerHTML = '<li style="color:var(--muted)">오늘은 경기가 없는 날입니다 ⚾</li>';
+      return;
+    }
+    const oppK = gToday.home === 'KT' ? gToday.away : gToday.home;
+    document.getElementById('luKicker').textContent = 'Lineup · vs ' + oppK + ' ' + (gToday.time || '');
+    if(!kt || !kt.lineup){
+      /* 경기는 있지만 라인업 미발표 → 예상 표기 */
+      document.getElementById('luTitle').textContent = '라인업 발표 전';
+      document.getElementById('luLock').textContent = '대기 중';
+      document.getElementById('luWhen').textContent = gToday.date.slice(5).replace('-','/') + ' · ' + gToday.stadium;
+      return;
+    }
+    const g = gToday;
     const opp = g ? (g.home === 'KT' ? g.away : g.home) : '';
     const oppStarter = g ? (g.home === 'KT' ? g.ap : g.hp) : '';
     document.getElementById('luTitle').textContent = '오늘 확정 라인업';
@@ -1800,6 +1810,36 @@
     }
   }
 
+  /* ---------- 뉴스 (구글 뉴스 수집) ---------- */
+  function renderNews(news){
+    if(!news || !news.length) return; // 수집 전엔 안내 카드 유지
+    document.getElementById('newsCards').innerHTML = news.slice(0, 6).map((n, i) =>
+      '<a class="card reveal on" href="' + esc(n.url) + '" target="_blank" rel="noopener nofollow" style="text-decoration:none;color:inherit">' +
+      '<span class="date">' + esc(n.date || '') + ' · ' + esc(n.src || '') + '</span>' +
+      '<span class="chip">기사</span>' +
+      '<h3>' + esc(n.title) + '</h3></a>'
+    ).join('');
+  }
+
+  /* ---------- 스포트라이트 (오늘의 키플레이어 자동) ---------- */
+  function renderSpot(top){
+    if(!top || !top.name) return; // 데이터 전엔 기존 내용 유지
+    document.getElementById('spotNum').textContent = top.backnum || '';
+    document.getElementById('spotPos').textContent = '오늘의 키플레이어 · No.' + (top.backnum || '-') + (top.hitType ? ' · ' + top.hitType : '');
+    document.getElementById('spotName').textContent = top.name;
+    const r5 = top.r5hra ? '최근 5경기 타율 ' + ('' + top.r5hra).replace(/^0\./, '.') + ' (' + top.r5ab + '타수 ' + top.r5hit + '안타)' : '';
+    document.getElementById('spotDesc').textContent =
+      (top.opp ? esc(top.opp) + '전을 앞두고 네이버 프리뷰가 선정한 kt 키플레이어. ' : '') + r5;
+    const nums = [];
+    if(top.hra) nums.push(['타율', ('' + top.hra).replace(/^0\./, '.')]);
+    if(top.obp) nums.push(['출루율', ('' + top.obp).replace(/^0\./, '.')]);
+    if(top.hr != null) nums.push(['홈런', top.hr]);
+    if(top.rbi != null) nums.push(['타점', top.rbi]);
+    if(top.games != null) nums.push(['경기', top.games]);
+    document.getElementById('spotNums').innerHTML = nums.map(([l, v]) =>
+      '<div class="n"><b>' + esc('' + v) + '</b><span>' + esc(l) + '</span></div>').join('');
+  }
+
   /* ---------- 쇼츠 ---------- */
   function renderShorts(list){
     if(!list || !list.length) return;
@@ -1846,6 +1886,8 @@
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
+        renderNews(j.news);
+        renderSpot(j.kt && j.kt.top);
         renderMagic(j.standings);
         renderPythag(j.pythag);
         renderYT(j.youtube);
