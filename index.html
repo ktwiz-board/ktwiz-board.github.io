@@ -874,6 +874,25 @@
 (function(){
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
+  const BUILD = '20260716-223315';
+  async function checkVersion(){
+    try{
+      const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
+      if(!r.ok) return;
+      const v = (await r.text()).trim();
+      if(!v || v === BUILD || BUILD.indexOf('%') === 0) return; // 로컬/플레이스홀더는 무시
+      let done = '';
+      try{ done = localStorage.getItem('wizReloadedFor') || ''; }catch(e){}
+      if(done === v) return; // 같은 버전으로 이미 리로드함 (루프 방지)
+      try{ localStorage.setItem('wizReloadedFor', v); }catch(e){}
+      location.reload();
+    }catch(e){}
+  }
+  setTimeout(checkVersion, 8000);
+  setInterval(checkVersion, 600000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) checkVersion(); });
+
   /* ---------- 마법 인트로 (세션당 1회) ---------- */
   (function intro(){
     const spell = document.getElementById('spell');
