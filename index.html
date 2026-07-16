@@ -875,7 +875,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260716-223315';
+  const BUILD = '20260716-224020';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1378,7 +1378,7 @@
     const playing = g.code === 'STARTED' || g.code === 'LIVE';
     if(playing || done){
       m.innerHTML = esc(g.away) + ' <span class="live-score">' + g.as + '</span><span class="at">:</span><span class="live-score">' + g.hs + '</span> ' + esc(g.home);
-      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · 수원 kt wiz 파크';
+      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)');
     }else{
       m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
       const wname = Object.keys(COORD).find(n => (g.stadium||'').indexOf(n) === 0);
@@ -1388,7 +1388,7 @@
         const pl = playability(w.pp, w.code);
         if(pl) pb = ' <span class="playbadge ' + pl.s + '" title="' + esc(pl.d) + '">' + w.icon + ' ' + esc(pl.t) + '</span>';
       }
-      d.innerHTML = '오늘 18:30 · 수원 kt wiz 파크 · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
+      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + ' · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
     }
   }
 
