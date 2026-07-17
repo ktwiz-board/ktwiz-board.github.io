@@ -114,6 +114,8 @@ async function fetchNews() {
 }
 
 // 피타고라스 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
+const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
+
 async function pythagorean(today) {
   const ranges = [['2026-03-01', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
   const agg = {}; // name -> {rs, ra, w, l, d}
@@ -122,6 +124,8 @@ async function pythagorean(today) {
     const gs = await games(f, t, 500);
     for (const g of gs) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
+      // 올스타전(나눔·드림)·시범경기 등 정규 10개 구단 매치가 아닌 경기 제외
+      if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
@@ -315,7 +319,10 @@ async function pythagorean(today) {
   } catch (e) { console.error('gall fail', e.message); }
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
-  let pythag = (prev && prev.pythag && prev.pythag.date === today) ? prev.pythag : null;
+  const prevPyValid = prev && prev.pythag && prev.pythag.date === today
+    && prev.pythag.teams && prev.pythag.teams.length === 10
+    && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
+  let pythag = prevPyValid ? prev.pythag : null;
   if (!pythag) {
     try { pythag = await pythagorean(today); } catch (e) { console.error('pythag fail', e.message); pythag = (prev && prev.pythag) || null; }
   }
