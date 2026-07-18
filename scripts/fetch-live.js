@@ -117,7 +117,8 @@ async function fetchNews() {
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
 async function pythagorean(today) {
-  const ranges = [['2026-03-01', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
+  // 2026 정규시즌 개막일 = 3/29 (그 이전은 시범경기 — 전 구단 경기수 대조로 확정)
+  const ranges = [['2026-03-29', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
   const agg = {}; // name -> {rs, ra, w, l, d}
   for (const [f, t] of ranges) {
     if (f > today) break;
@@ -136,6 +137,7 @@ async function pythagorean(today) {
   const E = 1.83;
   return {
     date: today,
+    v: 2,
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
@@ -320,6 +322,7 @@ async function pythagorean(today) {
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
+    && prev.pythag.v === 2
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;

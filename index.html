@@ -653,24 +653,6 @@
     </div>
   </section>
 
-  <!-- ================= 내 직관 기록 ================= -->
-  <section>
-    <div class="sec-head reveal">
-      <p class="kicker">My Games</p>
-      <h2>내 직관 기록</h2>
-      <p class="sub">이 기기에만 저장됩니다 (서버 전송 없음) — 직관한 경기를 체크해보세요</p>
-    </div>
-    <div class="attend reveal d1">
-      <div class="attend-stat" id="attendStat">
-        <div class="a-num"><b id="attendCount">0</b><span>직관 경기</span></div>
-        <div class="a-num"><b id="attendWin">0</b><span>승</span></div>
-        <div class="a-num"><b id="attendRate">—</b><span>내 직관 승률</span></div>
-        <div class="a-badge" id="attendBadge"></div>
-      </div>
-      <ul class="attendlist" id="attendList"><li class="empty-hint">경기 데이터 수집 대기 중</li></ul>
-    </div>
-  </section>
-
   <!-- ================= 시즌 순위 변동 ================= -->
   <section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
@@ -875,7 +857,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260716-224020';
+  const BUILD = '20260718-233528';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1906,7 +1888,6 @@
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
-        renderAttend(j.kt);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
