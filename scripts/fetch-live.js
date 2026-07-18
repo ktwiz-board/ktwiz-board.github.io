@@ -181,14 +181,16 @@ async function pythagorean(today) {
     travelTeams.push({ name: nm, km: Math.round(km), moves, last: prevSt });
   }
   travelTeams.sort((a, b) => b.km - a.km);
-  const ktSeq = (seq['KT'] || []).slice(-6).map(e => e.st);
+  const ktSeq = (seq['KT'] || []).slice(-8).map(e => e.st);
+  const seqByTeam = {};
+  for (const nm of KBO_TEAMS) seqByTeam[nm] = (seq[nm] || []).slice(-6).map(e => e.st);
 
   const E = 1.83;
   return {
     date: today,
-    v: 5,
+    v: 6,
     h2h,
-    travel: { teams: travelTeams, ktSeq },
+    travel: { teams: travelTeams, ktSeq, seqByTeam },
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
@@ -198,12 +200,15 @@ async function pythagorean(today) {
 }
 
 // 잔여 일정 난이도: 남은 상대들의 현재 승률 가중 평균 (자체 산식)
+// 주의: KBO 일정 API가 시즌 전체를 미리 공개하지 않아, 공개된 만큼의 표본으로 "상대 평균 승률"만 추정하고
+// "남은 경기수"는 정규시즌 144경기 - 소화경기로 정확히 계산한다 (표본 수와 혼동 금지).
 async function scheduleDifficulty(today, standings) {
-  const wraMap = {};
-  for (const t of standings) wraMap[t.name] = parseFloat(t.wra) || 0.5;
+  const SEASON_GAMES = 144;
+  const wraMap = {}, playedMap = {};
+  for (const t of standings) { wraMap[t.name] = parseFloat(t.wra) || 0.5; playedMap[t.name] = t.w + t.l + t.d; }
   const future = [
     ...(await games(today, '2026-08-31', 500)),
-    ...(await games('2026-09-01', '2026-10-10', 500))
+    ...(await games('2026-09-01', '2026-10-31', 500))
   ].filter(g => g.statusCode === 'BEFORE' && !g.cancel
     && KBO_TEAMS.includes(g.homeTeamName) && KBO_TEAMS.includes(g.awayTeamName));
   const acc = {};
@@ -213,11 +218,17 @@ async function scheduleDifficulty(today, standings) {
       acc[me].n++; acc[me].sum += (wraMap[op] != null ? wraMap[op] : 0.5);
     }
   }
+  const sampleTotal = future.length;
   return {
-    date: today, v: 1,
-    teams: Object.entries(acc).map(([name, a]) => ({
-      name, remaining: a.n, oppWra: +(a.sum / a.n).toFixed(3)
-    })).sort((x, y) => x.oppWra - y.oppWra) // 쉬운 순
+    date: today, v: 2, sampleGames: sampleTotal,
+    teams: KBO_TEAMS.map(name => {
+      const a = acc[name] || { n: 0, sum: 0 };
+      const remaining = Math.max(0, SEASON_GAMES - (playedMap[name] || 0));
+      return {
+        name, remaining, sampleN: a.n,
+        oppWra: a.n ? +(a.sum / a.n).toFixed(3) : 0.5
+      };
+    }).sort((x, y) => x.oppWra - y.oppWra) // 쉬운 순
   };
 }
 
@@ -244,7 +255,7 @@ async function scheduleDifficulty(today, standings) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 5 && prev.sched;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, sh2, nw2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews()]);
     if (yt2.length) prev.youtube = yt2;
@@ -410,7 +421,7 @@ async function scheduleDifficulty(today, standings) {
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 5
+    && prev.pythag.v === 6
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;
@@ -421,7 +432,7 @@ async function scheduleDifficulty(today, standings) {
   // 7.5) 잔여 일정 난이도 — 하루 1회 (순위 확정 후 계산)
   const stForSched = Object.keys(standings).length >= 10
     ? Object.values(standings) : ((prev && prev.standings) || []);
-  let sched = (prev && prev.sched && prev.sched.date === today && prev.sched.v === 1) ? prev.sched : null;
+  let sched = (prev && prev.sched && prev.sched.date === today && prev.sched.v === 2) ? prev.sched : null;
   if (!sched && stForSched.length >= 10) {
     try { sched = await scheduleDifficulty(today, stForSched); }
     catch (e) { console.error('sched fail', e.message); sched = (prev && prev.sched) || null; }

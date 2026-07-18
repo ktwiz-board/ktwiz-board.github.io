@@ -342,6 +342,10 @@
   .h2h td.lose{color:var(--red-soft)}
   .h2h td.diag{color:rgba(255,255,255,.15)}
   .h2h th.kt-col, .h2h td.kt-col{background:rgba(232,16,47,.08)}
+  .h2h th.focus-col, .h2h td.focus-col{background:rgba(217,169,76,.14)}
+  .h2h tr.focus-row td:first-child{color:var(--gold)}
+  .h2h td.focus-cell{outline:2px solid rgba(217,169,76,.7);outline-offset:-2px}
+  .h2h-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500;line-height:1.8}
   .h2h td{font-size:12.5px;padding:10px 8px;text-align:center}
   .h2h th{text-align:center;padding:12px 8px}
   .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
@@ -383,6 +387,10 @@
   .kr-dot.kt{fill:var(--red-soft);filter:drop-shadow(0 0 6px rgba(232,16,47,.8))}
   .kr-lbl{fill:rgba(233,200,119,.55);font-size:10px;font-weight:700;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
   .kr-route{fill:none;stroke:rgba(255,77,99,.55);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round}
+  .kr-route.other{stroke:rgba(233,200,119,.16);stroke-width:1.1;stroke-dasharray:2 6}
+  .kr-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--muted);font-weight:600}
+  .kr-legend span{display:inline-flex;align-items:center;gap:6px}
+  .kr-legend i{width:14px;height:2px;border-radius:2px;display:inline-block}
   .kr-bus{font-size:17px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
   .tv-list{background:var(--panel);border-radius:22px;padding:12px 24px}
   .tv-list ol{list-style:none;margin:0;padding:0;counter-reset:tv}
@@ -724,6 +732,7 @@
     <div class="tablebox reveal d1" style="overflow-x:auto">
       <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
     </div>
+    <p class="h2h-note reveal d2" id="h2hNote"></p>
   </section>
 
   <!-- ================= 잔여 일정 난이도 ================= -->
@@ -745,7 +754,10 @@
       <p class="sub">홈구장 기준 시리즈 이동 직선거리 누적 — 일정 데이터로 자체 계산</p>
     </div>
     <div class="travel reveal d1">
-      <div class="krwrap"><svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="krwrap">
+        <svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="kr-legend"><span><i style="background:#ff4d63"></i>kt wiz 최근 동선</span><span><i style="background:rgba(233,200,119,.35)"></i>다른 9개 구단</span></div>
+      </div>
       <div class="tv-list"><ol id="travelList"></ol></div>
     </div>
     <p class="travel-note reveal d2" id="travelNote"></p>
@@ -957,7 +969,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260719-001053';
+  const BUILD = '20260719-081643';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1918,21 +1930,31 @@
   }
 
   /* ---------- 팀간 상대전적 매트릭스 ---------- */
-  function renderH2H(py, standings){
+  function renderH2H(py, standings, games){
     const h2h = py && py.h2h;
     if(!h2h || !standings || standings.length < 10) return;
     const order = standings.map(t => t.name); // 순위순
     document.getElementById('h2hSec').style.display = 'block';
+    // 오늘 KT 경기 상대 — 있으면 그 팀 행/열을 포커싱
+    const todayG = (games || []).find(g => g.home === 'KT' || g.away === 'KT');
+    const oppToday = todayG ? (todayG.home === 'KT' ? todayG.away : todayG.home) : null;
+    const note = document.getElementById('h2hNote');
+    if(note) note.innerHTML = (oppToday
+      ? '오늘 상대인 <b style="color:var(--red-soft)">' + esc(oppToday) + '</b> 열이 강조 표시됩니다. '
+      : '') +
+      '숫자는 <b>KT 기준 승-패</b>입니다 (예: 8-3 = KT가 8승 3패로 우세). <span style="color:var(--ok);font-weight:700">초록</span> = KT 상대 전적 우세, <span style="color:var(--red-soft);font-weight:700">빨강</span> = 열세. 다른 팀끼리의 칸은 가로줄 팀 기준 승-패입니다.';
     document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
-      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
+      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + (n === oppToday ? ' focus-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
     document.getElementById('h2hBody').innerHTML = order.map(row => {
       const isKTrow = row === 'KT';
-      return '<tr' + (isKTrow ? ' class="kt"' : '') + '><td>' + esc(row) + '</td>' +
+      const isOppRow = row === oppToday;
+      return '<tr' + (isKTrow ? ' class="kt"' : (isOppRow ? ' class="focus-row"' : '')) + '><td>' + esc(row) + '</td>' +
         order.map(col => {
+          const isFocusCell = (row === 'KT' && col === oppToday) || (col === 'KT' && row === oppToday);
           if(row === col) return '<td class="diag' + (col === 'KT' ? ' kt-col' : '') + '">■</td>';
           const r = (h2h[row] || {})[col] || { w: 0, l: 0 };
           const cls = r.w > r.l ? 'win' : (r.w < r.l ? 'lose' : '');
-          return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + '">' + r.w + '-' + r.l + '</td>';
+          return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + (col === oppToday ? ' focus-col' : '') + (isFocusCell ? ' focus-cell' : '') + '">' + r.w + '-' + r.l + '</td>';
         }).join('') + '</tr>';
     }).join('');
   }
@@ -1955,8 +1977,8 @@
     if(ktIdx >= 0){
       const kt = sched.teams[ktIdx];
       document.getElementById('schedNote').textContent =
-        'kt의 잔여 ' + kt.remaining + '경기 상대 평균 승률은 ' + ('' + kt.oppWra).replace(/^0\./, '.') +
-        ' — 리그에서 ' + (ktIdx + 1) + '번째로 수월한 일정입니다. (' + sched.date + ' 기준, 자체 산식)';
+        'kt의 정규시즌 잔여 경기는 ' + kt.remaining + '경기(144경기 기준). 상대 평균 승률은 현재 공개된 일정 ' + kt.sampleN + '경기 표본으로 ' + ('' + kt.oppWra).replace(/^0\./, '.') +
+        ' — 리그에서 ' + (ktIdx + 1) + '번째로 수월한 일정입니다. (' + sched.date + ' 기준, 자체 산식 · KBO가 아직 전체 잔여일정을 공개하지 않아 상대승률은 표본 기준)';
     }
   }
 
@@ -1997,6 +2019,27 @@
     const el2 = (tag, attrs, txt) => { const e = document.createElementNS(NS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(txt != null) e.textContent = txt; return e; };
     svg.appendChild(el2('path', { d: outline, class: 'kr-out' }));
     svg.appendChild(el2('ellipse', { cx: 132, cy: 428, rx: 26, ry: 12, class: 'kr-out' })); // 제주
+
+    function buildRouteD(stops){
+      const seq = (stops || []).filter(s => XY[s]);
+      if(seq.length < 2) return null;
+      let d = 'M' + XY[seq[0]][0].toFixed(1) + ' ' + XY[seq[0]][1].toFixed(1);
+      for(let i = 1; i < seq.length; i++){
+        const a = XY[seq[i-1]], b = XY[seq[i]];
+        const mx = (a[0] + b[0]) / 2, myy = (a[1] + b[1]) / 2 - 14;
+        d += ' Q' + mx.toFixed(1) + ' ' + myy.toFixed(1) + ', ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      }
+      return d;
+    }
+
+    // 다른 9개 구단의 최근 동선 — 옅은 라인으로 배경에 (KT 아래 깔림)
+    const seqByTeam = tv.seqByTeam || {};
+    for(const nm in seqByTeam){
+      if(nm === 'KT') continue;
+      const d = buildRouteD(seqByTeam[nm]);
+      if(d) svg.appendChild(el2('path', { d, class: 'kr-route other' }));
+    }
+
     // 구장 점 + 라벨
     const HOME = { '수원':'KT', '잠실':'LG·두산', '대구':'삼성', '광주':'KIA', '사직':'롯데', '문학':'SSG', '창원':'NC', '고척':'키움', '대전':'한화' };
     for(const st in HOME){
@@ -2004,16 +2047,10 @@
       svg.appendChild(el2('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: st === '수원' ? 5 : 3.4, class: 'kr-dot' + (st === '수원' ? ' kt' : '') }));
       svg.appendChild(el2('text', { x: (x + 7).toFixed(1), y: (y + 3).toFixed(1), class: 'kr-lbl' }, st));
     }
-    // KT 최근 동선 + 버스 왕복 애니메이션
-    const seq = (tv.ktSeq || []).filter(s => XY[s]);
-    if(seq.length >= 2){
-      let d = 'M' + XY[seq[0]][0].toFixed(1) + ' ' + XY[seq[0]][1].toFixed(1);
-      for(let i = 1; i < seq.length; i++){
-        const a = XY[seq[i-1]], b = XY[seq[i]];
-        const mx = (a[0] + b[0]) / 2, myy = (a[1] + b[1]) / 2 - 18; // 살짝 떠오르는 곡선
-        d += ' Q' + mx.toFixed(1) + ' ' + myy.toFixed(1) + ', ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
-      }
-      const route = el2('path', { d, class: 'kr-route', id: 'ktRoutePath' });
+    // KT 최근 동선 + 버스 왕복 애니메이션 (다른 팀 라인 위에 강조)
+    const ktD = buildRouteD(tv.ktSeq);
+    if(ktD){
+      const route = el2('path', { d: ktD, class: 'kr-route', id: 'ktRoutePath' });
       svg.appendChild(route);
       const bus = el2('text', { class: 'kr-bus', 'text-anchor': 'middle' }, '🚌');
       svg.appendChild(bus);
@@ -2123,7 +2160,7 @@
         renderLastGame(j.kt && j.kt.lastGame);
         renderNews(j.news);
         renderSpot(j.kt && j.kt.top);
-        renderH2H(j.pythag, j.standings);
+        renderH2H(j.pythag, j.standings, j.games);
         renderTravel(j.pythag);
         renderSched(j.sched);
         renderDuel(j.kt && j.kt.starters);
