@@ -337,6 +337,42 @@
   .gallbox .gd{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .gall-note{font-size:11.5px;color:var(--muted);margin-top:12px;font-weight:500}
 
+  /* ---------- 상대전적 매트릭스 ---------- */
+  .h2h td.win{color:var(--ok);font-weight:700}
+  .h2h td.lose{color:var(--red-soft)}
+  .h2h td.diag{color:rgba(255,255,255,.15)}
+  .h2h th.kt-col, .h2h td.kt-col{background:rgba(232,16,47,.08)}
+  .h2h td{font-size:12.5px;padding:10px 8px;text-align:center}
+  .h2h th{text-align:center;padding:12px 8px}
+  .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
+
+  /* ---------- 잔여 일정 난이도 ---------- */
+  .sched{background:var(--panel);border-radius:22px;padding:10px 26px}
+  .sched ol{list-style:none;margin:0;padding:0;counter-reset:sd}
+  .sched li{display:grid;grid-template-columns:30px 1fr 90px 130px;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line);font-size:14px}
+  .sched li:last-child{border-bottom:none}
+  .sched li::before{counter-increment:sd;content:counter(sd);font-size:11px;font-weight:800;color:var(--muted);width:22px;height:22px;display:grid;place-items:center;background:var(--card);border-radius:6px}
+  .sched li.kt{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 75%);border-radius:10px}
+  .sched .tn{font-weight:700}
+  .sched .rg{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .sched .dbar{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+  .sched .dbar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--ok),var(--gold),var(--red-soft))}
+  .sched-note{font-size:12px;color:var(--muted);margin-top:12px;font-weight:500}
+
+  /* ---------- 선발 구종 맞대결 ---------- */
+  .duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media (max-width:660px){.duel{grid-template-columns:1fr}}
+  .duel .dcard{background:var(--panel);border-radius:16px;padding:20px 22px}
+  .duel .dcard.kt{background:linear-gradient(160deg,#1b1114,var(--panel) 55%)}
+  .duel h5{margin:0 0 4px;font-size:16px;font-weight:800}
+  .duel .dsub{font-size:12px;color:var(--muted);margin:0 0 14px;font-weight:500}
+  .duel .pt{display:grid;grid-template-columns:64px 1fr 70px;align-items:center;gap:10px;margin:7px 0;font-size:12.5px}
+  .duel .pt .pn{color:var(--muted);font-weight:700}
+  .duel .pt .pbar{height:8px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+  .duel .pt .pbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,rgba(233,200,119,.5),#e9c877)}
+  .duel .dcard.kt .pt .pbar i{background:linear-gradient(90deg,rgba(232,16,47,.55),var(--red-soft))}
+  .duel .pt .pv{color:#dddde2;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+
   /* ---------- 피타고라스 기대승률 ---------- */
   .py-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;font-weight:500;line-height:1.8}
   .py-note b{color:var(--ink)}
@@ -653,6 +689,29 @@
     </div>
   </section>
 
+  <!-- ================= 팀간 상대전적 ================= -->
+  <section id="h2hSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Head to Head</p>
+      <h2>팀간 상대전적</h2>
+      <p class="sub">가로줄 팀 기준 승-패 (무승부 제외) — 경기 결과에서 자체 집계</p>
+    </div>
+    <div class="tablebox reveal d1" style="overflow-x:auto">
+      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
+    </div>
+  </section>
+
+  <!-- ================= 잔여 일정 난이도 ================= -->
+  <section id="schedSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Remaining Schedule</p>
+      <h2>잔여 일정 난이도</h2>
+      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 쉬운 일정</p>
+    </div>
+    <div class="sched reveal d1"><ol id="schedList"></ol></div>
+    <p class="sched-note reveal d2" id="schedNote"></p>
+  </section>
+
   <!-- ================= 시즌 순위 변동 ================= -->
   <section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
@@ -716,6 +775,8 @@
         <p class="note">복귀한 최원준이 1번 지명타자로 출전, 8회 결승 득점의 발판을 놓았습니다.</p>
       </div>
     </div>
+    <!-- 오늘 선발 구종 맞대결 -->
+    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
   </section>
 
   <!-- ================= 순위 ================= -->
@@ -857,7 +918,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260718-233528';
+  const BUILD = '20260718-235614';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1817,6 +1878,68 @@
     }
   }
 
+  /* ---------- 팀간 상대전적 매트릭스 ---------- */
+  function renderH2H(py, standings){
+    const h2h = py && py.h2h;
+    if(!h2h || !standings || standings.length < 10) return;
+    const order = standings.map(t => t.name); // 순위순
+    document.getElementById('h2hSec').style.display = 'block';
+    document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
+      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
+    document.getElementById('h2hBody').innerHTML = order.map(row => {
+      const isKTrow = row === 'KT';
+      return '<tr' + (isKTrow ? ' class="kt"' : '') + '><td>' + esc(row) + '</td>' +
+        order.map(col => {
+          if(row === col) return '<td class="diag' + (col === 'KT' ? ' kt-col' : '') + '">■</td>';
+          const r = (h2h[row] || {})[col] || { w: 0, l: 0 };
+          const cls = r.w > r.l ? 'win' : (r.w < r.l ? 'lose' : '');
+          return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + '">' + r.w + '-' + r.l + '</td>';
+        }).join('') + '</tr>';
+    }).join('');
+  }
+
+  /* ---------- 잔여 일정 난이도 ---------- */
+  function renderSched(sched){
+    if(!sched || !sched.teams || sched.teams.length < 10) return;
+    document.getElementById('schedSec').style.display = 'block';
+    const min = Math.min(...sched.teams.map(t => t.oppWra));
+    const max = Math.max(...sched.teams.map(t => t.oppWra));
+    document.getElementById('schedList').innerHTML = sched.teams.map(t => {
+      const p = max > min ? (t.oppWra - min) / (max - min) : .5;
+      return '<li' + (t.name === 'KT' ? ' class="kt"' : '') + '>' +
+        '<span class="tn">' + esc(t.name) + '</span>' +
+        '<span class="rg">잔여 ' + t.remaining + '경기</span>' +
+        '<span class="rg">상대승률 ' + ('' + t.oppWra).replace(/^0\./, '.') + '</span>' +
+        '<span class="dbar"><i style="width:' + Math.round(8 + p * 92) + '%"></i></span></li>';
+    }).join('');
+    const ktIdx = sched.teams.findIndex(t => t.name === 'KT');
+    if(ktIdx >= 0){
+      const kt = sched.teams[ktIdx];
+      document.getElementById('schedNote').textContent =
+        'kt의 잔여 ' + kt.remaining + '경기 상대 평균 승률은 ' + ('' + kt.oppWra).replace(/^0\./, '.') +
+        ' — 리그에서 ' + (ktIdx + 1) + '번째로 수월한 일정입니다. (' + sched.date + ' 기준, 자체 산식)';
+    }
+  }
+
+  /* ---------- 오늘 선발 구종 맞대결 ---------- */
+  const PITCH_KO = { FAST:'포심', TWOS:'투심', SLID:'슬라이더', CURV:'커브', CHUP:'체인지업', CUTT:'커터', FORK:'포크', SINK:'싱커', KNUC:'너클', SLOW:'슬로커브' };
+  function renderDuel(st){
+    if(!st || !st.kt || !st.opp) return;
+    const box = document.getElementById('duelBox');
+    box.style.display = 'grid';
+    const card = (p, cls, teamLabel) => {
+      if(!p) return '';
+      const rec = (p.w != null ? p.w + '승 ' : '') + (p.l != null ? p.l + '패 ' : '') + (p.era ? '· ERA ' + p.era : '');
+      return '<div class="dcard ' + cls + '"><h5>' + esc(p.name) + '</h5><p class="dsub">' + esc(teamLabel) + ' 선발 · ' + esc(rec) + '</p>' +
+        (p.pitches || []).slice(0, 5).map(x =>
+          '<div class="pt"><span class="pn">' + (PITCH_KO[x.type] || esc(x.type)) + '</span>' +
+          '<span class="pbar"><i style="width:' + Math.min(100, Math.round(x.rt)) + '%"></i></span>' +
+          '<span class="pv">' + Math.round(x.rt) + '% · ' + x.spd + 'km</span></div>').join('') +
+        '</div>';
+    };
+    box.innerHTML = card(st.kt, 'kt', 'kt wiz') + card(st.opp, '', st.oppName || '상대');
+  }
+
   /* ---------- 뉴스 (구글 뉴스 수집) ---------- */
   function renderNews(news){
     if(!news || !news.length) return; // 수집 전엔 안내 카드 유지
@@ -1893,6 +2016,9 @@
         renderLastGame(j.kt && j.kt.lastGame);
         renderNews(j.news);
         renderSpot(j.kt && j.kt.top);
+        renderH2H(j.pythag, j.standings);
+        renderSched(j.sched);
+        renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
         renderPythag(j.pythag);
         renderYT(j.youtube);

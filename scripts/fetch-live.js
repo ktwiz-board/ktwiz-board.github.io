@@ -120,6 +120,7 @@ async function pythagorean(today) {
   // 2026 정규시즌 개막일 = 3/28 (KBO 공식 팀순위 경기수와 전 구단 대조로 확정, 그 이전은 시범경기)
   const ranges = [['2026-03-28', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
   const agg = {}; // name -> {rs, ra, w, l, d}
+  const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
   for (const [f, t] of ranges) {
     if (f > today) break;
     const gs = await games(f, t, 500);
@@ -130,19 +131,48 @@ async function pythagorean(today) {
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
-        if (my > opsc) agg[me].w++; else if (my < opsc) agg[me].l++; else agg[me].d++;
+        if (!h2h[me]) h2h[me] = {};
+        if (!h2h[me][op]) h2h[me][op] = { w: 0, l: 0, d: 0 };
+        if (my > opsc) { agg[me].w++; h2h[me][op].w++; }
+        else if (my < opsc) { agg[me].l++; h2h[me][op].l++; }
+        else { agg[me].d++; h2h[me][op].d++; }
       }
     }
   }
   const E = 1.83;
   return {
     date: today,
-    v: 3,
+    v: 4,
+    h2h,
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
       return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3) };
     }).sort((x, y) => y.exp - x.exp)
+  };
+}
+
+// 잔여 일정 난이도: 남은 상대들의 현재 승률 가중 평균 (자체 산식)
+async function scheduleDifficulty(today, standings) {
+  const wraMap = {};
+  for (const t of standings) wraMap[t.name] = parseFloat(t.wra) || 0.5;
+  const future = [
+    ...(await games(today, '2026-08-31', 500)),
+    ...(await games('2026-09-01', '2026-10-10', 500))
+  ].filter(g => g.statusCode === 'BEFORE' && !g.cancel
+    && KBO_TEAMS.includes(g.homeTeamName) && KBO_TEAMS.includes(g.awayTeamName));
+  const acc = {};
+  for (const g of future) {
+    for (const [me, op] of [[g.homeTeamName, g.awayTeamName], [g.awayTeamName, g.homeTeamName]]) {
+      if (!acc[me]) acc[me] = { n: 0, sum: 0 };
+      acc[me].n++; acc[me].sum += (wraMap[op] != null ? wraMap[op] : 0.5);
+    }
+  }
+  return {
+    date: today, v: 1,
+    teams: Object.entries(acc).map(([name, a]) => ({
+      name, remaining: a.n, oppWra: +(a.sum / a.n).toFixed(3)
+    })).sort((x, y) => x.oppWra - y.oppWra) // 쉬운 순
   };
 }
 
@@ -169,7 +199,8 @@ async function pythagorean(today) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today) {
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 4 && prev.sched;
+  if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, sh2, nw2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews()]);
     if (yt2.length) prev.youtube = yt2;
     if (sh2.length) prev.shorts = sh2;
@@ -184,7 +215,7 @@ async function pythagorean(today) {
 
   // 2) 순위표: 오늘 경기들의 preview에서 양팀 standings 수집 (10팀 커버)
   const standings = {};
-  let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null;
+  let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null, ktStarters = null;
   for (const g of todayGames) {
     try {
       const p = await j(`${API}/schedule/games/${g.id}/preview`);
@@ -203,6 +234,18 @@ async function pythagorean(today) {
         const opSide = g.home === 'KT' ? 'awayTeamLineUp' : 'homeTeamLineUp';
         ktLineup = mapLineup(pd[ktSide]);
         oppLineup = mapLineup(pd[opSide]);
+        // 오늘 선발 맞대결: 구종 구성·구속 (통계 수치만 사용)
+        const mapStarter = (s) => s && s.playerInfo ? {
+          name: s.playerInfo.name,
+          era: (s.currentSeasonStats || {}).era,
+          w: (s.currentSeasonStats || {}).w, l: (s.currentSeasonStats || {}).l,
+          pitches: (s.currentPitKindStats || []).map(p => ({ type: p.type, rt: p.pit_rt, spd: p.speed }))
+        } : null;
+        ktStarters = {
+          kt: mapStarter(g.home === 'KT' ? pd.homeStarter : pd.awayStarter),
+          opp: mapStarter(g.home === 'KT' ? pd.awayStarter : pd.homeStarter),
+          oppName: g.home === 'KT' ? g.away : g.home
+        };
         // 오늘의 키플레이어 (네이버 프리뷰 선정) — 스포트라이트 자동 교체용
         const tp = g.home === 'KT' ? pd.homeTopPlayer : pd.awayTopPlayer;
         if (tp && tp.playerInfo) {
@@ -322,13 +365,23 @@ async function pythagorean(today) {
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 3
+    && prev.pythag.v === 4
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;
   if (!pythag) {
     try { pythag = await pythagorean(today); } catch (e) { console.error('pythag fail', e.message); pythag = (prev && prev.pythag) || null; }
   }
+
+  // 7.5) 잔여 일정 난이도 — 하루 1회 (순위 확정 후 계산)
+  const stForSched = Object.keys(standings).length >= 10
+    ? Object.values(standings) : ((prev && prev.standings) || []);
+  let sched = (prev && prev.sched && prev.sched.date === today && prev.sched.v === 1) ? prev.sched : null;
+  if (!sched && stForSched.length >= 10) {
+    try { sched = await scheduleDifficulty(today, stForSched); }
+    catch (e) { console.error('sched fail', e.message); sched = (prev && prev.sched) || null; }
+  }
+  if (!sched) sched = (prev && prev.sched) || null;
 
   const out = {
     updated: new Date().toISOString(),
@@ -343,10 +396,11 @@ async function pythagorean(today) {
     kt: {
       gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame,
       // 경기 없는 날엔 프리뷰가 없어 키플레이어를 못 구함 → 직전 값 유지
-      top: ktTop || (prev && prev.kt && prev.kt.top) || null
+      top: ktTop || (prev && prev.kt && prev.kt.top) || null,
+      starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
     },
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, shorts, gall, pythag
+    youtube, shorts, gall, pythag, sched
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
