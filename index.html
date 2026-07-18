@@ -373,6 +373,31 @@
   .duel .dcard.kt .pt .pbar i{background:linear-gradient(90deg,rgba(232,16,47,.55),var(--red-soft))}
   .duel .pt .pv{color:#dddde2;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
 
+  /* ---------- 구단 이동거리 (자작 한반도 잉크 지도) ---------- */
+  .travel{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:20px;align-items:start}
+  @media (max-width:760px){.travel{grid-template-columns:1fr}}
+  .krwrap{background:var(--panel);border-radius:22px;padding:18px;perspective:1000px}
+  .krwrap svg{display:block;width:100%;height:auto;transform:rotateX(16deg);transform-origin:50% 78%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.5))}
+  .kr-out{fill:rgba(217,169,76,.04);stroke:rgba(217,169,76,.5);stroke-width:2;stroke-linejoin:round}
+  .kr-dot{fill:rgba(233,200,119,.85)}
+  .kr-dot.kt{fill:var(--red-soft);filter:drop-shadow(0 0 6px rgba(232,16,47,.8))}
+  .kr-lbl{fill:rgba(233,200,119,.55);font-size:10px;font-weight:700;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+  .kr-route{fill:none;stroke:rgba(255,77,99,.55);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round}
+  .kr-bus{font-size:17px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+  .tv-list{background:var(--panel);border-radius:22px;padding:12px 24px}
+  .tv-list ol{list-style:none;margin:0;padding:0;counter-reset:tv}
+  .tv-list li{display:grid;grid-template-columns:26px 52px 1fr 92px;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:14px}
+  .tv-list li:last-child{border-bottom:none}
+  .tv-list li::before{counter-increment:tv;content:counter(tv);font-size:11px;font-weight:800;color:var(--muted);width:22px;height:22px;display:grid;place-items:center;background:var(--card);border-radius:6px}
+  .tv-list li.kt{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 75%);border-radius:10px}
+  .tv-list .tn{font-weight:700}
+  .tv-list .tbar{position:relative;height:7px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+  .tv-list .tbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,rgba(233,200,119,.45),#e9c877)}
+  .tv-list li.kt .tbar i{background:linear-gradient(90deg,rgba(232,16,47,.55),var(--red-soft))}
+  .tv-list .tkm{font-size:12.5px;color:#dddde2;font-variant-numeric:tabular-nums;text-align:right;font-weight:700}
+  .tv-list .tkm small{color:var(--muted);font-weight:500}
+  .travel-note{font-size:12px;color:var(--muted);margin-top:12px;font-weight:500}
+
   /* ---------- 피타고라스 기대승률 ---------- */
   .py-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;font-weight:500;line-height:1.8}
   .py-note b{color:var(--ink)}
@@ -712,6 +737,20 @@
     <p class="sched-note reveal d2" id="schedNote"></p>
   </section>
 
+  <!-- ================= 구단 이동거리 ================= -->
+  <section id="travelSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Road Trip</p>
+      <h2>구단 누적 이동거리</h2>
+      <p class="sub">홈구장 기준 시리즈 이동 직선거리 누적 — 일정 데이터로 자체 계산</p>
+    </div>
+    <div class="travel reveal d1">
+      <div class="krwrap"><svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="tv-list"><ol id="travelList"></ol></div>
+    </div>
+    <p class="travel-note reveal d2" id="travelNote"></p>
+  </section>
+
   <!-- ================= 시즌 순위 변동 ================= -->
   <section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
@@ -918,7 +957,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260718-235614';
+  const BUILD = '20260719-001053';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1940,6 +1979,74 @@
     box.innerHTML = card(st.kt, 'kt', 'kt wiz') + card(st.opp, '', st.oppName || '상대');
   }
 
+  /* ---------- 구단 누적 이동거리 (자작 한반도 지도 + 버스) ---------- */
+  function renderTravel(py){
+    const tv = py && py.travel;
+    if(!tv || !tv.teams || tv.teams.length < 10) return;
+    document.getElementById('travelSec').style.display = 'block';
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('krMap');
+    svg.innerHTML = '';
+    // 위경도 → SVG 좌표 (지리적 사실 기반 자체 투영)
+    const px = lon => (lon - 124.6) / 5.2 * 360;
+    const py2 = lat => (38.9 - lat) / 5.9 * 470;
+    const XY = {};
+    for(const k in COORD) XY[k] = [px(COORD[k][1]), py2(COORD[k][0])];
+    // 스타일화 한반도 아웃라인 (직접 그림 — 마법지도 잉크 스타일)
+    const outline = 'M105 95 C118 78, 135 70, 152 68 C175 62, 195 58, 212 62 C232 66, 245 70, 252 76 C270 88, 288 102, 300 122 C312 145, 322 168, 330 192 C338 214, 344 228, 346 238 C348 258, 344 270, 338 278 C330 295, 324 303, 318 309 C305 318, 292 321, 282 320 C265 317, 252 313, 240 313 C222 318, 208 324, 196 324 C180 322, 168 320, 158 318 C142 313, 130 306, 120 298 C110 286, 105 272, 104 262 C110 248, 116 240, 118 232 C112 220, 106 208, 106 196 C114 184, 122 176, 127 169 C120 158, 113 149, 111 141 C106 126, 104 110, 105 95 Z';
+    const el2 = (tag, attrs, txt) => { const e = document.createElementNS(NS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(txt != null) e.textContent = txt; return e; };
+    svg.appendChild(el2('path', { d: outline, class: 'kr-out' }));
+    svg.appendChild(el2('ellipse', { cx: 132, cy: 428, rx: 26, ry: 12, class: 'kr-out' })); // 제주
+    // 구장 점 + 라벨
+    const HOME = { '수원':'KT', '잠실':'LG·두산', '대구':'삼성', '광주':'KIA', '사직':'롯데', '문학':'SSG', '창원':'NC', '고척':'키움', '대전':'한화' };
+    for(const st in HOME){
+      const [x, y] = XY[st];
+      svg.appendChild(el2('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: st === '수원' ? 5 : 3.4, class: 'kr-dot' + (st === '수원' ? ' kt' : '') }));
+      svg.appendChild(el2('text', { x: (x + 7).toFixed(1), y: (y + 3).toFixed(1), class: 'kr-lbl' }, st));
+    }
+    // KT 최근 동선 + 버스 왕복 애니메이션
+    const seq = (tv.ktSeq || []).filter(s => XY[s]);
+    if(seq.length >= 2){
+      let d = 'M' + XY[seq[0]][0].toFixed(1) + ' ' + XY[seq[0]][1].toFixed(1);
+      for(let i = 1; i < seq.length; i++){
+        const a = XY[seq[i-1]], b = XY[seq[i]];
+        const mx = (a[0] + b[0]) / 2, myy = (a[1] + b[1]) / 2 - 18; // 살짝 떠오르는 곡선
+        d += ' Q' + mx.toFixed(1) + ' ' + myy.toFixed(1) + ', ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      }
+      const route = el2('path', { d, class: 'kr-route', id: 'ktRoutePath' });
+      svg.appendChild(route);
+      const bus = el2('text', { class: 'kr-bus', 'text-anchor': 'middle' }, '🚌');
+      svg.appendChild(bus);
+      const L = route.getTotalLength();
+      if(reduce){
+        const p = route.getPointAtLength(L);
+        bus.setAttribute('x', p.x); bus.setAttribute('y', p.y - 6);
+      } else {
+        const t0 = performance.now();
+        (function drive(t){
+          if(!bus.isConnected) return;
+          const cyc = ((t - t0) / 7000) % 2;           // 7초 편도, 왕복
+          const p01 = cyc < 1 ? cyc : 2 - cyc;
+          const pt = route.getPointAtLength(L * p01);
+          bus.setAttribute('x', pt.x.toFixed(1)); bus.setAttribute('y', (pt.y - 6).toFixed(1));
+          requestAnimationFrame(drive);
+        })(t0);
+      }
+    }
+    // 랭킹 리스트
+    const max = Math.max(...tv.teams.map(t => t.km));
+    document.getElementById('travelList').innerHTML = tv.teams.map(t =>
+      '<li' + (t.name === 'KT' ? ' class="kt"' : '') + '>' +
+      '<span class="tn">' + esc(t.name) + '</span>' +
+      '<span class="tbar"><i style="width:' + Math.round(t.km / max * 100) + '%"></i></span>' +
+      '<span class="tkm">' + t.km.toLocaleString() + 'km <small>· ' + t.moves + '회</small></span></li>'
+    ).join('');
+    const kt = tv.teams.find(t => t.name === 'KT');
+    const rank = tv.teams.findIndex(t => t.name === 'KT') + 1;
+    if(kt) document.getElementById('travelNote').textContent =
+      '🚌 kt wiz는 시즌 누적 약 ' + kt.km.toLocaleString() + 'km 이동 (시리즈 이동 ' + kt.moves + '회) — 리그 ' + rank + '위. 구장 간 직선거리 기준 자체 계산이며 실제 버스 주행거리와는 다를 수 있습니다.';
+  }
+
   /* ---------- 뉴스 (구글 뉴스 수집) ---------- */
   function renderNews(news){
     if(!news || !news.length) return; // 수집 전엔 안내 카드 유지
@@ -2017,6 +2124,7 @@
         renderNews(j.news);
         renderSpot(j.kt && j.kt.top);
         renderH2H(j.pythag, j.standings);
+        renderTravel(j.pythag);
         renderSched(j.sched);
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);

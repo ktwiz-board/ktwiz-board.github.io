@@ -116,11 +116,29 @@ async function fetchNews() {
 // 피타고라스 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
+// 구장 좌표 (이동거리 계산용 — 위경도는 지리적 사실)
+const STADIUM_LL = {
+  '수원': [37.2997, 127.0097], '잠실': [37.512, 127.072], '대구': [35.841, 128.6819],
+  '대전': [36.3173, 127.4290], '사직': [35.1941, 129.0615], '고척': [37.498, 126.867],
+  '창원': [35.2225, 128.5822], '광주': [35.1683, 126.8889], '문학': [37.437, 126.6933],
+  '포항': [36.008, 129.359], '울산': [35.532, 129.265], '청주': [36.639, 127.470]
+};
+function haversineKm(a, b) {
+  const R = 6371, d = Math.PI / 180;
+  const dLat = (b[0] - a[0]) * d, dLon = (b[1] - a[1]) * d;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * d) * Math.cos(b[0] * d) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+function stadiumKey(name) {
+  return Object.keys(STADIUM_LL).find(k => (name || '').indexOf(k) === 0) || null;
+}
+
 async function pythagorean(today) {
   // 2026 정규시즌 개막일 = 3/28 (KBO 공식 팀순위 경기수와 전 구단 대조로 확정, 그 이전은 시범경기)
   const ranges = [['2026-03-28', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
   const agg = {}; // name -> {rs, ra, w, l, d}
   const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
+  const seq = {}; // name -> [{date, st}] 경기 구장 시퀀스 (이동거리용)
   for (const [f, t] of ranges) {
     if (f > today) break;
     const gs = await games(f, t, 500);
@@ -128,6 +146,14 @@ async function pythagorean(today) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
       // 올스타전(나눔·드림)·시범경기 등 정규 10개 구단 매치가 아닌 경기 제외
       if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
+      const sk = stadiumKey(g.stadium);
+      if (sk) {
+        for (const nm of [g.homeTeamName, g.awayTeamName]) {
+          if (!seq[nm]) seq[nm] = [];
+          const last = seq[nm][seq[nm].length - 1];
+          if (!last || last.st !== sk) seq[nm].push({ date: g.gameDate, st: sk }); // 같은 구장 연속(시리즈/DH)은 1회
+        }
+      }
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
@@ -139,11 +165,30 @@ async function pythagorean(today) {
       }
     }
   }
+  // 누적 이동거리: 홈구장 출발 → 경기 구장 시퀀스 직선거리 합 (자체 산식)
+  const HOME_ST = { 'KT': '수원', 'LG': '잠실', '두산': '잠실', '삼성': '대구', 'KIA': '광주', '롯데': '사직', 'SSG': '문학', 'NC': '창원', '키움': '고척', '한화': '대전' };
+  const travelTeams = [];
+  for (const nm of KBO_TEAMS) {
+    const s = seq[nm] || [];
+    let km = 0, prevSt = HOME_ST[nm], moves = 0;
+    for (const e of s) {
+      if (e.st !== prevSt) {
+        km += haversineKm(STADIUM_LL[prevSt], STADIUM_LL[e.st]);
+        moves++;
+        prevSt = e.st;
+      }
+    }
+    travelTeams.push({ name: nm, km: Math.round(km), moves, last: prevSt });
+  }
+  travelTeams.sort((a, b) => b.km - a.km);
+  const ktSeq = (seq['KT'] || []).slice(-6).map(e => e.st);
+
   const E = 1.83;
   return {
     date: today,
-    v: 4,
+    v: 5,
     h2h,
+    travel: { teams: travelTeams, ktSeq },
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
@@ -199,7 +244,7 @@ async function scheduleDifficulty(today, standings) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 4 && prev.sched;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 5 && prev.sched;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, sh2, nw2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews()]);
     if (yt2.length) prev.youtube = yt2;
@@ -365,7 +410,7 @@ async function scheduleDifficulty(today, standings) {
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 4
+    && prev.pythag.v === 5
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;
