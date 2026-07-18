@@ -969,7 +969,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260719-081643';
+  const BUILD = '20260719-083610';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1939,10 +1939,17 @@
     const todayG = (games || []).find(g => g.home === 'KT' || g.away === 'KT');
     const oppToday = todayG ? (todayG.home === 'KT' ? todayG.away : todayG.home) : null;
     const note = document.getElementById('h2hNote');
-    if(note) note.innerHTML = (oppToday
-      ? '오늘 상대인 <b style="color:var(--red-soft)">' + esc(oppToday) + '</b> 열이 강조 표시됩니다. '
-      : '') +
-      '숫자는 <b>KT 기준 승-패</b>입니다 (예: 8-3 = KT가 8승 3패로 우세). <span style="color:var(--ok);font-weight:700">초록</span> = KT 상대 전적 우세, <span style="color:var(--red-soft);font-weight:700">빨강</span> = 열세. 다른 팀끼리의 칸은 가로줄 팀 기준 승-패입니다.';
+    if(note){
+      // 실제 KT 데이터로 동적 예문 생성 (고정 예시로 인한 숫자 불일치 혼선 방지)
+      const exOpp = oppToday || (order.find(n => n !== 'KT') || 'LG');
+      const exR = (h2h['KT'] || {})[exOpp] || { w: 0, l: 0 };
+      const exFlip = (h2h[exOpp] || {})['KT'] || { w: exR.l, l: exR.w };
+      note.innerHTML = (oppToday
+        ? '오늘 상대인 <b style="color:var(--red-soft)">' + esc(oppToday) + '</b> 열이 강조 표시됩니다. '
+        : '') +
+        '각 칸은 <b>가로줄(row) 팀 기준</b> 승-패입니다 — KT 행의 ' + esc(exOpp) + ' 칸이 <b>' + exR.w + '-' + exR.l + '</b>이면 "KT가 ' + exR.w + '승 ' + exR.l + '패"라는 뜻이고, 반대로 ' + esc(exOpp) + ' 행의 KT 칸은 같은 경기를 ' + esc(exOpp) + ' 입장에서 본 <b>' + exFlip.w + '-' + exFlip.l + '</b>로 표시됩니다(숫자가 다른 게 정상 — 관점이 반대일 뿐 같은 경기 기록). ' +
+        '<span style="color:var(--ok);font-weight:700">초록</span> = 그 가로줄 팀 우세, <span style="color:var(--red-soft);font-weight:700">빨강</span> = 열세.';
+    }
     document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
       order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + (n === oppToday ? ' focus-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
     document.getElementById('h2hBody').innerHTML = order.map(row => {
