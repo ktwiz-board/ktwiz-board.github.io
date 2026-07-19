@@ -54,6 +54,32 @@ function mapLineup(lu) {
   return { starter: starter ? starter.playerName : '', batters };
 }
 
+// KBO 공식 비디오판독센터 — 텍스트(이닝·요청팀·소요시간·유형·결과)만 사용, 영상은 절대 가져오지 않음
+async function fetchVideoReview() {
+  try {
+    const r = await fetch('https://kborc.com/main.do', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const html = await r.text();
+    const blocks = [...html.matchAll(/openLayerRVod\((\d+)\);"[\s\S]*?<\/a>/g)];
+    const out = [];
+    for (const b of blocks) {
+      const block = b[0];
+      const date = (block.match(/<strong><span>([^<]+)<\/span><\/strong>/) || [])[1];
+      const stadium = (block.match(/<em>\(([^)]+)\)<\/em>/) || [])[1];
+      const broadcast = (block.match(/<\/em>\s*([^<]+)<\/p>/) || [])[1];
+      const result = (block.match(/<span class="referee">([^<]+)<\/span>/) || [])[1];
+      const teams = [...block.matchAll(/<span class="emblem[^"]*">([^<]+)<\/span>/g)].map(m => m[1].trim());
+      const lis = [...block.matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].trim()).filter(Boolean);
+      if (!teams.includes('KT') || teams.length < 2) continue;
+      out.push({
+        seq: b[1], date, stadium, broadcast: broadcast || '', result: result || '',
+        teams, inning: lis[0] || '', reqTeam: (lis[1] || '').replace('요청', '').trim(),
+        duration: lis[2] || '', type: lis[3] || ''
+      });
+    }
+    return out.slice(0, 8);
+  } catch (e) { console.error('video review fail', e.message); return []; }
+}
+
 async function fetchYoutube() {
   try {
     const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
@@ -257,14 +283,15 @@ async function scheduleDifficulty(today, standings) {
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
   const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
-    const [yt2, sh2, nw2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews()]);
+    const [yt2, sh2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
     if (sh2.length) prev.shorts = sh2;
     if (nw2.length) prev.news = nw2;
+    prev.videoReview = vr2;
     prev.updated = new Date().toISOString();
     prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
     fs.writeFileSync(file, JSON.stringify(prev, null, 1));
-    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length} news=${nw2.length}`);
+    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length} news=${nw2.length} review=${vr2.length}`);
     console.log(`SLEEP=${SLEEP.post}`);
     return;
   }
@@ -391,6 +418,9 @@ async function scheduleDifficulty(today, standings) {
   // 4.7) 관련 뉴스
   const news = await fetchNews();
 
+  // 4.8) KBO 공식 비디오판독센터 — KT 경기 판독 이력 (텍스트만, 영상 미포함)
+  const videoReview = await fetchVideoReview();
+
   // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
   const youtube = await fetchYoutube();
 
@@ -456,6 +486,7 @@ async function scheduleDifficulty(today, standings) {
       starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
     },
     news: news.length ? news : ((prev && prev.news) || []),
+    videoReview: videoReview.length ? videoReview : ((prev && prev.videoReview) || []),
     youtube, shorts, gall, pythag, sched
   };
 

@@ -350,6 +350,19 @@
   .h2h th{text-align:center;padding:12px 8px}
   .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
 
+  /* ---------- 비디오 판독 ---------- */
+  .vr-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .vr-list li{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:14px;background:var(--panel);border-radius:14px;padding:14px 18px}
+  .vr-list .vr-inn{font-size:12px;font-weight:800;color:var(--muted);text-align:center}
+  .vr-list .vr-mid{min-width:0}
+  .vr-list .vr-teams{font-size:13px;color:var(--muted);font-weight:600}
+  .vr-list .vr-desc{font-size:14.5px;font-weight:700;margin-top:2px}
+  .vr-list .vr-meta{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+  .vr-badge{font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:99px;white-space:nowrap}
+  .vr-badge.turn{background:rgba(232,16,47,.14);color:var(--red-soft)}
+  .vr-badge.stay{background:rgba(48,209,88,.14);color:var(--ok)}
+  .vr-list li.kt-req{box-shadow:inset 3px 0 0 var(--red-soft)}
+
   /* ---------- 선발 구종 맞대결 ---------- */
   .duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   @media (max-width:660px){.duel{grid-template-columns:1fr}}
@@ -690,6 +703,16 @@
     </div>
   </section>
 
+  <!-- ================= 비디오 판독 ================= -->
+  <section id="vrSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Video Review</p>
+      <h2>비디오 판독</h2>
+      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함)</p>
+    </div>
+    <ul class="vr-list reveal d1" id="vrList"></ul>
+  </section>
+
   <!-- ================= KT 캘린더 · 폼 ================= -->
   <section>
     <div class="sec-head reveal">
@@ -935,7 +958,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260719-112521';
+  const BUILD = '20260719-211447';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2051,6 +2074,29 @@
     ).join('');
   }
 
+  /* ---------- 비디오 판독 (텍스트 전용, KBO 공식 판독센터 기록 기반) ---------- */
+  function renderVideoReview(list){
+    if(!list || !list.length) return; // 데이터 전엔 섹션 숨김 유지
+    const sec = document.getElementById('vrSec');
+    sec.style.display = 'block';
+    document.getElementById('vrList').innerHTML = list.map(v => {
+      const turned = /번복/.test(v.result);
+      const kept = /원심/.test(v.result);
+      const badgeCls = turned ? 'turn' : (kept ? 'stay' : '');
+      const badgeTxt = turned ? '🔄 번복' : (kept ? '✅ 원심' : esc(v.result || '결과 대기'));
+      const isKtReq = v.reqTeam === 'KT';
+      return '<li' + (isKtReq ? ' class="kt-req"' : '') + '>' +
+        '<span class="vr-inn">' + esc(v.inning || '') + '</span>' +
+        '<span class="vr-mid">' +
+          '<span class="vr-teams">' + esc((v.teams || []).join(' : ')) + ' · ' + esc(v.stadium || '') + '</span>' +
+          '<div class="vr-desc">' + esc(v.reqTeam || '') + ' 요청 · ' + esc(v.type || '판정') + '</div>' +
+          '<div class="vr-meta">' + esc(v.date || '') + (v.duration ? ' · 소요 ' + esc(v.duration) : '') + (v.broadcast ? ' · ' + esc(v.broadcast) : '') + '</div>' +
+        '</span>' +
+        '<span class="vr-badge ' + badgeCls + '">' + badgeTxt + '</span>' +
+      '</li>';
+    }).join('');
+  }
+
   /* ---------- 스포트라이트 (오늘의 키플레이어 자동) ---------- */
   function renderSpot(top){
     if(!top || !top.name) return; // 데이터 전엔 기존 내용 유지
@@ -2115,6 +2161,7 @@
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
         renderNews(j.news);
+        renderVideoReview(j.videoReview);
         renderSpot(j.kt && j.kt.top);
         renderH2H(j.pythag, j.standings, j.games);
         renderTravel(j.pythag);
