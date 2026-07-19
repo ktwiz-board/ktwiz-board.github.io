@@ -350,19 +350,6 @@
   .h2h th{text-align:center;padding:12px 8px}
   .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
 
-  /* ---------- 잔여 일정 난이도 ---------- */
-  .sched{background:var(--panel);border-radius:22px;padding:10px 26px}
-  .sched ol{list-style:none;margin:0;padding:0;counter-reset:sd}
-  .sched li{display:grid;grid-template-columns:30px 1fr 90px 130px;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line);font-size:14px}
-  .sched li:last-child{border-bottom:none}
-  .sched li::before{counter-increment:sd;content:counter(sd);font-size:11px;font-weight:800;color:var(--muted);width:22px;height:22px;display:grid;place-items:center;background:var(--card);border-radius:6px}
-  .sched li.kt{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 75%);border-radius:10px}
-  .sched .tn{font-weight:700}
-  .sched .rg{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-  .sched .dbar{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
-  .sched .dbar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--ok),var(--gold),var(--red-soft))}
-  .sched-note{font-size:12px;color:var(--muted);margin-top:12px;font-weight:500}
-
   /* ---------- 선발 구종 맞대결 ---------- */
   .duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   @media (max-width:660px){.duel{grid-template-columns:1fr}}
@@ -735,17 +722,6 @@
     <p class="h2h-note reveal d2" id="h2hNote"></p>
   </section>
 
-  <!-- ================= 잔여 일정 난이도 ================= -->
-  <section id="schedSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">Remaining Schedule</p>
-      <h2>잔여 일정 난이도</h2>
-      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 쉬운 일정</p>
-    </div>
-    <div class="sched reveal d1"><ol id="schedList"></ol></div>
-    <p class="sched-note reveal d2" id="schedNote"></p>
-  </section>
-
   <!-- ================= 구단 이동거리 ================= -->
   <section id="travelSec" style="display:none">
     <div class="sec-head reveal">
@@ -969,7 +945,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260719-083610';
+  const BUILD = '20260719-101713';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1966,29 +1942,6 @@
     }).join('');
   }
 
-  /* ---------- 잔여 일정 난이도 ---------- */
-  function renderSched(sched){
-    if(!sched || !sched.teams || sched.teams.length < 10) return;
-    document.getElementById('schedSec').style.display = 'block';
-    const min = Math.min(...sched.teams.map(t => t.oppWra));
-    const max = Math.max(...sched.teams.map(t => t.oppWra));
-    document.getElementById('schedList').innerHTML = sched.teams.map(t => {
-      const p = max > min ? (t.oppWra - min) / (max - min) : .5;
-      return '<li' + (t.name === 'KT' ? ' class="kt"' : '') + '>' +
-        '<span class="tn">' + esc(t.name) + '</span>' +
-        '<span class="rg">잔여 ' + t.remaining + '경기</span>' +
-        '<span class="rg">상대승률 ' + ('' + t.oppWra).replace(/^0\./, '.') + '</span>' +
-        '<span class="dbar"><i style="width:' + Math.round(8 + p * 92) + '%"></i></span></li>';
-    }).join('');
-    const ktIdx = sched.teams.findIndex(t => t.name === 'KT');
-    if(ktIdx >= 0){
-      const kt = sched.teams[ktIdx];
-      document.getElementById('schedNote').textContent =
-        'kt의 정규시즌 잔여 경기는 ' + kt.remaining + '경기(144경기 기준). 상대 평균 승률은 현재 공개된 일정 ' + kt.sampleN + '경기 표본으로 ' + ('' + kt.oppWra).replace(/^0\./, '.') +
-        ' — 리그에서 ' + (ktIdx + 1) + '번째로 수월한 일정입니다. (' + sched.date + ' 기준, 자체 산식 · KBO가 아직 전체 잔여일정을 공개하지 않아 상대승률은 표본 기준)';
-    }
-  }
-
   /* ---------- 오늘 선발 구종 맞대결 ---------- */
   const PITCH_KO = { FAST:'포심', TWOS:'투심', SLID:'슬라이더', CURV:'커브', CHUP:'체인지업', CUTT:'커터', FORK:'포크', SINK:'싱커', KNUC:'너클', SLOW:'슬로커브' };
   function renderDuel(st){
@@ -2169,7 +2122,6 @@
         renderSpot(j.kt && j.kt.top);
         renderH2H(j.pythag, j.standings, j.games);
         renderTravel(j.pythag);
-        renderSched(j.sched);
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
         renderPythag(j.pythag);
