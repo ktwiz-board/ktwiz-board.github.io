@@ -2,44 +2,37 @@ name: live-data
 
 on:
   schedule:
-    - cron: "17 * * * *"   # 시간당 워치독 (루프가 죽었을 때 재기동)
+    - cron: "*/5 * * * *"   # 5분마다 짧게 1회 실행 (스크립트가 모드별로 수집 범위를 스스로 결정)
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: live-data
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  fetch-loop:
+  fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 340
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - name: "Fetch loop (경기중 5분 / 경기전 10분 / 종료후 30분·영상만, 약 5.5시간)"
+      - name: "Fetch once (짧은 실행 — 러너 점유 최소화)"
         run: |
           git config user.name "live-bot"
           git config user.email "actions@github.com"
-          END=$((SECONDS + 19500))
-          while [ $SECONDS -lt $END ]; do
-            OUT=$(node scripts/fetch-live.js 2>&1) || true
-            echo "$OUT" | tail -3
-            if ! cmp -s data/live.json /tmp/last.json 2>/dev/null; then
-              cp data/live.json /tmp/last.json
-              git add data/live.json data/standings-history.json 2>/dev/null || git add data/live.json
-              git commit -q -m "live data" || true
+          # 직전 수집본을 data 브랜치에서 복원 (일일 캐시·모드 판단용)
+          git fetch -q origin data || true
+          mkdir -p data
+          git show origin/data:data/live.json > data/live.json 2>/dev/null || true
+          git show origin/data:data/standings-history.json > data/standings-history.json 2>/dev/null || true
+          node scripts/fetch-live.js || true
+          if [ -f data/live.json ]; then
+            git add data/live.json data/standings-history.json 2>/dev/null || git add data/live.json
+            if ! git diff --cached --quiet; then
+              git commit -q -m "live data"
               # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시
-              git push -f -q origin HEAD:data || true
-              git reset -q --soft HEAD~1
+              git push -f -q origin HEAD:data
             fi
-            NAP=$(echo "$OUT" | grep -o 'SLEEP=[0-9]*' | tail -1 | cut -d= -f2)
-            sleep "${NAP:-300}"
-          done
-      - name: Self re-dispatch
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run live-data --repo ${{ github.repository }} || true
+          fi
