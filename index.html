@@ -770,20 +770,10 @@
     </div>
     <div class="lineups">
       <div class="lu today reveal d1">
-        <div class="lu-head"><h4 id="luTitle">오늘 확정 라인업</h4><span class="lock" id="luLock">발표 완료</span><span class="when" id="luWhen">7/7 · 수원</span></div>
-        <p class="sp" id="luStarter">선발 <b>소형준</b> vs 키움 <b>안우진</b></p>
-        <ol id="luList">
-          <li><b>최원준</b><span class="ps">DH</span></li>
-          <li><b>김민혁</b><span class="ps">LF</span></li>
-          <li><b>안현민</b><span class="ps">RF</span></li>
-          <li><b>김현수</b><span class="ps">1B</span></li>
-          <li><b>허경민</b><span class="ps">3B</span></li>
-          <li><b>김상수</b><span class="ps">2B</span></li>
-          <li><b>배정대</b><span class="ps">CF</span></li>
-          <li><b>조대현</b><span class="ps">C</span></li>
-          <li><b>권동진</b><span class="ps">SS</span></li>
-        </ol>
-        <p class="note">7/7 KT 공식 발표 라인업. 김현수 4번, 배정대·조대현 선발 출전. <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
+        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
+        <ol id="luList"></ol>
+        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
       </div>
       <div class="lu reveal d2">
         <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when">7. 5 vs 롯데 · 4-2 승</span></div>
@@ -945,7 +935,7 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260719-101713';
+  const BUILD = '20260719-112521';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1699,10 +1689,16 @@
     const oppK = gToday.home === 'KT' ? gToday.away : gToday.home;
     document.getElementById('luKicker').textContent = 'Lineup · vs ' + oppK + ' ' + (gToday.time || '');
     if(!kt || !kt.lineup){
-      /* 경기는 있지만 라인업 미발표 → 예상 표기 */
+      /* 경기는 있지만 라인업 미발표 → 오늘 실제 매치업으로 갱신 (이전 경기 잔재 방지) */
       document.getElementById('luTitle').textContent = '라인업 발표 전';
       document.getElementById('luLock').textContent = '대기 중';
       document.getElementById('luWhen').textContent = gToday.date.slice(5).replace('-','/') + ' · ' + gToday.stadium;
+      const oppStarterPre = gToday.home === 'KT' ? gToday.ap : gToday.hp;
+      const ktStarterPre = gToday.home === 'KT' ? gToday.hp : gToday.ap;
+      document.getElementById('luStarter').innerHTML =
+        (ktStarterPre ? '선발 예고 <b>' + esc(ktStarterPre) + '</b>' : '선발 미정') +
+        ' vs ' + esc(oppK) + (oppStarterPre ? ' <b>' + esc(oppStarterPre) + '</b>' : '');
+      document.getElementById('luList').innerHTML = '<li style="color:var(--muted)">라인업 발표 대기 중 — 발표되면 자동으로 표시됩니다</li>';
       return;
     }
     const g = gToday;
