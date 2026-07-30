@@ -1602,13 +1602,21 @@
   }
 
   /* ---------- 시즌 순위 변동 차트 ---------- */
+  const TEAM_COLORS = {
+    'KT':'#ff4d63','LG':'#c30452','삼성':'#0765a8','KIA':'#ea0029','두산':'#3b4557',
+    '한화':'#f37321','NC':'#1d467d','롯데':'#8b98a8','SSG':'#ce0e2d','키움':'#820024'
+  };
+  let rankHist = null;
   function renderRankChart(hist){
     if(!hist || hist.length < 2) return;
+    rankHist = hist;
     const sec = document.getElementById('rankChartSec');
     sec.style.display = 'block';
     const cv = document.getElementById('rankCanvas');
     const dpr = Math.min(2, devicePixelRatio || 1);
     const cw = cv.clientWidth || cv.parentElement.clientWidth;
+    // 레이아웃 전에 호출되면 폭이 비정상적으로 작음 — 다음 프레임에 재시도
+    if(cw < 100){ requestAnimationFrame(() => renderRankChart(hist)); return; }
     const ch = 280;
     cv.width = cw * dpr; cv.height = ch * dpr;
     const ctx = cv.getContext('2d');
@@ -1627,7 +1635,7 @@
       ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cw - padR, y); ctx.stroke();
       ctx.fillText(r + '위', 2, y);
     });
-    // 타 팀 (가는 회색선)
+    // 타 팀 (구단 색 실선)
     const teamNames = hist[hist.length - 1].teams.map(t => t.name);
     teamNames.filter(nm => nm !== 'KT').forEach(nm => {
       ctx.beginPath();
@@ -1636,7 +1644,8 @@
         const x = xAt(i), y = yAt(t.rank);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.lineWidth = 1.3; ctx.stroke();
+      ctx.strokeStyle = TEAM_COLORS[nm] || 'rgba(255,255,255,.35)';
+      ctx.globalAlpha = .75; ctx.lineWidth = 1.8; ctx.stroke(); ctx.globalAlpha = 1;
     });
     // KT (굵은 레드)
     ctx.beginPath();
@@ -1656,8 +1665,11 @@
     ctx.textAlign = 'right';
     ctx.fillText(hist[n - 1].date.slice(5).replace('-', '.'), cw - padR, ch - 6);
     document.getElementById('rankLegend').innerHTML =
-      '<span><i style="background:#ff4d63"></i>kt wiz</span><span><i style="background:rgba(255,255,255,.3)"></i>다른 9팀</span>';
+      ['KT'].concat(teamNames.filter(nm => nm !== 'KT')).map(nm =>
+        '<span><i style="background:' + (TEAM_COLORS[nm] || 'rgba(255,255,255,.35)') + '"></i>' +
+        (nm === 'KT' ? '<b>kt wiz</b>' : nm) + '</span>').join('');
   }
+  addEventListener('resize', () => { if(rankHist) renderRankChart(rankHist); });
 
   async function loadRankHistory(){
     const urls = [
