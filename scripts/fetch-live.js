@@ -501,7 +501,7 @@ async function scheduleDifficulty(today, standings) {
       try { hist = JSON.parse(fs.readFileSync(histFile, 'utf8')); } catch (e) {}
       if (!hist.length || hist[hist.length - 1].date !== today) {
         hist.push({ date: today, teams: out.standings.map(t => ({ name: t.name, rank: t.rank, w: t.w, l: t.l, d: t.d })) });
-        if (hist.length > 90) hist = hist.slice(-90);
+        if (hist.length > 400) hist = hist.slice(-400); // 한 시즌 전체 보관
         fs.writeFileSync(histFile, JSON.stringify(hist));
       }
     }
