@@ -2242,6 +2242,28 @@ gtag('config', 'G-8MC9LN4N1R');
 </script>
 
 <script>
+/* GA4 섹션 조회 추적 — 섹션이 화면에 30% 이상 보이면 1회 전송 */
+(function(){
+  if(typeof gtag !== 'function' || !('IntersectionObserver' in window)) return;
+  const seen = new Set();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(!en.isIntersecting) return;
+      const sec = en.target;
+      const name = (sec.querySelector('h2') || {}).textContent || sec.id || 'unknown';
+      if(seen.has(name)) return;
+      seen.add(name);
+      gtag('event', 'section_view', { section_name: name.trim() });
+      io.unobserve(sec);
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('section').forEach(s => io.observe(s));
+  // 재생 버튼 등 주요 인터랙션도 추적
+  const play = document.getElementById('rankPlay');
+  if(play) play.addEventListener('click', () => gtag('event', 'rank_play_click'));
+})();
+</script>
+<script>
 /* 소스 열람 억제 — 우클릭·단축키·드래그 차단 (완전한 보호는 아님) */
 (function(){
   addEventListener('contextmenu', e => e.preventDefault());
