@@ -1938,7 +1938,7 @@ gtag('config', 'G-8MC9LN4N1R');
     chips.unshift(
       '<span>남은 경기 <b>' + m.remKt + '</b></span>',
       '<span>현재 <b>' + m.kt.rank + '위</b></span>',
-      m.kt.rank === 1 ? '<span>1위 수성 중</span>' : '<span>1위 ' + esc(m.r1.name) + '와 <b>' + m.gb(m.r1) + 'G</b></span>');
+      m.kt.rank === 1 ? '<span>1위 수성 중</span>' : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>');
     $('mbChips').innerHTML = chips.join('');
   }
 
