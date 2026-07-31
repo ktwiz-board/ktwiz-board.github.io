@@ -302,6 +302,22 @@ gtag('config', 'G-8MC9LN4N1R');
   .magic .m span{font-size:10.5px;color:var(--muted);letter-spacing:.14em;font-weight:700;text-transform:uppercase}
   .magic-note{font-size:12.5px;color:var(--muted);margin:0 0 22px;font-weight:500}
   .magic-note b{color:var(--red-soft)}
+  /* ---------- 최상단 매직넘버 배너 ---------- */
+  .magicbanner{background:linear-gradient(120deg,rgba(232,16,47,.18),#101012 55%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:34px 0;min-height:170px}
+  .magicbanner .wrap{display:flex;align-items:center;gap:36px}
+  .magicbanner .mb-num{flex:0 0 auto;text-align:center}
+  .magicbanner .mb-kicker{display:block;font-size:11px;letter-spacing:.24em;color:var(--muted);font-weight:800;text-transform:uppercase;margin-bottom:4px}
+  .magicbanner .mb-num b{display:block;font-size:clamp(58px,9vw,92px);line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--red-soft);text-shadow:0 0 36px rgba(232,16,47,.45)}
+  .magicbanner.clinch .mb-num b{color:var(--gold);text-shadow:0 0 36px rgba(217,169,76,.5)}
+  .magicbanner .mb-head{font-size:17px;font-weight:700;margin:0 0 7px;line-height:1.5}
+  .magicbanner .mb-head b{color:var(--red-soft)}
+  .magicbanner.clinch .mb-head b{color:var(--gold)}
+  .magicbanner .mb-ex{font-size:13px;color:var(--muted);font-weight:500;margin:0;line-height:1.65}
+  .magicbanner .mb-ex b{color:var(--ink)}
+  .magicbanner .mb-chips{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+  .magicbanner .mb-chips span{font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 12px}
+  .magicbanner .mb-chips span b{color:var(--ink)}
+  @media (max-width:640px){.magicbanner{padding:26px 0}.magicbanner .wrap{flex-direction:column;gap:16px;text-align:center}.magicbanner .mb-chips{justify-content:center}}
 
   /* ---------- 승리 축하 (콘텐츠 중앙 버스트) ---------- */
   .celebrate-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
@@ -354,10 +370,43 @@ gtag('config', 'G-8MC9LN4N1R');
   .h2h td.lose{color:var(--red-soft)}
   .h2h td.diag{color:rgba(255,255,255,.15)}
   .h2h th.kt-col, .h2h td.kt-col{background:rgba(232,16,47,.08)}
-  .h2h th.focus-col, .h2h td.focus-col{background:rgba(217,169,76,.14)}
-  .h2h tr.focus-row td:first-child{color:var(--gold)}
-  .h2h td.focus-cell{outline:2px solid rgba(217,169,76,.7);outline-offset:-2px}
   .h2h-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500;line-height:1.8}
+  /* KT 중심 상대전적 리스트 */
+  .h2h-sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .h2h-sum .chip{font-size:12px;font-weight:700;padding:7px 14px;border-radius:99px;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+  .h2h-sum .chip b{color:var(--ink)}
+  .h2hbox{background:var(--panel);border-radius:22px;padding:8px 24px}
+  .h2h-list{list-style:none;margin:0;padding:0}
+  .h2h-list li{display:grid;grid-template-columns:118px 1fr 110px;align-items:center;gap:16px;padding:14px 6px;border-bottom:1px solid var(--line)}
+  .h2h-list li:last-child{border-bottom:none}
+  .h2h-list li.today{box-shadow:inset 3px 0 0 var(--gold);background:rgba(217,169,76,.05)}
+  .h2h-opp b{font-size:14.5px;font-weight:800}
+  .h2h-opp em{font-style:normal;font-size:11px;color:var(--muted);margin-left:6px;font-variant-numeric:tabular-nums}
+  .h2h-opp .tdy{display:block;font-style:normal;font-size:10.5px;font-weight:800;color:var(--gold);margin-top:3px}
+  .h2h-seg{display:flex;gap:3px;height:10px}
+  .h2h-seg i{flex:1;border-radius:2px;background:rgba(255,255,255,.07)}
+  .h2h-seg i.w{background:var(--ok)}
+  .h2h-seg i.d{background:rgba(217,169,76,.6)}
+  .h2h-seg i.l{background:var(--red-soft)}
+  .h2h-rec{display:block;font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:600;font-variant-numeric:tabular-nums}
+  .h2h-side{text-align:right}
+  .h2h-diff{display:block;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+  .h2h-diff.up{color:var(--ok)}
+  .h2h-diff.dn{color:var(--red-soft)}
+  .h2h-diff.ev{color:var(--muted);font-size:12px}
+  .h2h-side em{font-style:normal;font-size:11px;color:var(--muted);font-weight:500}
+  .h2h-toggle{display:block;margin:16px auto 0;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;padding:9px 18px;border-radius:99px;cursor:pointer;transition:color .2s,border-color .2s}
+  .h2h-toggle:hover{color:var(--ink);border-color:rgba(255,255,255,.3)}
+  @media (max-width:560px){
+    .h2h-list li{grid-template-columns:84px 1fr 82px;gap:10px}
+    .h2h-seg{gap:2px;height:8px}
+    .h2h-opp b{font-size:13px}
+  }
+  @media (max-width:400px){
+    .h2hbox{padding:8px 12px}
+    .h2h-list li{grid-template-columns:76px 1fr 72px;gap:8px}
+    .h2h-seg{gap:1px}
+  }
   .h2h td{font-size:12.5px;padding:10px 8px;text-align:center}
   .h2h th{text-align:center;padding:12px 8px}
   .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
@@ -663,6 +712,21 @@ gtag('config', 'G-8MC9LN4N1R');
   </div>
 </div>
 
+<!-- ================= 매직넘버 배너 ================= -->
+<section class="magicbanner" id="magicBanner" aria-label="포스트시즌 매직넘버">
+  <div class="wrap">
+    <div class="mb-num">
+      <span class="mb-kicker" id="mbKicker">PS Magic Number</span>
+      <b id="mbNum">–</b>
+    </div>
+    <div class="mb-copy">
+      <p class="mb-head" id="mbHead">매직넘버 계산 중…</p>
+      <p class="mb-ex" id="mbEx"></p>
+      <div class="mb-chips" id="mbChips"></div>
+    </div>
+  </div>
+</section>
+
 <div class="wrap">
   <!-- ================= 구장별 현황판 ================= -->
   <section>
@@ -759,13 +823,17 @@ gtag('config', 'G-8MC9LN4N1R');
   <section id="h2hSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Head to Head</p>
-      <h2>팀간 상대전적</h2>
-      <p class="sub">가로줄 팀 기준 승-패 (무승부 제외) — 경기 결과에서 자체 집계</p>
+      <h2>KT 상대전적</h2>
+      <p class="sub">팀당 16차전 — 승·무·패와 남은 맞대결까지 한눈에</p>
     </div>
-    <div class="tablebox reveal d1" style="overflow-x:auto">
-      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
-    </div>
+    <div class="h2h-sum reveal d1" id="h2hSum"></div>
+    <div class="h2hbox reveal d1"><ul class="h2h-list" id="h2hList"></ul></div>
     <p class="h2h-note reveal d2" id="h2hNote"></p>
+    <button class="h2h-toggle reveal d2" id="h2hTgl" type="button" aria-expanded="false" aria-controls="h2hMatWrap">전체 10팀 매트릭스 펼치기 ▾</button>
+    <div class="tablebox" id="h2hMatWrap" style="overflow-x:auto;display:none;margin-top:14px">
+      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
+      <p class="h2h-note" style="margin:10px 4px 4px">각 칸은 가로줄 팀 기준 승-패 · 무승부 제외</p>
+    </div>
   </section>
 
   <!-- ================= 구단 이동거리 ================= -->
@@ -1814,27 +1882,91 @@ gtag('config', 'G-8MC9LN4N1R');
   }
 
   /* ---------- 매직넘버 트래커 ---------- */
-  function renderMagic(st){
-    if(!st || st.length < 10) return;
+  function computeMagic(st){
+    if(!st || st.length < 10) return null;
     const SEASON = 144;
-    const kt = st.find(t => t.name === 'KT'); if(!kt) return;
-    const g = t => t.w + t.l + t.d, rem = t => SEASON - g(t);
-    const r6 = st[5], r2 = st[1], r1 = st[0];
-    /* PS(5위 이내) 매직넘버: 6위가 남은 경기 전승해도 못 따라오게 하는 데 필요한 KT 추가 승수 */
-    const psMagic = Math.max(0, (r6.name === 'KT' ? 0 : r6.w + rem(r6)) - kt.w + 1);
-    const gbTo = t => (((t.w - t.l) - (kt.w - kt.l)) / 2).toFixed(1);
+    const kt = st.find(t => t.name === 'KT'); if(!kt) return null;
+    const g = t => t.w + t.l + t.d, rem = t => Math.max(0, SEASON - g(t));
+    /* 위협 = KT 제외 9팀의 '최고 가능 승률'(잔여 전승 가정) 중 5번째로 높은 값.
+       이 컷라인을 넘어서면 최소 5팀이 확정적으로 아래 → 5위 이내 확정 (KT 순위 무관) */
+    const others = st.filter(t => t.name !== 'KT')
+      .map(t => ({t, maxW: t.w + rem(t), denom: t.w + t.l + rem(t)}))
+      .sort((a, b) => (b.maxW / b.denom) - (a.maxW / a.denom));
+    const threat = others[4];
+    /* KT 최악 승률 분모(잔여 전패 가정). 무승부가 나오면 분모가 줄어 유리해질 뿐이라 진짜 보장값.
+       부동소수점 경계 오차를 피하려고 정수 교차곱으로 계산 */
+    const denomKt = kt.w + kt.l + rem(kt);
+    const psMagic = Math.max(0, Math.floor((threat.maxW * denomKt - kt.w * threat.denom) / threat.denom) + 1);
+    const lit = psMagic > 0 && psMagic <= rem(kt);
+    const clinched = psMagic === 0;
+    const r1 = st[0], r6 = st[5], fifth = st[4].name === 'KT' ? st[5] : st[4];
+    const gb = t => Math.abs(((t.w - t.l) - (kt.w - kt.l)) / 2).toFixed(1);
+    const tragic = Math.max(0, kt.w + rem(kt) - fifth.w + 1); /* 승수 기준 근사 */
+    return {kt, remKt: rem(kt), remOf: rem, threat, psMagic, lit, clinched, r1, r6, fifth, gb, tragic};
+  }
+
+  function renderMagicBanner(st){
+    const m = computeMagic(st), sec = document.getElementById('magicBanner');
+    if(!m){ return; }
+    sec.classList.toggle('clinch', m.clinched);
+    const $ = id => document.getElementById(id);
+    const T = m.threat.t, chips = [];
+    if(m.clinched){
+      $('mbKicker').textContent = 'Postseason Clinched';
+      $('mbNum').textContent = '🏆';
+      $('mbHead').innerHTML = '<b>가을야구 확정!</b> kt wiz가 포스트시즌(5위 이내) 진출을 확정했습니다.';
+      $('mbEx').textContent = '남은 ' + m.remKt + '경기 결과와 상관없이 순위가 5위 밖으로 밀려날 수 없습니다.';
+    } else if(m.lit){
+      $('mbKicker').textContent = 'PS Magic Number';
+      $('mbNum').textContent = m.psMagic;
+      $('mbHead').innerHTML = '가을야구까지 <b>' + m.psMagic + '승</b> — kt가 ' + m.psMagic + '승만 더 하면 포스트시즌 확정입니다.';
+      $('mbEx').innerHTML = '5위 경쟁의 커트라인인 ' + esc(T.name) + '(' + T.w + '승)가 남은 ' +
+        m.remOf(T) + '경기를 <b>전부 이겨도</b> 최대 ' + m.threat.maxW + '승. kt(' + m.kt.w + '승)가 <b>' +
+        m.psMagic + '승</b>을 보태 ' + (m.kt.w + m.psMagic) + '승이 되면, 다른 팀 경기 결과와 상관없이 5위 이내가 확정됩니다.';
+    } else if(m.kt.rank <= 5){
+      $('mbKicker').textContent = 'Road to October';
+      $('mbNum').textContent = m.kt.rank + '위';
+      $('mbHead').innerHTML = '매직넘버 점등 전 — 확정에 필요한 승수(' + m.psMagic + ')가 남은 경기(' + m.remKt + ')보다 많습니다.';
+      $('mbEx').textContent = '매직넘버는 "아래 팀들이 남은 경기를 전부 이겨도 못 따라오는" 시점부터 켜집니다. 지금은 6위 ' + m.r6.name + '보다 ' + m.gb(m.r6) + '경기 앞서 있습니다.';
+    } else {
+      $('mbKicker').textContent = 'Chase Mode';
+      $('mbNum').textContent = m.gb(m.fifth) + 'G';
+      $('mbHead').innerHTML = '5위 ' + esc(m.fifth.name) + '까지 <b>' + m.gb(m.fifth) + '경기</b> — 지금은 추격이 먼저입니다.';
+      $('mbEx').textContent = 'kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승. 탈락 카운트다운(트래직 넘버, 승수 기준 근사)은 ' + m.tragic + '입니다.';
+      chips.push('<span>트래직 <b>' + m.tragic + '</b></span>');
+    }
+    chips.unshift(
+      '<span>남은 경기 <b>' + m.remKt + '</b></span>',
+      '<span>현재 <b>' + m.kt.rank + '위</b></span>',
+      m.kt.rank === 1 ? '<span>1위 수성 중</span>' : '<span>1위 ' + esc(m.r1.name) + '와 <b>' + m.gb(m.r1) + 'G</b></span>');
+    $('mbChips').innerHTML = chips.join('');
+  }
+
+  function renderMagic(st){
+    const m = computeMagic(st); if(!m) return;
     const row = document.getElementById('magicRow'), note = document.getElementById('magicNote');
     row.style.display = 'grid'; note.style.display = 'block';
+    const vsLabel = m.kt.rank <= 5 ? '6위와 게임차' : '5위와 게임차';
+    const vsTeam = m.kt.rank <= 5 ? m.r6 : m.fifth;
     const items = [
-      {v: rem(kt), l: '남은 경기', red: false},
-      {v: kt.rank + '위', l: '현재 순위', red: true},
-      {v: psMagic, l: 'PS 매직넘버', red: true},
-      {v: gbTo(r2.name === 'KT' ? r1 : r2), l: '2위 ' + (r2.name === 'KT' ? r1.name : r2.name) + ' 게임차', red: false},
-      {v: gbTo(r1), l: '1위 ' + r1.name + ' 게임차', red: false}
+      {v: m.remKt, l: '남은 경기', red: false},
+      {v: m.kt.rank + '위', l: '현재 순위', red: true},
+      {v: m.lit || m.clinched ? m.psMagic : '—', l: 'PS 매직넘버', red: true},
+      {v: m.gb(vsTeam), l: vsLabel, red: false},
+      {v: m.gb(m.r1), l: '1위 ' + m.r1.name + ' 게임차', red: false}
     ];
     row.innerHTML = items.map(i => '<div class="m"><b class="' + (i.red ? 'red' : '') + '">' + i.v + '</b><span>' + esc(i.l) + '</span></div>').join('');
-    note.innerHTML = 'PS 매직넘버 <b>' + psMagic + '</b> — 6위 ' + esc(r6.name) + '가 남은 ' + rem(r6) + '경기를 전승해도, kt가 <b>' + psMagic + '승</b>만 더 거두면 가을야구가 확정됩니다.';
+    note.innerHTML = m.clinched ? '<b>가을야구 확정</b> — 남은 경기 결과와 무관하게 5위 이내가 보장됩니다.'
+      : m.lit ? 'PS 매직넘버 <b>' + m.psMagic + '</b> — 커트라인 ' + esc(m.threat.t.name) + '가 남은 ' + m.remOf(m.threat.t) + '경기를 전승해도, kt가 <b>' + m.psMagic + '승</b>만 더 거두면 가을야구가 확정됩니다.'
+      : '매직넘버 점등 전 — 확정에 필요한 승수가 남은 경기 수보다 많습니다.';
   }
+  /* 첫 페인트용 시드 순위 — 라이브 데이터가 도착하면 곧바로 대체됨 */
+  renderMagicBanner([
+    {name:'LG',rank:1,w:51,l:31,d:0},{name:'삼성',rank:2,w:49,l:31,d:2},{name:'KT',rank:3,w:45,l:35,d:1},
+    {name:'KIA',rank:4,w:44,l:37,d:2},{name:'두산',rank:5,w:42,l:40,d:2},{name:'한화',rank:6,w:39,l:39,d:2},
+    {name:'NC',rank:7,w:38,l:41,d:1},{name:'롯데',rank:8,w:36,l:44,d:2},{name:'SSG',rank:9,w:30,l:50,d:3},
+    {name:'키움',rank:10,w:29,l:55,d:1}
+  ]);
 
   /* ---------- 승리 축하 모드 ---------- */
   let celebrated = false;
@@ -1978,41 +2110,72 @@ gtag('config', 'G-8MC9LN4N1R');
     }
   }
 
-  /* ---------- 팀간 상대전적 매트릭스 ---------- */
+  /* ---------- 팀간 상대전적 (KT 중심) ---------- */
   function renderH2H(py, standings, games){
     const h2h = py && py.h2h;
-    if(!h2h || !standings || standings.length < 10) return;
-    const order = standings.map(t => t.name); // 순위순
+    if(!h2h || !h2h['KT'] || !standings || standings.length < 10) return;
     document.getElementById('h2hSec').style.display = 'block';
-    // 오늘 KT 경기 상대 — 있으면 그 팀 행/열을 포커싱
+    const order = standings.map(t => t.name); // 순위순
+    const rankOf = {}; standings.forEach((t, i) => rankOf[t.name] = i + 1);
     const todayG = (games || []).find(g => g.home === 'KT' || g.away === 'KT');
     const oppToday = todayG ? (todayG.home === 'KT' ? todayG.away : todayG.home) : null;
-    const note = document.getElementById('h2hNote');
-    if(note){
-      // 실제 KT 데이터로 동적 예문 생성 (고정 예시로 인한 숫자 불일치 혼선 방지)
-      const exOpp = oppToday || (order.find(n => n !== 'KT') || 'LG');
-      const exR = (h2h['KT'] || {})[exOpp] || { w: 0, l: 0 };
-      const exFlip = (h2h[exOpp] || {})['KT'] || { w: exR.l, l: exR.w };
-      note.innerHTML = (oppToday
-        ? '오늘 상대인 <b style="color:var(--red-soft)">' + esc(oppToday) + '</b> 열이 강조 표시됩니다. '
-        : '') +
-        '각 칸은 <b>가로줄(row) 팀 기준</b> 승-패입니다 — KT 행의 ' + esc(exOpp) + ' 칸이 <b>' + exR.w + '-' + exR.l + '</b>이면 "KT가 ' + exR.w + '승 ' + exR.l + '패"라는 뜻이고, 반대로 ' + esc(exOpp) + ' 행의 KT 칸은 같은 경기를 ' + esc(exOpp) + ' 입장에서 본 <b>' + exFlip.w + '-' + exFlip.l + '</b>로 표시됩니다(숫자가 다른 게 정상 — 관점이 반대일 뿐 같은 경기 기록). ' +
-        '<span style="color:var(--ok);font-weight:700">초록</span> = 그 가로줄 팀 우세, <span style="color:var(--red-soft);font-weight:700">빨강</span> = 열세.';
-    }
-    document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
-      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + (n === oppToday ? ' focus-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
-    document.getElementById('h2hBody').innerHTML = order.map(row => {
-      const isKTrow = row === 'KT';
-      const isOppRow = row === oppToday;
-      return '<tr' + (isKTrow ? ' class="kt"' : (isOppRow ? ' class="focus-row"' : '')) + '><td>' + esc(row) + '</td>' +
-        order.map(col => {
-          const isFocusCell = (row === 'KT' && col === oppToday) || (col === 'KT' && row === oppToday);
-          if(row === col) return '<td class="diag' + (col === 'KT' ? ' kt-col' : '') + '">■</td>';
-          const r = (h2h[row] || {})[col] || { w: 0, l: 0 };
-          const cls = r.w > r.l ? 'win' : (r.w < r.l ? 'lose' : '');
-          return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + (col === oppToday ? ' focus-col' : '') + (isFocusCell ? ' focus-cell' : '') + '">' + r.w + '-' + r.l + '</td>';
-        }).join('') + '</tr>';
+
+    const rows = order.filter(n => n !== 'KT').map(n => {
+      const r = h2h['KT'][n] || {};
+      const w = r.w || 0, l = r.l || 0, d = r.d || 0;
+      return { name: n, w, l, d, left: Math.max(0, 16 - w - l - d), diff: w - l };
+    });
+    rows.sort((a, b) => (b.diff - a.diff) || (b.w - a.w) || (rankOf[a.name] - rankOf[b.name]));
+
+    const up = rows.filter(r => r.diff > 0).length, dn = rows.filter(r => r.diff < 0).length;
+    const best = rows[0], worst = rows[rows.length - 1];
+    document.getElementById('h2hSum').innerHTML =
+      '<span class="chip"><b style="color:var(--ok)">우세 ' + up + '팀</b> · 백중 ' + (rows.length - up - dn) + '팀 · <b style="color:var(--red-soft)">열세 ' + dn + '팀</b></span>' +
+      (best.diff > 0 ? '<span class="chip">최다 우세: <b>' + esc(best.name) + '</b> ' + best.w + '승 ' + best.l + '패</span>' : '') +
+      (worst.diff < 0 ? '<span class="chip">천적: <b>' + esc(worst.name) + '</b> ' + worst.w + '승 ' + worst.l + '패</span>' : '');
+
+    const seg = r => {
+      let s = '';
+      for(let i = 0; i < r.w; i++) s += '<i class="w"></i>';
+      for(let i = 0; i < r.d; i++) s += '<i class="d"></i>';
+      for(let i = 0; i < r.l; i++) s += '<i class="l"></i>';
+      for(let i = 0; i < r.left; i++) s += '<i></i>';
+      return '<span class="h2h-seg">' + s + '</span>';
+    };
+
+    document.getElementById('h2hList').innerHTML = rows.map(r => {
+      const tone = r.diff > 0 ? 'up' : (r.diff < 0 ? 'dn' : 'ev');
+      const diffTxt = r.diff > 0 ? '+' + r.diff : (r.diff < 0 ? '' + r.diff : '백중');
+      return '<li' + (r.name === oppToday ? ' class="today"' : '') + '>' +
+        '<span class="h2h-opp"><b>' + esc(r.name) + '</b><em>' + rankOf[r.name] + '위</em>' +
+          (r.name === oppToday ? '<i class="tdy">오늘 맞대결</i>' : '') + '</span>' +
+        '<span class="h2h-mid">' + seg(r) +
+          '<span class="h2h-rec">' + r.w + '승 ' + r.d + '무 ' + r.l + '패</span></span>' +
+        '<span class="h2h-side"><b class="h2h-diff ' + tone + '">' + diffTxt + '</b>' +
+          '<em>' + (r.left > 0 ? '잔여 ' + r.left : '맞대결 종료') + '</em></span></li>';
     }).join('');
+
+    document.getElementById('h2hNote').innerHTML =
+      '막대 한 칸 = 1경기 (팀당 16차전) — <span style="color:var(--ok);font-weight:700">승</span> · <span style="color:var(--gold);font-weight:700">무</span> · <span style="color:var(--red-soft);font-weight:700">패</span> · 회색 = 남은 경기. KT가 우세한 상대부터 정렬.';
+
+    // 전체 매트릭스 (토글, 기본 접힘)
+    const tgl = document.getElementById('h2hTgl'), wrap = document.getElementById('h2hMatWrap');
+    tgl.onclick = () => {
+      const open = wrap.style.display !== 'none';
+      wrap.style.display = open ? 'none' : '';
+      tgl.textContent = open ? '전체 10팀 매트릭스 펼치기 ▾' : '매트릭스 접기 ▴';
+      tgl.setAttribute('aria-expanded', String(!open));
+    };
+    document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
+      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
+    document.getElementById('h2hBody').innerHTML = order.map(row =>
+      '<tr' + (row === 'KT' ? ' class="kt"' : '') + '><td>' + esc(row) + '</td>' +
+      order.map(col => {
+        if(row === col) return '<td class="diag' + (col === 'KT' ? ' kt-col' : '') + '">■</td>';
+        const r = (h2h[row] || {})[col] || { w: 0, l: 0 };
+        const cls = r.w > r.l ? 'win' : (r.w < r.l ? 'lose' : '');
+        return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + '">' + r.w + '-' + r.l + '</td>';
+      }).join('') + '</tr>').join('');
   }
 
   /* ---------- 오늘 선발 구종 맞대결 ---------- */
@@ -2221,6 +2384,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderTravel(j.pythag);
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
+        renderMagicBanner(j.standings);
         renderPythag(j.pythag);
         renderYT(j.youtube);
         renderShorts(j.shorts);
