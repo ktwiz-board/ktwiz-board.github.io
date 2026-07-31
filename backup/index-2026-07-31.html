@@ -815,21 +815,10 @@ gtag('config', 'G-8MC9LN4N1R');
         <ol id="luList"></ol>
         <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
       </div>
-      <div class="lu reveal d2">
-        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when">7. 5 vs 롯데 · 4-2 승</span></div>
-        <p class="sp">선발 <b>사우어</b> — 6이닝 2실점</p>
-        <ol>
-          <li><b>최원준</b><span class="ps">DH</span></li>
-          <li><b>김현수</b><span class="ps">1B</span></li>
-          <li><b>안현민</b><span class="ps">RF</span></li>
-          <li><b>힐리어드</b><span class="ps">CF</span></li>
-          <li><b>김민혁</b><span class="ps">LF</span></li>
-          <li><b>김상수</b><span class="ps">2B</span></li>
-          <li><b>허경민</b><span class="ps">3B</span></li>
-          <li><b>한승택</b><span class="ps">C</span></li>
-          <li><b>권동진</b><span class="ps">SS</span></li>
-        </ol>
-        <p class="note">복귀한 최원준이 1번 지명타자로 출전, 8회 결승 득점의 발판을 놓았습니다.</p>
+      <div class="lu reveal d2" id="lgluBox" style="display:none">
+        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
+        <p class="sp" id="lgluSp"></p>
+        <ol id="lgluList"></ol>
       </div>
     </div>
     <!-- 오늘 선발 구종 맞대결 -->
@@ -1944,6 +1933,16 @@ gtag('config', 'G-8MC9LN4N1R');
       body += '</div>';
     }
     box.innerHTML = '<div class="lg-hero">' + matchup + meta + '</div>' + body;
+    // 지난 경기 선발 라인업 패널 (수집된 경우에만 표시)
+    if((lg.lineup || []).length >= 9){
+      document.getElementById('lgluWhen').textContent =
+        fmtDate(lg.date) + ' vs ' + lg.opp + ' · ' + ktSc + '-' + oppSc + ' ' + (lg.r === 'W' ? '승' : lg.r === 'L' ? '패' : '무');
+      document.getElementById('lgluSp').innerHTML = lg.spLine ?
+        '선발 <b>' + esc(lg.spLine.name) + '</b> — ' + esc(lg.spLine.inn) + '이닝 ' + lg.spLine.r + '실점' : '';
+      document.getElementById('lgluList').innerHTML =
+        lg.lineup.map(b => '<li><b>' + esc(b.name) + '</b><span class="ps">' + esc(b.pos || '') + '</span></li>').join('');
+      document.getElementById('lgluBox').style.display = '';
+    }
   }
 
   /* ---------- 오늘 경기 가능 여부 (날씨) ---------- */

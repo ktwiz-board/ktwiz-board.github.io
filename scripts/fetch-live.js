@@ -411,6 +411,17 @@ async function scheduleDifficulty(today, standings) {
         lastGame.keys = (rd.etcRecords || []).slice(0, 6).map(e => ({ how: e.how, result: e.result }));
         lastGame.pitchers = ((rd.pitchersBoxscore && rd.pitchersBoxscore[side]) || []).map(mapPit)
           .filter(p => p.wls || p.inn); // 선발/승패/세이브 위주
+        // 선발 라인업: 타순 1~9의 첫 번째 선수(교체 전)
+        const bats = (rd.battersBoxscore && rd.battersBoxscore[side]) || [];
+        const seen = new Set();
+        lastGame.lineup = bats.filter(b => {
+          const o = +b.batOrder;
+          if (!(o >= 1 && o <= 9) || seen.has(o)) return false;
+          seen.add(o); return true;
+        }).sort((a, b) => +a.batOrder - +b.batOrder)
+          .map(b => ({ o: +b.batOrder, name: b.name, pos: b.pos }));
+        const sp = ((rd.pitchersBoxscore && rd.pitchersBoxscore[side]) || [])[0];
+        if (sp) lastGame.spLine = { name: sp.name, inn: sp.inn, r: sp.r };
       }
     } catch (e) { console.error('lastGame record fail', e.message); }
   }
