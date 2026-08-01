@@ -225,6 +225,30 @@ async function pythagorean(today) {
   };
 }
 
+// 자체 순위 계산: 시즌 전 경기 결과를 직접 집계 (네이버 순위표 반영 지연과 무관하게 경기 종료 즉시 갱신)
+async function selfStandings(today) {
+  const ranges = [['2026-03-28', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
+  const agg = {};
+  for (const [f, t] of ranges) {
+    if (f > today) break;
+    const gs = await games(f, t, 500);
+    for (const g of gs) {
+      if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
+      if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
+      for (const [me, my, opsc] of [[g.homeTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.awayTeamScore, g.homeTeamScore]]) {
+        if (!agg[me]) agg[me] = { w: 0, l: 0, d: 0 };
+        if (my > opsc) agg[me].w++; else if (my < opsc) agg[me].l++; else agg[me].d++;
+      }
+    }
+  }
+  if (Object.keys(agg).length < 10) return null;
+  return KBO_TEAMS.map(name => {
+    const a = agg[name];
+    return { name, w: a.w, l: a.l, d: a.d, wra: +(a.w / Math.max(1, a.w + a.l)).toFixed(3) };
+  }).sort((x, y) => (y.wra - x.wra) || (y.w - x.w))
+    .map((t, i) => ({ ...t, rank: i + 1 }));
+}
+
 // 잔여 일정 난이도: 남은 상대들의 현재 승률 가중 평균 (자체 산식)
 // 주의: KBO 일정 API가 시즌 전체를 미리 공개하지 않아, 공개된 만큼의 표본으로 "상대 평균 승률"만 추정하고
 // "남은 경기수"는 정규시즌 144경기 - 소화경기로 정확히 계산한다 (표본 수와 혼동 금지).
@@ -480,16 +504,26 @@ async function scheduleDifficulty(today, standings) {
   }
   if (!sched) sched = (prev && prev.sched) || null;
 
+  // 순위: 경기 결과에서 자체 집계가 1순위 (네이버 순위표는 경기 종료 후 반영이 늦음)
+  // 성공 시 자체 w/l/d/rank/wra를 쓰고, era 등 부가 지표만 preview 순위에서 병합
+  let finalStandings = null;
+  try {
+    const self = await selfStandings(today);
+    if (self) finalStandings = self.map(t => Object.assign({}, standings[t.name] || {}, t));
+  } catch (e) { console.error('selfStandings fail', e.message); }
+  if (!finalStandings) {
+    finalStandings = Object.keys(standings).length >= 10
+      ? Object.values(standings).sort((a, b) => a.rank - b.rank)
+      : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank));
+  }
+
   const out = {
     updated: new Date().toISOString(),
     updatedKST: `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`,
     date: today,
     mode,
     games: todayGames,
-    // 경기 없는 날엔 preview가 없어 순위를 못 구함 → 직전 순위 유지
-    standings: Object.keys(standings).length >= 10
-      ? Object.values(standings).sort((a, b) => a.rank - b.rank)
-      : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank)),
+    standings: finalStandings,
     kt: {
       gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame,
       // 경기 없는 날엔 프리뷰가 없어 키플레이어를 못 구함 → 직전 값 유지
