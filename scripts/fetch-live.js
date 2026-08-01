@@ -244,9 +244,10 @@ async function selfStandings(today) {
   if (Object.keys(agg).length < 10) return null;
   return KBO_TEAMS.map(name => {
     const a = agg[name];
-    return { name, w: a.w, l: a.l, d: a.d, wra: +(a.w / Math.max(1, a.w + a.l)).toFixed(3) };
-  }).sort((x, y) => (y.wra - x.wra) || (y.w - x.w))
-    .map((t, i) => ({ ...t, rank: i + 1 }));
+    const pct = a.w / Math.max(1, a.w + a.l);
+    return { name, w: a.w, l: a.l, d: a.d, pct, wra: +pct.toFixed(3) };
+  }).sort((x, y) => (y.pct - x.pct) || (y.w - x.w)) // 반올림 전 정확한 승률로 정렬
+    .map((t, i) => ({ name: t.name, w: t.w, l: t.l, d: t.d, wra: t.wra, rank: i + 1 }));
 }
 
 // 잔여 일정 난이도: 남은 상대들의 현재 승률 가중 평균 (자체 산식)
