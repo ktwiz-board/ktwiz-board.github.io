@@ -312,6 +312,22 @@ async function scheduleDifficulty(today, standings) {
     if (sh2.length) prev.shorts = sh2;
     if (nw2.length) prev.news = nw2;
     prev.videoReview = vr2;
+    // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
+    try {
+      const self = await selfStandings(today);
+      if (self) {
+        const byName = {};
+        (prev.standings || []).forEach(t => { byName[t.name] = t; });
+        prev.standings = self.map(t => Object.assign({}, byName[t.name] || {}, t));
+        const histFile = path.join(__dirname, '..', 'data', 'standings-history.json');
+        try {
+          let hist = JSON.parse(fs.readFileSync(histFile, 'utf8'));
+          const snap = { date: today, teams: prev.standings.map(t => ({ name: t.name, rank: t.rank, w: t.w, l: t.l, d: t.d })) };
+          if (hist.length && hist[hist.length - 1].date === today) hist[hist.length - 1] = snap; else hist.push(snap);
+          fs.writeFileSync(histFile, JSON.stringify(hist));
+        } catch (e) {}
+      }
+    } catch (e) { console.error('selfStandings(post) fail', e.message); }
     prev.updated = new Date().toISOString();
     prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
     fs.writeFileSync(file, JSON.stringify(prev, null, 1));
