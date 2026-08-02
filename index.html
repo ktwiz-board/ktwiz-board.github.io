@@ -713,7 +713,7 @@ gtag('config', 'G-8MC9LN4N1R');
 </div>
 
 <!-- ================= 매직넘버 배너 ================= -->
-<section class="magicbanner" id="magicBanner" aria-label="포스트시즌 매직넘버">
+<section class="magicbanner" id="magicBanner" aria-label="정규시즌 1위 매직넘버">
   <div class="wrap">
     <div class="mb-num">
       <span class="mb-kicker" id="mbKicker">PS Magic Number</span>
@@ -896,7 +896,7 @@ gtag('config', 'G-8MC9LN4N1R');
   <!-- ================= 순위 ================= -->
   <section>
     <div class="sec-head reveal">
-      <p class="kicker">Standings · 2026. 7. 6</p>
+      <p class="kicker" id="standKicker">Standings</p>
       <h2>팀 순위</h2>
       <p class="sub">상위 5팀 포스트시즌 진출</p>
     </div>
@@ -1789,8 +1789,9 @@ gtag('config', 'G-8MC9LN4N1R');
     }
   }
 
-  function renderStandings(st){
+  function renderStandings(st, date){
     if(!st || st.length < 10) return;
+    if(date) document.getElementById('standKicker').textContent = 'Standings · ' + date.replace(/-0?/g, '. ');
     const max = Math.max(...st.map(t => t.w - t.l));
     document.getElementById('standBody').innerHTML = st.map(t => {
       const gb = ((max - (t.w - t.l)) / 2).toFixed(1);
@@ -1888,81 +1889,89 @@ gtag('config', 'G-8MC9LN4N1R');
     const SEASON = 144;
     const kt = st.find(t => t.name === 'KT'); if(!kt) return null;
     const g = t => t.w + t.l + t.d, rem = t => Math.max(0, SEASON - g(t));
-    /* 위협 = KT 제외 9팀의 '최고 가능 승률'(잔여 전승 가정) 중 5번째로 높은 값.
-       이 컷라인을 넘어서면 최소 5팀이 확정적으로 아래 → 5위 이내 확정 (KT 순위 무관) */
+    /* KT 제외 9팀을 '최고 가능 승률'(잔여 전승 가정) 내림차순으로 정렬 */
     const others = st.filter(t => t.name !== 'KT')
       .map(t => ({t, maxW: t.w + rem(t), denom: t.w + t.l + rem(t)}))
       .sort((a, b) => (b.maxW / b.denom) - (a.maxW / a.denom));
-    const threat = others[4];
-    /* KT 최악 승률 분모(잔여 전패 가정). 무승부가 나오면 분모가 줄어 유리해질 뿐이라 진짜 보장값.
-       부동소수점 경계 오차를 피하려고 정수 교차곱으로 계산 */
+    /* KT 최악 승률 분모(잔여 전패 가정). 무승부가 나오면 분모가 줄어 유리해질 뿐이라 진짜 보장값. */
     const denomKt = kt.w + kt.l + rem(kt);
-    const psMagic = Math.max(0, Math.floor((threat.maxW * denomKt - kt.w * threat.denom) / threat.denom) + 1);
-    const lit = psMagic > 0 && psMagic <= rem(kt);
-    const clinched = psMagic === 0;
-    const r1 = st[0], r2 = st[1], r6 = st[5], fifth = st[4].name === 'KT' ? st[5] : st[4];
+    /* o의 최고 가능 승률을 확실히 넘는 데 필요한 추가 승수.
+       동률 시 상대전적 타이브레이크에 기대지 않도록 '엄격히 초과'를 요구하고,
+       부동소수점 경계 오차를 피하려고 정수 교차곱으로 계산 */
+    const magicVs = o => Math.max(0, Math.floor((o.maxW * denomKt - kt.w * o.denom) / o.denom) + 1);
+    /* 1위 매직넘버 = 최고 가능 승률이 가장 높은 팀(rival)을 넘어서는 승수.
+       넘어서면 9팀 전부가 확정적으로 아래 → 정규시즌 1위 확정 */
+    const rival = others[0];
+    const chMagic = magicVs(rival);
+    /* PS 매직넘버 = 5번째로 높은 팀(threat)을 넘어서는 승수.
+       넘어서면 최소 5팀이 확정적으로 아래 → 5위 이내 확정 (KT 순위 무관) */
+    const threat = others[4];
+    const psMagic = magicVs(threat);
+    const remKt = rem(kt);
+    const chLit = chMagic > 0 && chMagic <= remKt, chClinched = chMagic === 0;
+    const lit = psMagic > 0 && psMagic <= remKt, clinched = psMagic === 0;
+    const r1 = st[0], r2 = st[1];
     const gb = t => Math.abs(((t.w - t.l) - (kt.w - kt.l)) / 2).toFixed(1);
-    const tragic = Math.max(0, kt.w + rem(kt) - fifth.w + 1); /* 승수 기준 근사 */
-    return {kt, remKt: rem(kt), remOf: rem, threat, psMagic, lit, clinched, r1, r2, r6, fifth, gb, tragic};
+    return {kt, remKt, remOf: rem, rival, chMagic, chLit, chClinched,
+      threat, psMagic, lit, clinched, r1, r2, gb};
   }
 
   function renderMagicBanner(st){
     const m = computeMagic(st), sec = document.getElementById('magicBanner');
     if(!m){ return; }
-    sec.classList.toggle('clinch', m.clinched);
+    sec.classList.toggle('clinch', m.chClinched);
     const $ = id => document.getElementById(id);
-    const T = m.threat.t, chips = [];
-    if(m.clinched){
-      $('mbKicker').textContent = 'Postseason Clinched';
+    const R = m.rival.t;
+    if(m.chClinched){
+      $('mbKicker').textContent = 'Pennant Clinched';
       $('mbNum').textContent = '🏆';
-      $('mbHead').innerHTML = '<b>가을야구 확정!</b> kt wiz가 포스트시즌(5위 이내) 진출을 확정했습니다.';
-      $('mbEx').textContent = '남은 ' + m.remKt + '경기 결과와 상관없이 순위가 5위 밖으로 밀려날 수 없습니다.';
-    } else if(m.lit){
-      $('mbKicker').textContent = 'PS Magic Number';
-      $('mbNum').textContent = m.psMagic;
-      $('mbHead').innerHTML = '가을야구까지 <b>' + m.psMagic + '승</b> — kt가 ' + m.psMagic + '승만 더 하면 포스트시즌 확정입니다.';
-      $('mbEx').innerHTML = '5위 경쟁의 커트라인인 ' + esc(T.name) + '(' + T.w + '승)가 남은 ' +
-        m.remOf(T) + '경기를 <b>전부 이겨도</b> 최대 ' + m.threat.maxW + '승. kt(' + m.kt.w + '승)가 <b>' +
-        m.psMagic + '승</b>을 보태 ' + (m.kt.w + m.psMagic) + '승이 되면, 다른 팀 경기 결과와 상관없이 5위 이내가 확정됩니다.';
-    } else if(m.kt.rank <= 5){
-      $('mbKicker').textContent = 'Road to October';
-      $('mbNum').textContent = m.kt.rank + '위';
-      $('mbHead').innerHTML = '매직넘버 점등 전 — 확정에 필요한 승수(' + m.psMagic + ')가 남은 경기(' + m.remKt + ')보다 많습니다.';
-      $('mbEx').textContent = '매직넘버는 "아래 팀들이 남은 경기를 전부 이겨도 못 따라오는" 시점부터 켜집니다. 지금은 6위 ' + m.r6.name + '보다 ' + m.gb(m.r6) + '경기 앞서 있습니다.';
+      $('mbHead').innerHTML = '<b>정규시즌 1위 확정!</b> kt wiz가 페넌트레이스 우승을 확정했습니다.';
+      $('mbEx').textContent = '남은 ' + m.remKt + '경기 결과와 상관없이 어떤 팀도 kt를 앞지를 수 없습니다.';
+    } else if(m.chLit){
+      $('mbKicker').textContent = '정규시즌 1위 매직넘버';
+      $('mbNum').textContent = m.chMagic;
+      $('mbHead').innerHTML = '정규시즌 1위까지 <b>' + m.chMagic + '승</b> — kt가 ' + m.chMagic + '승만 더 하면 페넌트레이스 우승 확정입니다.';
+      $('mbEx').innerHTML = '가장 위협적인 ' + esc(R.name) + '(' + R.w + '승)이 남은 ' +
+        m.remOf(R) + '경기를 <b>전부 이겨도</b> 최대 ' + m.rival.maxW + '승. kt(' + m.kt.w + '승)가 <b>' +
+        m.chMagic + '승</b>을 보태 ' + (m.kt.w + m.chMagic) + '승이 되면, 다른 팀 경기 결과와 상관없이 1위가 확정됩니다.';
+    } else if(m.kt.rank === 1){
+      $('mbKicker').textContent = 'Pennant Race';
+      $('mbNum').textContent = '+' + m.gb(m.r2) + 'G';
+      $('mbHead').innerHTML = '<b>1위 수성 중</b> — 2위 ' + esc(m.r2.name) + '에 ' + m.gb(m.r2) + '경기 앞서 있습니다.';
+      $('mbEx').textContent = '1위 확정에 필요한 승수(' + m.chMagic + ')가 아직 남은 경기(' + m.remKt + ')보다 많아 매직넘버는 점등 전입니다. 매직넘버는 "2위가 남은 경기를 전부 이겨도 못 따라오는" 시점부터 켜집니다.';
     } else {
       $('mbKicker').textContent = 'Chase Mode';
-      $('mbNum').textContent = m.gb(m.fifth) + 'G';
-      $('mbHead').innerHTML = '5위 ' + esc(m.fifth.name) + '까지 <b>' + m.gb(m.fifth) + '경기</b> — 지금은 추격이 먼저입니다.';
-      $('mbEx').textContent = 'kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승. 탈락 카운트다운(트래직 넘버, 승수 기준 근사)은 ' + m.tragic + '입니다.';
-      chips.push('<span>트래직 <b>' + m.tragic + '</b></span>');
+      $('mbNum').textContent = m.gb(m.r1) + 'G';
+      $('mbHead').innerHTML = '1위 ' + esc(m.r1.name) + '까지 <b>' + m.gb(m.r1) + '경기</b> — 먼저 선두를 따라잡아야 합니다.';
+      $('mbEx').textContent = 'kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
     }
-    chips.unshift(
+    $('mbChips').innerHTML = [
       '<span>남은 경기 <b>' + m.remKt + '</b></span>',
       '<span>현재 <b>' + m.kt.rank + '위</b></span>',
-      m.kt.rank === 1 ? '<span>1위 수성 중</span>' : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>');
-    $('mbChips').innerHTML = chips.join('');
+      m.kt.rank === 1 ? '<span>2위 ' + esc(m.r2.name) + ' <b>+' + m.gb(m.r2) + 'G</b></span>'
+                      : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>',
+      m.clinched ? '<span>가을야구 확정 🎉</span>' : (m.lit ? '<span>PS 매직 <b>' + m.psMagic + '</b></span>' : '')
+    ].filter(Boolean).join('');
   }
 
   function renderMagic(st){
     const m = computeMagic(st); if(!m) return;
     const row = document.getElementById('magicRow'), note = document.getElementById('magicNote');
     row.style.display = 'grid'; note.style.display = 'block';
-    const vsLabel = m.kt.rank <= 5 ? '6위와 게임차' : '5위와 게임차';
-    const vsTeam = m.kt.rank <= 5 ? m.r6 : m.fifth;
     const items = [
       {v: m.remKt, l: '남은 경기', red: false},
       {v: m.kt.rank + '위', l: '현재 순위', red: true},
-      {v: m.lit || m.clinched ? m.psMagic : '—', l: 'PS 매직넘버', red: true},
-      {v: m.gb(vsTeam), l: vsLabel, red: false},
+      {v: m.chLit || m.chClinched ? m.chMagic : '—', l: '1위 매직넘버', red: true},
+      {v: m.lit || m.clinched ? m.psMagic : '—', l: 'PS 매직넘버', red: false},
       /* KT가 1위면 자기 자신과의 게임차(0.0) 대신 2위와의 리드를 보여준다 */
       m.kt.name === m.r1.name
-        ? {v: m.gb(m.r2), l: '2위 ' + m.r2.name + ' 리드', red: false}
+        ? {v: '+' + m.gb(m.r2), l: '2위 ' + m.r2.name + ' 리드', red: false}
         : {v: m.gb(m.r1), l: '1위 ' + m.r1.name + ' 게임차', red: false}
     ];
     row.innerHTML = items.map(i => '<div class="m"><b class="' + (i.red ? 'red' : '') + '">' + i.v + '</b><span>' + esc(i.l) + '</span></div>').join('');
-    note.innerHTML = m.clinched ? '<b>가을야구 확정</b> — 남은 경기 결과와 무관하게 5위 이내가 보장됩니다.'
-      : m.lit ? 'PS 매직넘버 <b>' + m.psMagic + '</b> — 커트라인 ' + esc(m.threat.t.name) + '가 남은 ' + m.remOf(m.threat.t) + '경기를 전승해도, kt가 <b>' + m.psMagic + '승</b>만 더 거두면 가을야구가 확정됩니다.'
-      : '매직넘버 점등 전 — 확정에 필요한 승수가 남은 경기 수보다 많습니다.';
+    note.innerHTML = m.chClinched ? '<b>정규시즌 1위 확정</b> — 남은 경기 결과와 무관하게 페넌트레이스 우승이 보장됩니다.'
+      : m.chLit ? '1위 매직넘버 <b>' + m.chMagic + '</b> — 최대 경쟁자 ' + esc(m.rival.t.name) + '이 남은 ' + m.remOf(m.rival.t) + '경기를 전승해도, kt가 <b>' + m.chMagic + '승</b>만 더 거두면 정규시즌 1위가 확정됩니다.'
+      : '1위 매직넘버 점등 전 — 확정에 필요한 승수(' + m.chMagic + ')가 남은 경기 수보다 많습니다.';
   }
   /* 첫 페인트용 시드 순위 — 라이브 데이터가 도착하면 곧바로 대체됨 */
   renderMagicBanner([
@@ -2374,7 +2383,7 @@ gtag('config', 'G-8MC9LN4N1R');
         updatedKST = j.updatedKST || '';
         updatedISO = j.updated || null;
         ktWeekCache = (j.kt && j.kt.week) || null;
-        renderStandings(j.standings);
+        renderStandings(j.standings, j.date);
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
