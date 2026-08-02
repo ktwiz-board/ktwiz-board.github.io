@@ -1459,11 +1459,11 @@ gtag('config', 'G-8MC9LN4N1R');
 
   /* ---------- 구장별 라이브 현황판 ---------- */
   const SEED = [
-    {stadium:'수원', away:'키움', home:'KT', as:0, hs:0, status:'경기전 18:30', code:'BEFORE', ap:'안우진', hp:'소형준'},
-    {stadium:'잠실', away:'SSG', home:'두산', as:0, hs:0, status:'경기전 18:30', code:'BEFORE', ap:'김민준', hp:'벤자민'},
-    {stadium:'대구', away:'LG', home:'삼성', as:0, hs:0, status:'경기전 18:30', code:'BEFORE', ap:'톨허스트', hp:'후라도'},
-    {stadium:'대전', away:'NC', home:'한화', as:0, hs:0, status:'경기전 18:30', code:'BEFORE', ap:'테일러', hp:'박준영'},
-    {stadium:'사직', away:'KIA', home:'롯데', as:0, hs:0, status:'경기전 18:30', code:'BEFORE', ap:'김태형', hp:'로드리게스'}
+    {stadium:'수원', away:'한화', home:'KT', as:1, hs:12, status:'경기 종료', code:'RESULT', ap:'화이트', hp:'고영표'},
+    {stadium:'사직', away:'삼성', home:'롯데', as:4, hs:9, status:'8회초', code:'STARTED', ap:'보스', hp:'비슬리'},
+    {stadium:'잠실', away:'LG', home:'두산', as:3, hs:8, status:'경기 종료', code:'RESULT', ap:'톨허스트', hp:'벤자민'},
+    {stadium:'고척', away:'SSG', home:'키움', as:3, hs:5, status:'경기 종료', code:'RESULT', ap:'아빌라', hp:'전준표'},
+    {stadium:'창원', away:'KIA', home:'NC', as:0, hs:0, status:'취소', code:'CANCEL', ap:'황동하', hp:'라일리'}
   ];
   const board = document.getElementById('board');
   const stamp = document.getElementById('boardStamp');
@@ -1471,8 +1471,8 @@ gtag('config', 'G-8MC9LN4N1R');
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  /* 팀 시즌 전적 (7/6 기준) */
-  const REC = {'LG':'51-31-0','삼성':'49-31-2','KT':'45-35-1','KIA':'44-37-2','두산':'42-40-2','한화':'39-39-2','NC':'38-41-1','롯데':'36-44-2','SSG':'30-50-3','키움':'29-55-1'};
+  /* 팀 시즌 전적 (8/2 기준 — live.json 로드 시 자동 갱신되는 폴백값) */
+  const REC = {'KT':'59-36-2','삼성':'59-37-2','LG':'55-44-1','두산':'52-45-4','KIA':'52-46-2','한화':'46-49-3','NC':'43-50-2','롯데':'42-54-2','SSG':'38-60-4','키움':'38-63-2'};
 
   /* 구장 좌표 (Open-Meteo 날씨용) */
   const COORD = {
