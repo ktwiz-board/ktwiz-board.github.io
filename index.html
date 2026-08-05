@@ -762,6 +762,50 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
   </section>
 
+  <!-- ================= 라인업 ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <p class="kicker" id="luKicker">Lineup</p>
+      <h2>라인업</h2>
+    </div>
+    <div class="lineups">
+      <div class="lu today reveal d1">
+        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
+        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
+        <ol id="luList"></ol>
+        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+      </div>
+      <div class="lu reveal d2" id="lgluBox" style="display:none">
+        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
+        <p class="sp" id="lgluSp"></p>
+        <ol id="lgluList"></ol>
+      </div>
+    </div>
+    <!-- 오늘 선발 구종 맞대결 -->
+    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
+  </section>
+
+  <!-- ================= 오늘 경기 기록 (박스스코어) ================= -->
+  <section id="boxSec">
+    <div class="sec-head reveal on">
+      <p class="kicker">Box score</p>
+      <h2 id="boxTitle">오늘 경기 기록</h2>
+      <p class="sub" id="boxSub"></p>
+    </div>
+    <div class="boxgrid">
+      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
+      <div class="boxpanel"><h4>kt 타자 기록</h4>
+        <table class="bx" id="batTable"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
+      </div>
+      <div class="boxcols">
+        <div class="boxpanel"><h4>kt 투수 기록</h4>
+          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
+        </div>
+        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 전국 구장 날씨 지도 ================= -->
   <section id="wxMapSec">
     <div class="sec-head reveal">
@@ -788,57 +832,6 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시됩니다.</p>
   </section>
 
-  <!-- ================= 지난 경기 ================= -->
-  <section id="lastGameSec">
-    <div class="sec-head reveal">
-      <p class="kicker" id="lgKicker">Last game</p>
-      <h2>지난 경기</h2>
-    </div>
-    <div class="lastgame reveal d1" id="lastGameBox">
-      <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
-    </div>
-  </section>
-
-  <!-- ================= wiz TV ================= -->
-  <section id="ytSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">wiz TV</p>
-      <h2>공식 유튜브 최신 영상</h2>
-    </div>
-    <div class="yt reveal d1" id="ytGrid"></div>
-  </section>
-
-  <!-- ================= 오늘 경기 기록 (박스스코어) ================= -->
-  <section id="boxSec">
-    <div class="sec-head reveal on">
-      <p class="kicker">Box score</p>
-      <h2 id="boxTitle">오늘 경기 기록</h2>
-      <p class="sub" id="boxSub"></p>
-    </div>
-    <div class="boxgrid">
-      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
-      <div class="boxpanel"><h4>kt 타자 기록</h4>
-        <table class="bx" id="batTable"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
-      </div>
-      <div class="boxcols">
-        <div class="boxpanel"><h4>kt 투수 기록</h4>
-          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
-        </div>
-        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= 비디오 판독 ================= -->
-  <section id="vrSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">Video Review</p>
-      <h2>비디오 판독</h2>
-      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함)</p>
-    </div>
-    <ul class="vr-list reveal d1" id="vrList"></ul>
-  </section>
-
   <!-- ================= KT 캘린더 · 폼 ================= -->
   <section>
     <div class="sec-head reveal">
@@ -856,80 +849,6 @@ gtag('config', 'G-8MC9LN4N1R');
         <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
       </div>
     </div>
-  </section>
-
-  <!-- ================= 팀간 상대전적 ================= -->
-  <section id="h2hSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">Head to Head</p>
-      <h2>KT 상대전적</h2>
-      <p class="sub">팀당 16차전 — 승·무·패와 남은 맞대결까지 한눈에</p>
-    </div>
-    <div class="h2h-sum reveal d1" id="h2hSum"></div>
-    <div class="h2hbox reveal d1"><ul class="h2h-list" id="h2hList"></ul></div>
-    <p class="h2h-note reveal d2" id="h2hNote"></p>
-    <button class="h2h-toggle reveal d2" id="h2hTgl" type="button" aria-expanded="false" aria-controls="h2hMatWrap">전체 10팀 매트릭스 펼치기 ▾</button>
-    <div class="tablebox" id="h2hMatWrap" style="overflow-x:auto;display:none;margin-top:14px">
-      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
-      <p class="h2h-note" style="margin:10px 4px 4px">각 칸은 가로줄 팀 기준 승-패 · 무승부 제외</p>
-    </div>
-  </section>
-
-  <!-- ================= 구단 이동거리 ================= -->
-  <section id="travelSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">Road Trip</p>
-      <h2>구단 누적 이동거리</h2>
-      <p class="sub">홈구장 기준 시리즈 이동 직선거리 누적 — 일정 데이터로 자체 계산</p>
-    </div>
-    <div class="travel reveal d1">
-      <div class="krwrap">
-        <svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg>
-        <div class="kr-legend"><span><i style="background:#ff4d63"></i>kt wiz 최근 동선</span><span><i style="background:rgba(233,200,119,.35)"></i>다른 9개 구단</span></div>
-      </div>
-      <div class="tv-list"><ol id="travelList"></ol></div>
-    </div>
-    <p class="travel-note reveal d2" id="travelNote"></p>
-  </section>
-
-  <!-- ================= 시즌 순위 변동 ================= -->
-  <section id="rankChartSec" style="display:none">
-    <div class="sec-head reveal">
-      <p class="kicker">Rank History</p>
-      <h2>시즌 순위 변동</h2>
-    </div>
-    <div class="chartbox reveal d1">
-      <div class="rank-controls">
-        <button id="rankPlay" type="button" aria-label="재생">▶ 재생</button>
-        <input id="rankSlider" type="range" min="1" value="1" step="1" aria-label="날짜 이동">
-        <span id="rankDate"></span>
-      </div>
-      <canvas id="rankCanvas"></canvas>
-      <div class="chart-legend" id="rankLegend"></div>
-    </div>
-  </section>
-
-  <!-- ================= 라인업 ================= -->
-  <section>
-    <div class="sec-head reveal">
-      <p class="kicker" id="luKicker">Lineup</p>
-      <h2>라인업</h2>
-    </div>
-    <div class="lineups">
-      <div class="lu today reveal d1">
-        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
-        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
-        <ol id="luList"></ol>
-        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
-      </div>
-      <div class="lu reveal d2" id="lgluBox" style="display:none">
-        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
-        <p class="sp" id="lgluSp"></p>
-        <ol id="lgluList"></ol>
-      </div>
-    </div>
-    <!-- 오늘 선발 구종 맞대결 -->
-    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
   </section>
 
   <!-- ================= 순위 ================= -->
@@ -960,6 +879,40 @@ gtag('config', 'G-8MC9LN4N1R');
     </div>
   </section>
 
+  <!-- ================= 시즌 순위 변동 ================= -->
+  <section id="rankChartSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Rank History</p>
+      <h2>시즌 순위 변동</h2>
+    </div>
+    <div class="chartbox reveal d1">
+      <div class="rank-controls">
+        <button id="rankPlay" type="button" aria-label="재생">▶ 재생</button>
+        <input id="rankSlider" type="range" min="1" value="1" step="1" aria-label="날짜 이동">
+        <span id="rankDate"></span>
+      </div>
+      <canvas id="rankCanvas"></canvas>
+      <div class="chart-legend" id="rankLegend"></div>
+    </div>
+  </section>
+
+  <!-- ================= 팀간 상대전적 ================= -->
+  <section id="h2hSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Head to Head</p>
+      <h2>KT 상대전적</h2>
+      <p class="sub">팀당 16차전 — 승·무·패와 남은 맞대결까지 한눈에</p>
+    </div>
+    <div class="h2h-sum reveal d1" id="h2hSum"></div>
+    <div class="h2hbox reveal d1"><ul class="h2h-list" id="h2hList"></ul></div>
+    <p class="h2h-note reveal d2" id="h2hNote"></p>
+    <button class="h2h-toggle reveal d2" id="h2hTgl" type="button" aria-expanded="false" aria-controls="h2hMatWrap">전체 10팀 매트릭스 펼치기 ▾</button>
+    <div class="tablebox" id="h2hMatWrap" style="overflow-x:auto;display:none;margin-top:14px">
+      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
+      <p class="h2h-note" style="margin:10px 4px 4px">각 칸은 가로줄 팀 기준 승-패 · 무승부 제외</p>
+    </div>
+  </section>
+
   <!-- ================= 피타고라스 기대승률 ================= -->
   <section id="pySec" style="display:none">
     <div class="sec-head reveal">
@@ -974,6 +927,44 @@ gtag('config', 'G-8MC9LN4N1R');
       </table>
     </div>
     <p class="py-note reveal d2" id="pyNote"></p>
+  </section>
+
+  <!-- ================= 구단 이동거리 ================= -->
+  <section id="travelSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Road Trip</p>
+      <h2>구단 누적 이동거리</h2>
+      <p class="sub">홈구장 기준 시리즈 이동 직선거리 누적 — 일정 데이터로 자체 계산</p>
+    </div>
+    <div class="travel reveal d1">
+      <div class="krwrap">
+        <svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="kr-legend"><span><i style="background:#ff4d63"></i>kt wiz 최근 동선</span><span><i style="background:rgba(233,200,119,.35)"></i>다른 9개 구단</span></div>
+      </div>
+      <div class="tv-list"><ol id="travelList"></ol></div>
+    </div>
+    <p class="travel-note reveal d2" id="travelNote"></p>
+  </section>
+
+  <!-- ================= 지난 경기 ================= -->
+  <section id="lastGameSec">
+    <div class="sec-head reveal">
+      <p class="kicker" id="lgKicker">Last game</p>
+      <h2>지난 경기</h2>
+    </div>
+    <div class="lastgame reveal d1" id="lastGameBox">
+      <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
+    </div>
+  </section>
+
+  <!-- ================= 비디오 판독 ================= -->
+  <section id="vrSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Video Review</p>
+      <h2>비디오 판독</h2>
+      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함)</p>
+    </div>
+    <ul class="vr-list reveal d1" id="vrList"></ul>
   </section>
 
   <!-- ================= 스포트라이트 ================= -->
@@ -993,6 +984,15 @@ gtag('config', 'G-8MC9LN4N1R');
         <div class="n"><b>44</b><span>타점</span></div>
       </div>
     </div>
+  </section>
+
+  <!-- ================= wiz TV ================= -->
+  <section id="ytSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">wiz TV</p>
+      <h2>공식 유튜브 최신 영상</h2>
+    </div>
+    <div class="yt reveal d1" id="ytGrid"></div>
   </section>
 
   <!-- ================= 인스타그램 ================= -->
