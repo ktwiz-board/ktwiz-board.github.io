@@ -732,8 +732,8 @@ gtag('config', 'G-8MC9LN4N1R');
   <div class="ghost" id="ghostType" aria-hidden="true">VICTORY</div>
   <div class="wrap">
     <p class="today">Today · kt wiz game</p>
-    <div class="match" id="ktMatch">키움 <span class="at">vs</span> KT</div>
-    <p class="detail" id="ktDetail">오늘 18:30 · 수원 kt wiz 파크 · 선발 <b>소형준</b> vs 안우진</p>
+    <div class="match" id="ktMatch">KT <span class="at">vs</span> KIA</div>
+    <p class="detail" id="ktDetail">불러오는 중…</p>
     <div class="quicklinks">
       <a href="https://www.tving.com/live/player/C05007" target="_blank" rel="noopener">📺 TVING 중계</a>
       <a href="https://tkt.ktwiz.co.kr/" target="_blank" rel="noopener">🎟️ 티켓 예매</a>
@@ -1515,11 +1515,11 @@ gtag('config', 'G-8MC9LN4N1R');
 
   /* ---------- 구장별 라이브 현황판 ---------- */
   const SEED = [
-    {stadium:'수원', away:'한화', home:'KT', as:1, hs:12, status:'경기 종료', code:'RESULT', ap:'화이트', hp:'고영표'},
-    {stadium:'사직', away:'삼성', home:'롯데', as:7, hs:10, status:'경기 종료', code:'RESULT', ap:'보스', hp:'비슬리'},
-    {stadium:'잠실', away:'LG', home:'두산', as:3, hs:8, status:'경기 종료', code:'RESULT', ap:'톨허스트', hp:'벤자민'},
-    {stadium:'고척', away:'SSG', home:'키움', as:3, hs:5, status:'경기 종료', code:'RESULT', ap:'아빌라', hp:'전준표'},
-    {stadium:'창원', away:'KIA', home:'NC', as:0, hs:0, status:'취소', code:'CANCEL', ap:'황동하', hp:'라일리'}
+    {stadium:'광주', away:'KT', home:'KIA', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'로건', hp:'올러'},
+    {stadium:'대구', away:'한화', home:'삼성', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'박준영', hp:'페덱'},
+    {stadium:'문학', away:'LG', home:'SSG', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'임찬규', hp:'해치'},
+    {stadium:'잠실', away:'NC', home:'두산', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'라일리', hp:'최민석'},
+    {stadium:'사직', away:'키움', home:'롯데', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'안우진', hp:'박세웅'}
   ];
   const board = document.getElementById('board');
   const stamp = document.getElementById('boardStamp');
@@ -1527,8 +1527,8 @@ gtag('config', 'G-8MC9LN4N1R');
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  /* 팀 시즌 전적 (8/2 종료 기준 — live.json 로드 시 자동 갱신되는 폴백값) */
-  const REC = {'KT':'59-36-2','삼성':'59-38-2','LG':'55-44-1','두산':'52-45-4','KIA':'52-46-2','한화':'46-49-3','NC':'43-50-2','롯데':'43-54-2','SSG':'38-60-4','키움':'38-63-2'};
+  /* 팀 시즌 전적 (8/4 종료 기준 — live.json 로드 시 자동 갱신되는 폴백값) */
+  const REC = {'KT':'59-36-2','삼성':'59-39-2','LG':'55-45-1','두산':'52-45-4','KIA':'52-46-2','한화':'47-49-3','NC':'43-50-2','롯데':'44-54-2','SSG':'39-60-4','키움':'38-64-2'};
 
   /* 구장 좌표 (Open-Meteo 날씨용) */
   const COORD = {
@@ -1700,6 +1700,12 @@ gtag('config', 'G-8MC9LN4N1R');
     }
     const done = g.code === 'RESULT' || g.code === 'ENDED';
     const playing = g.code === 'STARTED' || g.code === 'LIVE';
+    if(g.code === 'CANCEL'){
+      const wname = Object.keys(COORD).find(n => (g.stadium || '').indexOf(n) === 0);
+      m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
+      d.innerHTML = '오늘 경기 <b>' + esc(cancelLabel(g, wname && WX[wname])) + '</b> · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)');
+      return;
+    }
     if(playing || done){
       m.innerHTML = esc(g.away) + ' <span class="live-score">' + g.as + '</span><span class="at">:</span><span class="live-score">' + g.hs + '</span> ' + esc(g.home);
       d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)');
