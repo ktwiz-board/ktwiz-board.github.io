@@ -2209,7 +2209,7 @@ gtag('config', 'G-8MC9LN4N1R');
     document.getElementById('ytSec').style.display = 'block';
     document.getElementById('ytGrid').innerHTML = vids.map(v =>
       '<a href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener">' +
-      '<span class="th"><img loading="lazy" src="https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></span>' +
+      '<span class="th"><img loading="lazy" src="https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.closest(&quot;a&quot;).style.display=&quot;none&quot;"></span>' +
       '<span class="ti">' + esc(v.title) + '<span>' + esc(v.pub || '') + ' · kt wiz 공식</span></span></a>'
     ).join('');
   }
@@ -2531,7 +2531,7 @@ gtag('config', 'G-8MC9LN4N1R');
     document.getElementById('shortsGrid').innerHTML = list.map(s =>
       '<a href="https://www.youtube.com/shorts/' + esc(s.id) + '" target="_blank" rel="noopener" aria-label="kt위즈 쇼츠">' +
       '<img src="https://i.ytimg.com/vi/' + esc(s.id) + '/oardefault.jpg" width="180" height="320" ' +
-      'onerror="this.src=&quot;https://i.ytimg.com/vi/' + esc(s.id) + '/hqdefault.jpg&quot;" alt=""></a>'
+      'onerror="if(!this.dataset.f){this.dataset.f=1;this.src=&quot;https://i.ytimg.com/vi/' + esc(s.id) + '/hqdefault.jpg&quot;}else{this.closest(&quot;a&quot;).style.display=&quot;none&quot;}" alt=""></a>'
     ).join('');
   }
 

@@ -154,7 +154,16 @@ async function fetchShorts() {
       }
     }
   } catch (e) { console.error('shorts fail', e.message); }
-  return shorts;
+  // 비공개·삭제 영상 제거: 썸네일(hqdefault)이 404면 목록에서 제외 (검색 결과에 잠시 남는 경우 대비)
+  try {
+    const alive = await Promise.all(shorts.map(async s => {
+      try {
+        const r = await fetch(`https://i.ytimg.com/vi/${s.id}/hqdefault.jpg`, { method: 'HEAD', signal: AbortSignal.timeout(8000) });
+        return r.ok ? s : null;
+      } catch (e) { return s; } // 네트워크 오류는 판단 불가 → 유지
+    }));
+    return alive.filter(Boolean);
+  } catch (e) { return shorts; }
 }
 
 // kt wiz 관련 뉴스 (구글 뉴스 RSS — 제목·링크·출처만 사용)
