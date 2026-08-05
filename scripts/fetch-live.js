@@ -125,12 +125,13 @@ async function fetchYoutube() {
   try {
     const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
     const xml = await r.text();
-    return xml.split('<entry>').slice(1, 9).map(e => {
+    const vids = xml.split('<entry>').slice(1, 9).map(e => {
       const id = (e.match(/<yt:videoId>([^<]+)</) || [])[1];
       const title = (e.match(/<media:title>([^<]+)</) || [])[1] || '';
       const pub = ((e.match(/<published>([^<]+)</) || [])[1] || '').slice(0, 10);
       return id ? { id, title, pub } : null;
-    }).filter(Boolean).slice(0, 6);
+    }).filter(Boolean);
+    return (await filterAliveVideos(vids)).slice(0, 6);
   } catch (e) { console.error('youtube fail', e.message); return []; }
 }
 
@@ -154,16 +155,22 @@ async function fetchShorts() {
       }
     }
   } catch (e) { console.error('shorts fail', e.message); }
-  // 비공개·삭제 영상 제거: 썸네일(hqdefault)이 404면 목록에서 제외 (검색 결과에 잠시 남는 경우 대비)
+  return filterAliveVideos(shorts);
+}
+
+// 비공개·삭제 영상 제거 — oembed가 비공개=401, 삭제=404를 정확히 반환
+// (썸네일 URL은 비공개 영상도 200 + 회색 대체 이미지가 와서 검증 불가)
+async function filterAliveVideos(list) {
   try {
-    const alive = await Promise.all(shorts.map(async s => {
+    const alive = await Promise.all(list.map(async v => {
       try {
-        const r = await fetch(`https://i.ytimg.com/vi/${s.id}/hqdefault.jpg`, { method: 'HEAD', signal: AbortSignal.timeout(8000) });
-        return r.ok ? s : null;
-      } catch (e) { return s; } // 네트워크 오류는 판단 불가 → 유지
+        const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${v.id}&format=json`,
+          { headers: UA, signal: AbortSignal.timeout(8000) });
+        return (r.status === 401 || r.status === 403 || r.status === 404) ? null : v;
+      } catch (e) { return v; } // 네트워크 오류·타임아웃은 판단 불가 → 유지
     }));
     return alive.filter(Boolean);
-  } catch (e) { return shorts; }
+  } catch (e) { return list; }
 }
 
 // kt wiz 관련 뉴스 (구글 뉴스 RSS — 제목·링크·출처만 사용)
