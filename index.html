@@ -156,6 +156,36 @@ gtag('config', 'G-8MC9LN4N1R');
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
   .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
 
+  /* ---------- 전국 구장 날씨 지도 ---------- */
+  .wxmap{background:var(--panel);border-radius:22px;padding:26px;display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:28px;align-items:center}
+  @media (max-width:680px){.wxmap{grid-template-columns:1fr}}
+  .wxmap svg{width:100%;height:auto;display:block;max-width:300px;margin:0 auto}
+  .wxmap .land{fill:rgba(255,255,255,.045);stroke:rgba(255,255,255,.15);stroke-width:1.2;stroke-linejoin:round}
+  .wxmap .mk circle{stroke:rgba(0,0,0,.55);stroke-width:1.4}
+  .wxmap .mk text{font-size:11px;font-weight:700;fill:#eaeaea}
+  .wxmap .mk .tt{font-weight:800}
+  .wxlist{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13.5px;align-content:center}
+  .wxlist .wxrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;border-radius:10px;padding:4px 6px;margin:-4px -6px}
+  .wxlist .wxrow:hover{background:rgba(255,255,255,.05)}
+  .wxlist .caret{color:var(--muted);font-size:11px;margin-left:auto}
+  .wxmap .mk{cursor:pointer}
+  .wxhours{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;-webkit-overflow-scrolling:touch}
+  .wxhours .hc{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.045);font-size:11.5px}
+  .wxhours .hc.game{background:rgba(232,16,47,.14);outline:1px solid rgba(232,16,47,.35)}
+  .wxhours .hh{color:var(--muted);font-weight:700;font-size:10.5px}
+  .wxhours .hi{font-size:15px}
+  .wxhours .ht{font-weight:800;font-size:13px}
+  .wxhours .ht.hot{color:#ff9f0a}
+  .wxhours .ha2{color:var(--muted);font-size:10px;white-space:nowrap}
+  .wxhours .hp{color:#6fb7ff;font-size:10.5px}
+  .wxhours .hp.rainy{color:var(--red-soft);font-weight:700}
+  .wxlist .st{font-weight:700;min-width:40px}
+  .wxlist .chip{width:10px;height:10px;border-radius:50%;flex:none}
+  .wxlist .d{color:var(--muted);font-weight:500}
+  .wxlist .hot{color:#ff9f0a;font-weight:700}
+  .wxlegend{display:flex;gap:14px;margin-top:16px;font-size:11.5px;color:var(--muted);flex-wrap:wrap;font-weight:500}
+  .wxlegend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+
   /* ---------- 박스스코어 ---------- */
   #boxSec{display:none}
   .boxgrid{display:grid;gap:18px}
@@ -736,7 +766,33 @@ gtag('config', 'G-8MC9LN4N1R');
       <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
     </div>
     <div class="board reveal d1" id="board"></div>
-    <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터.</p>
+    <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
+  </section>
+
+  <!-- ================= 전국 구장 날씨 지도 ================= -->
+  <section id="wxMapSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Weather map</p>
+      <h2>전국 구장 날씨</h2>
+      <p class="sub">구장별 현재 기온과 18시(경기 시간대) 예상 기온 · 체감온도</p>
+    </div>
+    <div class="wxmap reveal d1">
+      <svg id="wxMapSvg" viewBox="0 0 320 400" role="img" aria-label="전국 야구장 날씨 지도">
+        <path class="land" d="M68 79 L119 35 L212 9 L230 26 L272 88 L297 158 L306 229 L281 290 L264 321 L221 339 L153 356 L85 374 L34 352 L51 299 L51 238 L26 176 L68 141 L60 97 Z"/>
+        <g id="wxMk"></g>
+      </svg>
+      <div>
+        <ul class="wxlist" id="wxList"><li class="d">날씨 불러오는 중…</li></ul>
+        <div class="wxlegend">
+          <span><i style="background:#30d158"></i>31° 미만</span>
+          <span><i style="background:#ffd60a"></i>31°+</span>
+          <span><i style="background:#ff9f0a"></i>33°+ 폭염 주의</span>
+          <span><i style="background:#ff453a"></i>35°+ 취소 검토권</span>
+          <span><i style="background:#6fb7ff"></i>강수확률 50%+</span>
+        </div>
+      </div>
+    </div>
+    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시됩니다.</p>
   </section>
 
   <!-- ================= 지난 경기 ================= -->
@@ -1484,6 +1540,20 @@ gtag('config', 'G-8MC9LN4N1R');
   const WX = {};
   let lastGames = SEED, lastLive = false;
 
+  /* 취소 사유 라벨: KBO 공식 사유(live.json reason) 우선, 없으면 구장 날씨로 추정 */
+  function cancelLabel(g, w){
+    if(g.reason){
+      const ic = g.reason.indexOf('폭염') >= 0 ? '🥵 ' : (g.reason.indexOf('우천') >= 0 ? '☔ ' : (g.reason.indexOf('미세먼지') >= 0 ? '😷 ' : ''));
+      return ic + g.reason.replace('취소', ' 취소');
+    }
+    if(w){
+      // 폭염 신호(경기 시간대 체감 33°+ — KBO 혹서 취소 검토 기준 — 또는 기온 33°+)가 소나기 확률보다 우선
+      if((w.at18 != null && w.at18 >= 33) || (w.t18 != null ? w.t18 : w.t) >= 33) return '🥵 폭염 취소';
+      if(w.pp >= 50) return '☔ 우천 취소';
+    }
+    return g.status;
+  }
+
   function wmoIcon(c){
     if(c <= 1) return '☀️'; if(c === 2) return '⛅'; if(c === 3) return '☁️';
     if(c === 45 || c === 48) return '🌫️'; if(c >= 95) return '⛈️';
@@ -1492,23 +1562,120 @@ gtag('config', 'G-8MC9LN4N1R');
   }
 
   async function fetchWeather(){
-    const names = Object.keys(COORD).filter(n => lastGames.some(g => g.stadium.indexOf(n) === 0));
-    if(!names.length) return;
+    // 10구단 홈구장은 항상 + 제2구장(포항·울산·청주)은 경기 있는 날만
+    const HOMES = ['수원','잠실','대구','대전','사직','고척','창원','광주','문학'];
+    const names = HOMES.concat(Object.keys(COORD).filter(n =>
+      HOMES.indexOf(n) < 0 && lastGames.some(g => (g.stadium || '').indexOf(n) === 0)));
     const lats = names.map(n => COORD[n][0]).join(','), lons = names.map(n => COORD[n][1]).join(',');
     try{
       const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
-        '&current=temperature_2m,weather_code&hourly=precipitation_probability&forecast_days=1&timezone=Asia%2FSeoul');
+        '&current=temperature_2m,weather_code&hourly=precipitation_probability,temperature_2m,apparent_temperature,weather_code&forecast_days=1&timezone=Asia%2FSeoul');
       if(!r.ok) return;
       let j = await r.json();
       if(!Array.isArray(j)) j = [j];
       names.forEach((n, i) => {
         const d = j[i]; if(!d || !d.current) return;
-        const pp = d.hourly ? Math.max(d.hourly.precipitation_probability[18] || 0, d.hourly.precipitation_probability[19] || 0) : null;
-        WX[n] = { t: Math.round(d.current.temperature_2m), icon: wmoIcon(d.current.weather_code), code: d.current.weather_code, pp: pp };
+        const h = d.hourly || {};
+        const pp = h.precipitation_probability ? Math.max(h.precipitation_probability[18] || 0, h.precipitation_probability[19] || 0) : null;
+        const t18 = h.temperature_2m && h.temperature_2m[18] != null ? Math.round(h.temperature_2m[18]) : null;
+        const at18 = h.apparent_temperature && h.apparent_temperature[18] != null ? Math.round(h.apparent_temperature[18]) : null;
+        const hours = [];
+        if(h.temperature_2m){
+          for(let i = 12; i <= 22 && i < h.temperature_2m.length; i++){
+            hours.push({
+              h: i,
+              t: Math.round(h.temperature_2m[i]),
+              at: h.apparent_temperature ? Math.round(h.apparent_temperature[i]) : null,
+              pp: h.precipitation_probability ? (h.precipitation_probability[i] || 0) : null,
+              code: h.weather_code ? h.weather_code[i] : null
+            });
+          }
+        }
+        WX[n] = { t: Math.round(d.current.temperature_2m), icon: wmoIcon(d.current.weather_code), code: d.current.weather_code, pp: pp, t18: t18, at18: at18, hours: hours };
       });
       render(lastGames, lastLive);
     }catch(e){ /* 날씨 없이 표시 */ }
   }
+
+  /* ---------- 전국 구장 날씨 지도 ---------- */
+  const WXLBL = { /* 라벨 위치 [dx, dy, anchor] — 수도권 4개 구장 겹침 방지 */
+    '수원':[8,13,'start'], '잠실':[8,-4,'start'], '고척':[-8,-4,'end'], '문학':[-9,10,'end'],
+    '대전':[9,4,'start'], '청주':[-9,4,'end'], '대구':[-9,-5,'end'], '포항':[7,-6,'start'],
+    '울산':[9,6,'start'], '사직':[7,14,'start'], '창원':[-7,15,'end'], '광주':[-9,4,'end']
+  };
+  function wxHeatColor(w){
+    if(w.pp != null && w.pp >= 50) return '#6fb7ff';
+    const t = Math.max(w.t18 != null ? w.t18 : -99, w.t);
+    if(t >= 35) return '#ff453a';
+    if(t >= 33) return '#ff9f0a';
+    if(t >= 31) return '#ffd60a';
+    return '#30d158';
+  }
+  function renderWxMap(){
+    const mk = document.getElementById('wxMk'), list = document.getElementById('wxList');
+    if(!mk) return;
+    const names = Object.keys(WX);
+    if(!names.length) return;
+    mk.innerHTML = names.map(n => {
+      const c = COORD[n], w = WX[n];
+      const x = +((c[1] - 125.9) * 85).toFixed(1), y = +((38.7 - c[0]) * 88).toFixed(1);
+      const o = WXLBL[n] || [8,4,'start'];
+      const tv = w.t18 != null ? w.t18 : w.t;
+      return '<g class="mk" data-n="' + esc(n) + '"><circle cx="' + x + '" cy="' + y + '" r="5.5" fill="' + wxHeatColor(w) + '"/>' +
+        '<text x="' + (x + o[0]) + '" y="' + (y + o[1]) + '" text-anchor="' + o[2] + '">' + esc(n) + ' <tspan class="tt">' + tv + '°</tspan></text></g>';
+    }).join('');
+    list.innerHTML = names.map(n => {
+      const w = WX[n];
+      const g = lastGames.find(g => (g.stadium || '').indexOf(n) === 0);
+      const match = g ? '<span class="d">' + esc(g.away) + ' vs ' + esc(g.home) +
+        (g.code === 'CANCEL' ? ' · <b>' + esc(cancelLabel(g, w)) + '</b>' : '') + '</span>' : '';
+      const hot = w.at18 != null && w.at18 >= 33;
+      const open = !!wxOpen[n];
+      const hourly = open && w.hours && w.hours.length
+        ? '<div class="wxhours">' + w.hours.map(hh =>
+            '<span class="hc' + (hh.h === 18 ? ' game' : '') + '"><span class="hh">' + hh.h + '시</span>' +
+            '<span class="hi">' + (hh.code != null ? wmoIcon(hh.code) : '') + '</span>' +
+            '<span class="ht' + (hh.t >= 33 ? ' hot' : '') + '">' + hh.t + '°</span>' +
+            (hh.at != null ? '<span class="ha2">체감 ' + hh.at + '°</span>' : '') +
+            (hh.pp != null ? '<span class="hp' + (hh.pp >= 50 ? ' rainy' : '') + '">☂' + hh.pp + '%</span>' : '') +
+            '</span>').join('') + '</div>'
+        : '';
+      return '<li class="wxitem' + (open ? ' open' : '') + '" data-n="' + esc(n) + '">' +
+        '<div class="wxrow" role="button" tabindex="0" aria-expanded="' + open + '">' +
+        '<span class="chip" style="background:' + wxHeatColor(w) + '"></span><span class="st">' + esc(n) + '</span>' +
+        '<span>' + w.icon + ' ' + w.t + '°</span>' +
+        (w.t18 != null ? '<span class="d">18시 ' + w.t18 + '°' + (w.at18 != null ? ' · <span class="' + (hot ? 'hot' : '') + '">체감 ' + w.at18 + '°</span>' : '') + '</span>' : '') +
+        (w.pp != null ? '<span class="d">☂' + w.pp + '%</span>' : '') + match +
+        '<span class="caret">' + (open ? '▴' : '▾') + '</span></div>' + hourly + '</li>';
+    }).join('');
+  }
+  /* 구장 행 클릭 → 시간별 예보 펼침 (재렌더에도 열림 상태 유지) */
+  const wxOpen = {};
+  (function(){
+    const list = document.getElementById('wxList');
+    if(!list) return;
+    const toggle = e => {
+      const li = e.target.closest('.wxitem');
+      if(!li) return;
+      if(e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+      if(e.type === 'keydown') e.preventDefault();
+      const n = li.getAttribute('data-n');
+      wxOpen[n] = !wxOpen[n];
+      renderWxMap();
+    };
+    list.addEventListener('click', toggle);
+    list.addEventListener('keydown', toggle);
+    const mk = document.getElementById('wxMk');
+    if(mk) mk.addEventListener('click', e => {
+      const g = e.target.closest('.mk');
+      if(!g) return;
+      const n = g.getAttribute('data-n');
+      wxOpen[n] = !wxOpen[n];
+      renderWxMap();
+      const li = list.querySelector('.wxitem[data-n="' + n + '"]');
+      if(li && wxOpen[n]) li.scrollIntoView({block:'nearest', behavior:'smooth'});
+    });
+  })();
 
   /* KT 타이포 배너 갱신 */
   let ktWeekCache = null; // 다음 경기 안내용 (loadData에서 갱신)
@@ -1542,7 +1709,7 @@ gtag('config', 'G-8MC9LN4N1R');
       const w = wname && WX[wname];
       let pb = '';
       if(w){
-        const pl = playability(w.pp, w.code);
+        const pl = playability(w.pp, w.code, w.at18);
         if(pl) pb = ' <span class="playbadge ' + pl.s + '" title="' + esc(pl.d) + '">' + w.icon + ' ' + esc(pl.t) + '</span>';
       }
       d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + ' · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
@@ -1556,6 +1723,7 @@ gtag('config', 'G-8MC9LN4N1R');
       board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>';
       stamp.textContent = '자동 수집 · ' + updatedKST + ' KST';
       dot.style.background = '#86868b';
+      renderWxMap();
       return;
     }
     games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
@@ -1580,8 +1748,8 @@ gtag('config', 'G-8MC9LN4N1R');
         side(g.away, g.ap, 'away') +
         '<div class="mid"><span class="sc">' + sc + '</span></div>' +
         side(g.home, g.hp, 'home') +
-        '<span class="' + stCls + '" ' + (g.code === 'CANCEL' && w ? 'title="구장 기상 데이터 기반 추정"' : '') + '>' +
-          esc(g.code === 'CANCEL' && w ? (w.pp >= 50 ? '☔ 우천 취소' : (w.t >= 33 ? '🥵 폭염 취소' : g.status)) : g.status) + '</span>' +
+        '<span class="' + stCls + '" ' + (g.code === 'CANCEL' && !g.reason && w ? 'title="구장 기상 데이터 기반 추정"' : (g.reason ? 'title="KBO 공식 일정 기준"' : '')) + '>' +
+          esc(g.code === 'CANCEL' ? cancelLabel(g, w) : g.status) + '</span>' +
       '</div>';
     }).join('');
     const now = new Date();
@@ -1591,6 +1759,7 @@ gtag('config', 'G-8MC9LN4N1R');
       ? (stale ? '⚠️ 갱신 지연 · ' : '자동 수집 · ') + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST' + (ageMin != null ? ' (' + ageMin + '분 전)' : '')
       : '기본 데이터 · ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
     dot.style.background = !live ? '#86868b' : (stale ? 'var(--gold)' : 'var(--ok)');
+    renderWxMap();
   }
 
   /* ---------- 자동 수집 JSON (GitHub Actions, 5분 주기) ---------- */
@@ -1608,7 +1777,7 @@ gtag('config', 'G-8MC9LN4N1R');
       const done = g.code === 'RESULT' || g.code === 'ENDED';
       const right = done
         ? ((ktHome ? g.hs : g.as) + ':' + (ktHome ? g.as : g.hs) + (((ktHome?g.hs:g.as) > (ktHome?g.as:g.hs)) ? ' 승' : ((ktHome?g.hs:g.as) < (ktHome?g.as:g.hs)) ? ' 패' : ' 무'))
-        : (g.code === 'CANCEL' ? '취소' : g.time + ' · ' + g.stadium);
+        : (g.code === 'CANCEL' ? (g.reason || '취소') : g.time + ' · ' + g.stadium);
       return '<li><span class="d' + (isToday ? ' today' : '') + '">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')' + '</span>' +
         '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
         '<span class="t">' + esc(right) + '</span></li>';
@@ -2091,11 +2260,14 @@ gtag('config', 'G-8MC9LN4N1R');
   }
 
   /* ---------- 오늘 경기 가능 여부 (날씨) ---------- */
-  function playability(pp, code){
-    // pp: 경기 시간대 강수확률(%), code: WMO
+  function playability(pp, code, at){
+    // pp: 경기 시간대 강수확률(%), code: WMO, at: 경기 시간대 체감온도(°C)
+    if(pp == null && at == null) return null;
+    if(pp != null && (code >= 95 || pp >= 70)) return { s: 'bad', t: '우천 취소 가능성 높음', d: '강수확률 ' + pp + '% — 경기 강행 여부 확인 필요' };
+    if(at != null && at >= 35) return { s: 'bad', t: '폭염 취소 가능성', d: '경기 시간대 체감온도 ' + at + '° — KBO 혹서 취소 검토 기준' };
+    if(pp != null && pp >= 40) return { s: 'warn', t: '우천 변수 있음', d: '강수확률 ' + pp + '% — 지연·중단 가능성' };
+    if(at != null && at >= 33) return { s: 'warn', t: '폭염 변수 있음', d: '경기 시간대 체감온도 ' + at + '° — 혹서 대비 필요' };
     if(pp == null) return null;
-    if(code >= 95 || pp >= 70) return { s: 'bad', t: '우천 취소 가능성 높음', d: '강수확률 ' + pp + '% — 경기 강행 여부 확인 필요' };
-    if(pp >= 40) return { s: 'warn', t: '우천 변수 있음', d: '강수확률 ' + pp + '% — 지연·중단 가능성' };
     return { s: 'ok', t: '정상 개최 예상', d: '강수확률 ' + pp + '% — 날씨 양호' };
   }
 
