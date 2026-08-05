@@ -12,24 +12,24 @@ gtag('js', new Date());
 gtag('config', 'G-8MC9LN4N1R');
 </script>
 <title>wiz board — kt wiz 실시간 스코어·라인업·KBO 순위</title>
-<meta name="description" content="kt wiz 팬을 위한 KBO 실시간 대시보드. 오늘의 구장별 스코어와 날씨, kt 위즈 확정 라인업, 주간 일정, 최근 5경기 폼, 팀 순위를 5분마다 자동 갱신으로 한눈에.">
+<meta name="description" content="kt wiz 팬을 위한 KBO 실시간 대시보드. 정규시즌 1위 매직넘버, 오늘의 스코어·라인업, 팀 순위, 전국 구장 날씨까지 5분마다 자동 갱신으로 한눈에.">
 <meta name="keywords" content="kt wiz, KT 위즈, KBO, 프로야구, 실시간 스코어, 라인업, 순위, 수원 케이티 위즈 파크, 야구 일정">
 <meta name="author" content="wiz board">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ktwiz-board.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="wiz board">
-<meta property="og:title" content="wiz board — kt wiz 실시간 스코어·라인업·KBO 순위">
-<meta property="og:description" content="오늘의 구장별 스코어·날씨, kt 위즈 라인업, 주간 일정, 팀 순위까지 자동 갱신. 수원의 마법은 계속된다.">
+<meta property="og:title" content="wiz board — 수원의 마법 상황판">
+<meta property="og:description" content="매직넘버 · 오늘의 스코어와 라인업 · 팀 순위 · 구장 날씨 — kt wiz의 오늘이 자동으로 갱신됩니다.">
 <meta property="og:url" content="https://ktwiz-board.github.io/">
-<meta property="og:image" content="https://ktwiz-board.github.io/img/og.jpg">
+<meta property="og:image" content="https://ktwiz-board.github.io/img/og-magicmap.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="wiz board — kt wiz 실시간 스코어·라인업·KBO 순위">
-<meta name="twitter:description" content="kt wiz 팬을 위한 KBO 실시간 대시보드. 스코어·라인업·순위 자동 갱신.">
-<meta name="twitter:image" content="https://ktwiz-board.github.io/img/og.jpg">
+<meta name="twitter:title" content="wiz board — 수원의 마법 상황판">
+<meta name="twitter:description" content="매직넘버 · 스코어 · 라인업 · 순위 · 구장 날씨, kt wiz의 오늘을 자동 갱신.">
+<meta name="twitter:image" content="https://ktwiz-board.github.io/img/og-magicmap.jpg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚾</text></svg>">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"wiz board","alternateName":"위즈보드","url":"https://ktwiz-board.github.io/","description":"kt wiz 팬을 위한 KBO 실시간 대시보드","inLanguage":"ko"}
@@ -1053,7 +1053,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260805-131346';
+  const BUILD = '20260805-132302';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
