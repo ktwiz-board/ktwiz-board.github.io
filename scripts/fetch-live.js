@@ -135,39 +135,6 @@ async function fetchYoutube() {
   } catch (e) { console.error('youtube fail', e.message); return []; }
 }
 
-async function fetchShorts() {
-  const shorts = [];
-  try {
-    const seen = new Set();
-    for (const q of ['케이티위즈', 'kt위즈']) {
-      const r = await fetch('https://www.youtube.com/results?search_query=' + encodeURIComponent(q) + '&sp=EgIYAw%253D%253D', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
-        signal: AbortSignal.timeout(15000)
-      });
-      const html = await r.text();
-      const re = /"reelWatchEndpoint":\{"videoId":"([a-zA-Z0-9_\-]{11})"/g;
-      let m;
-      while ((m = re.exec(html)) && shorts.length < 12) {
-        const id = m[1];
-        if (seen.has(id)) continue;
-        seen.add(id);
-        shorts.push({ id });
-      }
-    }
-  } catch (e) { console.error('shorts fail', e.message); }
-  const alive = await filterAliveVideos(shorts);
-  // 쇼츠 썸네일은 영상마다 존재하는 변형이 달라(oardefault가 없는 공개 영상 존재) 실제 있는 URL을 골라 저장
-  await Promise.all(alive.map(async s => {
-    for (const t of ['oardefault', 'oar2', 'hqdefault']) {
-      try {
-        const r = await fetch(`https://i.ytimg.com/vi/${s.id}/${t}.jpg`, { method: 'HEAD', signal: AbortSignal.timeout(8000) });
-        if (r.ok) { s.th = t; return; }
-      } catch (e) { break; } // 네트워크 오류 → 페이지 기본값 사용
-    }
-  }));
-  return alive;
-}
-
 // 비공개·삭제 영상 제거 — oembed가 비공개=401, 삭제=404를 정확히 반환
 // (썸네일 URL은 비공개 영상도 200 + 회색 대체 이미지가 와서 검증 불가)
 async function filterAliveVideos(list) {
@@ -375,9 +342,9 @@ async function scheduleDifficulty(today, standings) {
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
   const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
-    const [yt2, sh2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchShorts(), fetchNews(), fetchVideoReview()]);
+    const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
-    if (sh2.length) prev.shorts = sh2;
+    prev.shorts = []; // 쇼츠 섹션 제거됨
     if (nw2.length) prev.news = nw2;
     prev.videoReview = vr2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
@@ -399,7 +366,7 @@ async function scheduleDifficulty(today, standings) {
     prev.updated = new Date().toISOString();
     prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
     fs.writeFileSync(file, JSON.stringify(prev, null, 1));
-    console.log(`ok(post-partial): yt=${yt2.length} shorts=${sh2.length} news=${nw2.length} review=${vr2.length}`);
+    console.log(`ok(post-partial): yt=${yt2.length} news=${nw2.length} review=${vr2.length}`);
     console.log(`SLEEP=${SLEEP.post}`);
     return;
   }
@@ -556,7 +523,7 @@ async function scheduleDifficulty(today, standings) {
   const youtube = await fetchYoutube();
 
   // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색
-  const shorts = await fetchShorts();
+  const shorts = []; // 쇼츠 섹션 제거됨 (스키마 호환용 빈 배열)
 
   // 6) kt위즈 갤러리 최신 글 (욕설/공지 필터) — 차단 시 빈 배열
   let gall = [];

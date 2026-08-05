@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-05T13:04:42.507Z",
- "updatedKST": "22:04",
+ "updated": "2026-08-05T13:06:11.257Z",
+ "updatedKST": "22:06",
  "date": "2026-08-05",
  "mode": "post",
  "games": [
@@ -703,56 +703,7 @@
    "pub": "2026-08-02"
   }
  ],
- "shorts": [
-  {
-   "id": "T0QrbZwFCCQ",
-   "th": "oar2"
-  },
-  {
-   "id": "3OEuF_Q5Uec",
-   "th": "oardefault"
-  },
-  {
-   "id": "2XiFUG9l15o",
-   "th": "oar2"
-  },
-  {
-   "id": "9_Bk9UP1r_o",
-   "th": "oardefault"
-  },
-  {
-   "id": "d49ehcRRbn4",
-   "th": "oardefault"
-  },
-  {
-   "id": "zrB1Nyuk2sA",
-   "th": "oardefault"
-  },
-  {
-   "id": "KVd3Rj_i8OA",
-   "th": "oardefault"
-  },
-  {
-   "id": "igafyb1B_fw",
-   "th": "oardefault"
-  },
-  {
-   "id": "ow06yUondg8",
-   "th": "oardefault"
-  },
-  {
-   "id": "hYCGMfLZJhM",
-   "th": "oardefault"
-  },
-  {
-   "id": "7HCAlBcVtIU",
-   "th": "hqdefault"
-  },
-  {
-   "id": "vMYGOvAU68A",
-   "th": "oardefault"
-  }
- ],
+ "shorts": [],
  "gall": [],
  "pythag": {
   "date": "2026-08-05",
