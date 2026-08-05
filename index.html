@@ -2530,7 +2530,7 @@ gtag('config', 'G-8MC9LN4N1R');
     document.getElementById('shortsSec').style.display = 'block';
     document.getElementById('shortsGrid').innerHTML = list.map(s =>
       '<a href="https://www.youtube.com/shorts/' + esc(s.id) + '" target="_blank" rel="noopener" aria-label="kt위즈 쇼츠">' +
-      '<img src="https://i.ytimg.com/vi/' + esc(s.id) + '/oardefault.jpg" width="180" height="320" ' +
+      '<img src="https://i.ytimg.com/vi/' + esc(s.id) + '/' + esc(s.th || 'oardefault') + '.jpg" width="180" height="320" ' +
       'onerror="if(!this.dataset.f){this.dataset.f=1;this.src=&quot;https://i.ytimg.com/vi/' + esc(s.id) + '/hqdefault.jpg&quot;}else{this.closest(&quot;a&quot;).style.display=&quot;none&quot;}" alt=""></a>'
     ).join('');
   }

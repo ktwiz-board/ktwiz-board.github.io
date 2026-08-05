@@ -155,7 +155,17 @@ async function fetchShorts() {
       }
     }
   } catch (e) { console.error('shorts fail', e.message); }
-  return filterAliveVideos(shorts);
+  const alive = await filterAliveVideos(shorts);
+  // 쇼츠 썸네일은 영상마다 존재하는 변형이 달라(oardefault가 없는 공개 영상 존재) 실제 있는 URL을 골라 저장
+  await Promise.all(alive.map(async s => {
+    for (const t of ['oardefault', 'oar2', 'hqdefault']) {
+      try {
+        const r = await fetch(`https://i.ytimg.com/vi/${s.id}/${t}.jpg`, { method: 'HEAD', signal: AbortSignal.timeout(8000) });
+        if (r.ok) { s.th = t; return; }
+      } catch (e) { break; } // 네트워크 오류 → 페이지 기본값 사용
+    }
+  }));
+  return alive;
 }
 
 // 비공개·삭제 영상 제거 — oembed가 비공개=401, 삭제=404를 정확히 반환

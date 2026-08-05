@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-05T13:02:51.833Z",
- "updatedKST": "22:02",
+ "updated": "2026-08-05T13:04:42.507Z",
+ "updatedKST": "22:04",
  "date": "2026-08-05",
  "mode": "post",
  "games": [
@@ -705,40 +705,52 @@
  ],
  "shorts": [
   {
-   "id": "T0QrbZwFCCQ"
+   "id": "T0QrbZwFCCQ",
+   "th": "oar2"
   },
   {
-   "id": "3OEuF_Q5Uec"
+   "id": "3OEuF_Q5Uec",
+   "th": "oardefault"
   },
   {
-   "id": "2XiFUG9l15o"
+   "id": "2XiFUG9l15o",
+   "th": "oar2"
   },
   {
-   "id": "9_Bk9UP1r_o"
+   "id": "9_Bk9UP1r_o",
+   "th": "oardefault"
   },
   {
-   "id": "d49ehcRRbn4"
+   "id": "d49ehcRRbn4",
+   "th": "oardefault"
   },
   {
-   "id": "zrB1Nyuk2sA"
+   "id": "zrB1Nyuk2sA",
+   "th": "oardefault"
   },
   {
-   "id": "KVd3Rj_i8OA"
+   "id": "KVd3Rj_i8OA",
+   "th": "oardefault"
   },
   {
-   "id": "igafyb1B_fw"
+   "id": "igafyb1B_fw",
+   "th": "oardefault"
   },
   {
-   "id": "ow06yUondg8"
+   "id": "ow06yUondg8",
+   "th": "oardefault"
   },
   {
-   "id": "hYCGMfLZJhM"
+   "id": "hYCGMfLZJhM",
+   "th": "oardefault"
   },
   {
-   "id": "7HCAlBcVtIU"
+   "id": "7HCAlBcVtIU",
+   "th": "hqdefault"
   },
   {
-   "id": "vMYGOvAU68A"
+   "id": "vMYGOvAU68A",
+   "th": "oardefault"
   }
  ],
  "gall": [],
