@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- CSP: 실제 사용하는 외부 출처만 허용 (심층 방어 — GitHub Pages는 응답 헤더 설정이 불가해 meta로 적용) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://api.open-meteo.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Google Analytics 4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8MC9LN4N1R"></script>
 <script>
@@ -1055,7 +1058,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260805-143705';
+  const BUILD = '20260805-234601';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
