@@ -379,13 +379,6 @@ gtag('config', 'G-8MC9LN4N1R');
   /* ---------- 쇼츠 ---------- */
 
   /* ---------- 갤러리 ---------- */
-  .gallbox{background:var(--panel);border-radius:22px;padding:10px 26px}
-  .gallbox ul{list-style:none;margin:0;padding:0}
-  .gallbox li{border-bottom:1px solid var(--line)}
-  .gallbox li:last-child{border-bottom:none}
-  .gallbox a{display:flex;justify-content:space-between;gap:14px;padding:13px 2px;text-decoration:none;color:#dddde2;font-size:14px;transition:color .2s}
-  .gallbox a:hover{color:var(--ink)}
-  .gallbox .gd{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .gall-note{font-size:11.5px;color:var(--muted);margin-top:12px;font-weight:500}
 
   /* ---------- 상대전적 매트릭스 ---------- */
@@ -638,7 +631,6 @@ gtag('config', 'G-8MC9LN4N1R');
     .lu{padding:22px 20px}
     .calbox{padding:20px 18px}
     .card{padding:22px 20px}
-    .gallbox{padding:4px 18px}
 
     /* 배너 타이포 */
     .ktbanner{padding:44px 0 40px}
@@ -1033,16 +1025,6 @@ gtag('config', 'G-8MC9LN4N1R');
       </div>
     </div>
     <p class="gall-note reveal d2">구글 뉴스 검색 결과의 제목·출처만 표시하며, 클릭 시 해당 언론사 기사로 이동합니다.</p>
-  </section>
-
-  <!-- ================= 팬 이야기 ================= -->
-  <section id="gallSec">
-    <div class="sec-head reveal">
-      <p class="kicker">Fan talk</p>
-      <h2>위즈 갤러리 이야기</h2>
-    </div>
-    <div class="gallbox reveal d1"><ul id="gallList"><li><a href="https://gall.dcinside.com/board/lists?id=ktwiz" target="_blank" rel="noopener"><span>kt위즈 갤러리 바로가기 →</span></a></li></ul></div>
-    <p class="gall-note reveal d2">제목 기준 자동 필터(욕설·공지 제외)를 거친 최신 글입니다. 외부 커뮤니티 글이며 본 사이트와 무관합니다.</p>
   </section>
 
   <!-- ================= 링크 ================= -->
@@ -2509,14 +2491,6 @@ gtag('config', 'G-8MC9LN4N1R');
 
   /* ---------- 쇼츠 ---------- */
 
-  /* ---------- 갤러리 ---------- */
-  function renderGall(posts){
-    if(!posts || !posts.length) return; // 수집 실패 시 기본 바로가기 링크 유지
-    document.getElementById('gallList').innerHTML = posts.map(p =>
-      '<li><a href="' + esc(p.url) + '" target="_blank" rel="noopener nofollow"><span>' + esc(p.title) + '</span><span class="gd">' + esc(p.date) + '</span></a></li>'
-    ).join('') + '<li><a href="https://gall.dcinside.com/board/lists?id=ktwiz" target="_blank" rel="noopener"><span style="color:var(--red-soft);font-weight:700">갤러리 더 보기 →</span></a></li>';
-  }
-
   async function loadData(){
     const urls = [
       // 1순위: GitHub API (캐시 없음 — 2분 내 최신, 방문자당 시간 60회 제한이라 75초 주기와 함께 사용)
@@ -2552,7 +2526,6 @@ gtag('config', 'G-8MC9LN4N1R');
         renderMagicBanner(j.standings);
         renderPythag(j.pythag);
         renderYT(j.youtube);
-        renderGall(j.gall);
         celebrate(j.games);
         return;
       }catch(e){ /* 다음 경로 */ }

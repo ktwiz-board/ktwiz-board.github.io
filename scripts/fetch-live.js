@@ -525,27 +525,8 @@ async function scheduleDifficulty(today, standings) {
   // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색
   const shorts = []; // 쇼츠 섹션 제거됨 (스키마 호환용 빈 배열)
 
-  // 6) kt위즈 갤러리 최신 글 (욕설/공지 필터) — 차단 시 빈 배열
-  let gall = [];
-  try {
-    const r = await fetch('https://gall.dcinside.com/board/lists?id=ktwiz', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36', 'Accept-Language': 'ko-KR,ko;q=0.9' },
-      signal: AbortSignal.timeout(15000)
-    });
-    const html = await r.text();
-    const bad = /(씨발|시발|씨빨|병신|븅신|지랄|좆|졷|개새|새끼|썅|엠창|염병|느금|니미|닥쳐|꺼져|미친놈|미친년|호로|걸레|한남|김치녀)/;
-    const rows = [...html.matchAll(/<tr[^>]*data-no="(\d+)"[\s\S]*?class="gall_tit[^"]*"[^>]*>\s*<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="gall_date"[^>]*(?:title="([^"]*)")?[^>]*>([^<]*)</g)];
-    gall = rows.map(m => ({
-      no: m[1],
-      url: 'https://gall.dcinside.com' + m[2].replace(/&amp;/g, '&'),
-      title: m[3].replace(/<[^>]+>/g, '').trim(),
-      date: (m[5] || '').trim()
-    }))
-    .filter(p => p.title && !bad.test(p.title) && !/공지|설문|이벤트 안내|일정표|이용 안내/.test(p.title))
-    .slice(0, 8);
-    // 봇 차단으로 축소 페이지(공지만)를 받은 경우 → 빈 배열 (페이지는 바로가기 링크 폴백)
-    if (gall.length < 3) gall = [];
-  } catch (e) { console.error('gall fail', e.message); }
+  // 6) 갤러리 섹션 제거됨 (스키마 호환용 빈 배열)
+  const gall = [];
 
   // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
