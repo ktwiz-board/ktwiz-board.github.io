@@ -164,12 +164,14 @@ gtag('config', 'G-8MC9LN4N1R');
   .wxmap .mk circle{stroke:rgba(0,0,0,.55);stroke-width:1.4}
   .wxmap .mk text{font-size:11px;font-weight:700;fill:#eaeaea}
   .wxmap .mk .tt{font-weight:800}
-  .wxlist{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13.5px;align-content:center}
+  .wxmap>div{min-width:0}
+  .wxlist{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13.5px;align-content:center;min-width:0}
+  .wxlist li{min-width:0}
   .wxlist .wxrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;border-radius:10px;padding:4px 6px;margin:-4px -6px}
   .wxlist .wxrow:hover{background:rgba(255,255,255,.05)}
   .wxlist .caret{color:var(--muted);font-size:11px;margin-left:auto}
   .wxmap .mk{cursor:pointer}
-  .wxhours{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;-webkit-overflow-scrolling:touch}
+  .wxhours{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:10px 2px 4px;-webkit-overflow-scrolling:touch}
   .wxhours .hc{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.045);font-size:11.5px}
   .wxhours .hc.game{background:rgba(232,16,47,.14);outline:1px solid rgba(232,16,47,.35)}
   .wxhours .hh{color:var(--muted);font-weight:700;font-size:10.5px}
@@ -821,7 +823,7 @@ gtag('config', 'G-8MC9LN4N1R');
         </div>
       </div>
     </div>
-    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시됩니다.</p>
+    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시되며, 고척은 돔구장이라 날씨 표시에서 제외됩니다.</p>
   </section>
 
   <!-- ================= KT 캘린더 · 폼 ================= -->
@@ -1053,7 +1055,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260805-132302';
+  const BUILD = '20260805-143705';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1528,9 +1530,10 @@ gtag('config', 'G-8MC9LN4N1R');
 
   async function fetchWeather(){
     // 10구단 홈구장은 항상 + 제2구장(포항·울산·청주)은 경기 있는 날만
-    const HOMES = ['수원','잠실','대구','대전','사직','고척','창원','광주','문학'];
+    // 고척은 돔구장이라 날씨 무관 → 제외
+    const HOMES = ['수원','잠실','대구','대전','사직','창원','광주','문학'];
     const names = HOMES.concat(Object.keys(COORD).filter(n =>
-      HOMES.indexOf(n) < 0 && lastGames.some(g => (g.stadium || '').indexOf(n) === 0)));
+      n !== '고척' && HOMES.indexOf(n) < 0 && lastGames.some(g => (g.stadium || '').indexOf(n) === 0)));
     const lats = names.map(n => COORD[n][0]).join(','), lons = names.map(n => COORD[n][1]).join(',');
     try{
       const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
