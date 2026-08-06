@@ -809,6 +809,7 @@ gtag('config', 'G-8MC9LN4N1R');
       <p class="kicker">Weather map</p>
       <h2>전국 구장 날씨</h2>
       <p class="sub">구장별 현재 기온과 18시(경기 시간대) 예상 기온 · 체감온도</p>
+      <div class="live-head"><span class="dot pulse" id="wxDot"></span><span class="tag" id="wxStamp">날씨 불러오는 중…</span></div>
     </div>
     <div class="wxmap reveal d1">
       <svg id="wxMapSvg" viewBox="0 0 320 400" role="img" aria-label="전국 야구장 날씨 지도">
@@ -1058,7 +1059,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260806-003813';
+  const BUILD = '20260806-005410';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1563,12 +1564,14 @@ gtag('config', 'G-8MC9LN4N1R');
           }
         }
         WX[n] = { t: Math.round(d.current.temperature_2m), icon: wmoIcon(d.current.weather_code), code: d.current.weather_code, pp: pp, t18: t18, at18: at18, hours: hours };
+        wxUpdated = new Date();
       });
       render(lastGames, lastLive);
     }catch(e){ /* 날씨 없이 표시 */ }
   }
 
   /* ---------- 전국 구장 날씨 지도 ---------- */
+  let wxUpdated = null;
   const WXLBL = { /* 라벨 위치 [dx, dy, anchor] — 수도권 4개 구장 겹침 방지 */
     '수원':[8,13,'start'], '잠실':[8,-4,'start'], '고척':[-8,-4,'end'], '문학':[-9,10,'end'],
     '대전':[9,4,'start'], '청주':[-9,4,'end'], '대구':[-9,-5,'end'], '포항':[7,-6,'start'],
@@ -1585,6 +1588,13 @@ gtag('config', 'G-8MC9LN4N1R');
   function renderWxMap(){
     const mk = document.getElementById('wxMk'), list = document.getElementById('wxList');
     if(!mk) return;
+    const stampEl = document.getElementById('wxStamp'), wxDot = document.getElementById('wxDot');
+    if(stampEl && wxUpdated){
+      const DOW = ['일','월','화','수','목','금','토'];
+      stampEl.textContent = (wxUpdated.getMonth()+1) + '/' + wxUpdated.getDate() + ' (' + DOW[wxUpdated.getDay()] + ') ' +
+        wxUpdated.getHours() + ':' + String(wxUpdated.getMinutes()).padStart(2,'0') + ' 업데이트 · 1분 주기 자동 갱신';
+      if(wxDot) wxDot.style.background = 'var(--ok)';
+    }
     const names = Object.keys(WX);
     if(!names.length) return;
     mk.innerHTML = names.map(n => {
