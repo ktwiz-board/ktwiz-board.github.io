@@ -173,7 +173,7 @@ async function fetchNews() {
   } catch (e) { console.error('news fail', e.message); return []; }
 }
 
-// 피타고라스 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
+// 피타고리안 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
 // 구장 좌표 (이동거리 계산용 — 위경도는 지리적 사실)
@@ -528,7 +528,7 @@ async function scheduleDifficulty(today, standings) {
   // 6) 갤러리 섹션 제거됨 (스키마 호환용 빈 배열)
   const gall = [];
 
-  // 7) 피타고라스 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
+  // 7) 피타고리안 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
     && prev.pythag.v === 6
     && prev.pythag.teams && prev.pythag.teams.length === 10

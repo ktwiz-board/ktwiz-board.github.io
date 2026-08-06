@@ -488,7 +488,7 @@ gtag('config', 'G-8MC9LN4N1R');
   .tv-list .tkm small{color:var(--muted);font-weight:500}
   .travel-note{font-size:12px;color:var(--muted);margin-top:12px;font-weight:500}
 
-  /* ---------- 피타고라스 기대승률 ---------- */
+  /* ---------- 피타고리안 기대승률 ---------- */
   .py-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;font-weight:500;line-height:1.8}
   .py-note b{color:var(--ink)}
   .pybar{position:relative;display:inline-block;width:74px;height:6px;border-radius:3px;background:rgba(255,255,255,.08);vertical-align:1px;margin-right:9px;overflow:hidden}
@@ -910,11 +910,11 @@ gtag('config', 'G-8MC9LN4N1R');
     </div>
   </section>
 
-  <!-- ================= 피타고라스 기대승률 ================= -->
+  <!-- ================= 피타고리안 기대승률 ================= -->
   <section id="pySec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Pythagorean</p>
-      <h2>피타고라스 기대승률</h2>
+      <h2>피타고리안 기대승률</h2>
       <p class="sub">득점·실점으로 계산한 "실력 기반" 승률 — 실제 승률과의 격차는 운(접전 승부)의 몫</p>
     </div>
     <div class="tablebox reveal d1">
@@ -1058,7 +1058,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260805-234601';
+  const BUILD = '20260806-003813';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2248,7 +2248,7 @@ gtag('config', 'G-8MC9LN4N1R');
     return { s: 'ok', t: '정상 개최 예상', d: '강수확률 ' + pp + '% — 날씨 양호' };
   }
 
-  /* ---------- 피타고라스 기대승률 ---------- */
+  /* ---------- 피타고리안 기대승률 ---------- */
   function renderPythag(py){
     if(!py || !py.teams || py.teams.length < 8) return;
     document.getElementById('pySec').style.display = 'block';
