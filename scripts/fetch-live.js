@@ -54,10 +54,10 @@ function mapLineup(lu) {
   return { starter: starter ? starter.playerName : '', batters };
 }
 
-// KBO 공식 일정 — 취소 사유(폭염취소·우천취소 등). 네이버 API는 cancel 여부만 주고 사유가 없음.
-// 반환: { 'YYYY-MM-DD|원정|홈': '폭염취소', ... }
-async function fetchCancelReasons(yearMonths) {
-  const out = {};
+// KBO 공식 일정 — 취소 경기 목록(폭염취소·우천취소 등 사유 포함). 네이버 API는 cancel 여부만 주고 사유가 없음.
+// 반환: [{ date, away, home, stadium, reason }]
+async function fetchCancelledList(yearMonths) {
+  const out = [];
   for (const ym of yearMonths) {
     const [season, month] = ym.split('-');
     const r = await fetch('https://www.koreabaseball.com/ws/Schedule.asmx/GetScheduleList', {
@@ -89,7 +89,8 @@ async function fetchCancelReasons(yearMonths) {
       const [awayRaw, homeRaw] = txt.split('|');
       const clean = s => (s || '').replace(/<[^>]+>/g, '').replace(/\d+/g, '').trim();
       const away = clean(awayRaw), home = clean(homeRaw);
-      if (away && home) out[`${curDate}|${away}|${home}`] = remark;
+      const stadium = cells.length >= 2 ? (cells[cells.length - 2].Text || '').replace(/<[^>]+>/g, '').trim() : '';
+      if (away && home) out.push({ date: curDate, away, home, stadium, reason: remark });
     }
   }
   return out;
@@ -340,7 +341,7 @@ async function scheduleDifficulty(today, standings) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2 && prev.cancelled;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
@@ -451,16 +452,24 @@ async function scheduleDifficulty(today, standings) {
     .map(mapGame)
     .filter(g => g.home === 'KT' || g.away === 'KT');
 
-  // 3.5) 취소 경기 사유 부착 (KBO 공식 일정 — 폭염취소/우천취소 등)
-  const cancelled = [...todayGames, ...week].filter(g => g.code === 'CANCEL');
-  if (cancelled.length) {
-    try {
-      const reasons = await fetchCancelReasons([...new Set(cancelled.map(g => g.date.slice(0, 7)))]);
-      for (const g of cancelled) {
-        const r = reasons[`${g.date}|${g.away}|${g.home}`];
-        if (r) g.reason = r;
-      }
-    } catch (e) { console.error('cancel reason fail', e.message); }
+  // 3.5) 시즌 취소 경기 목록 (KBO 공식 일정, 하루 1회 캐시) + 오늘·주간 취소 경기 사유 부착
+  const seasonMonths = [];
+  for (let m = 3; m <= +today.slice(5, 7); m++) seasonMonths.push(`${today.slice(0, 4)}-${String(m).padStart(2, '0')}`);
+  let cancelledList = (prev && prev.cancelled && prev.cancelled.date === today) ? prev.cancelled.list : null;
+  const cancelledGames = [...todayGames, ...week].filter(g => g.code === 'CANCEL');
+  const cKey = x => `${x.date}|${x.away}|${x.home}`;
+  // 캐시가 없거나, 오늘 새로 취소된 경기가 캐시에 아직 없으면 재수집
+  const needRefresh = !cancelledList || cancelledGames.some(g => !cancelledList.some(c => cKey(c) === cKey(g)));
+  if (needRefresh) {
+    try { cancelledList = await fetchCancelledList(seasonMonths); }
+    catch (e) {
+      console.error('cancel list fail', e.message);
+      cancelledList = cancelledList || ((prev && prev.cancelled && prev.cancelled.list) || []);
+    }
+  }
+  for (const g of cancelledGames) {
+    const c = cancelledList.find(x => cKey(x) === cKey(g));
+    if (c) g.reason = c.reason;
   }
 
   // 4) KT 최근 결과 (지난 12일, 종료 경기 최근 5)
@@ -574,6 +583,7 @@ async function scheduleDifficulty(today, standings) {
       top: ktTop || (prev && prev.kt && prev.kt.top) || null,
       starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
     },
+    cancelled: { date: today, list: cancelledList },
     news: news.length ? news : ((prev && prev.news) || []),
     videoReview: videoReview.length ? videoReview : ((prev && prev.videoReview) || []),
     youtube, shorts, gall, pythag, sched

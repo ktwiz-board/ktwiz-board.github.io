@@ -846,6 +846,11 @@ gtag('config', 'G-8MC9LN4N1R');
         <div class="form" id="ktForm"></div>
         <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
       </div>
+      <div class="calbox reveal d3" id="ktCancelBox" style="grid-column:1/-1;display:none">
+        <h4>시즌 취소 경기</h4>
+        <ul class="week" id="ktCancelList"></ul>
+        <p class="board-note" id="ktCancelNote" style="margin-top:12px"></p>
+      </div>
     </div>
   </section>
 
@@ -1059,7 +1064,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260806-005410';
+  const BUILD = '20260809-043213';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1769,6 +1774,34 @@ gtag('config', 'G-8MC9LN4N1R');
         '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
         '<span class="t">' + esc(right) + '</span></li>';
     }).join('');
+  }
+
+  /* 시즌 취소 경기 (KT) — KBO 공식 일정 기준, 사유·잔여 경기 포함 */
+  function renderCancelled(cn, standings){
+    const box = document.getElementById('ktCancelBox');
+    if(!box || !cn || !cn.list) return;
+    const kt = cn.list.filter(c => c.away === 'KT' || c.home === 'KT');
+    if(!kt.length) return;
+    box.style.display = '';
+    const DOW = ['일','월','화','수','목','금','토'];
+    const icon = r => r.indexOf('폭염') >= 0 ? '🥵 ' : (r.indexOf('우천') >= 0 ? '☔ ' : (r.indexOf('미세먼지') >= 0 ? '😷 ' : ''));
+    document.getElementById('ktCancelList').innerHTML = kt.slice().reverse().map(c => {
+      const ktHome = c.home === 'KT';
+      const opp = ktHome ? c.away : c.home;
+      const dt = new Date(c.date + 'T00:00:00');
+      return '<li><span class="d">' + c.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
+        '<span class="t">' + icon(c.reason) + esc(c.reason) + ' · ' + esc(c.stadium) + '</span></li>';
+    }).join('');
+    const heat = kt.filter(c => c.reason.indexOf('폭염') >= 0).length;
+    const rain = kt.filter(c => c.reason.indexOf('우천') >= 0).length;
+    const etc = kt.length - heat - rain;
+    const s = (standings || []).find(t => t.name === 'KT');
+    const rem = s ? 144 - (s.w + s.l + s.d) : null;
+    document.getElementById('ktCancelNote').innerHTML =
+      'KT 취소 <b>' + kt.length + '경기</b> (🥵 폭염 ' + heat + ' · ☔ 우천 ' + rain + (etc ? ' · 기타 ' + etc : '') + ')' +
+      ' — 취소된 경기는 시즌 후반 추후 재편성됩니다.' +
+      (rem != null ? ' 현재 시즌 잔여 <b>' + rem + '경기</b> (144경기 기준).' : '');
   }
 
   function renderForm(recent){
@@ -2529,6 +2562,7 @@ gtag('config', 'G-8MC9LN4N1R');
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
+        renderCancelled(j.cancelled, j.standings);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);

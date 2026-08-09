@@ -1,90 +1,90 @@
 {
- "updated": "2026-08-05T13:06:11.257Z",
- "updatedKST": "22:06",
- "date": "2026-08-05",
+ "updated": "2026-08-09T04:29:25.904Z",
+ "updatedKST": "13:29",
+ "date": "2026-08-09",
  "mode": "post",
  "games": [
   {
-   "id": "20260805HHSS02026",
-   "date": "2026-08-05",
-   "time": "18:30",
+   "id": "20260809HTLG02026",
+   "date": "2026-08-09",
+   "time": "18:00",
+   "stadium": "잠실",
+   "away": "KIA",
+   "home": "LG",
+   "as": 0,
+   "hs": 0,
+   "status": "취소",
+   "code": "CANCEL",
+   "ap": "",
+   "hp": "",
+   "wp": "",
+   "lp": "",
+   "reason": "폭염취소"
+  },
+  {
+   "id": "20260809LTKT02026",
+   "date": "2026-08-09",
+   "time": "18:00",
+   "stadium": "수원",
+   "away": "롯데",
+   "home": "KT",
+   "as": 0,
+   "hs": 0,
+   "status": "취소",
+   "code": "CANCEL",
+   "ap": "",
+   "hp": "",
+   "wp": "",
+   "lp": "",
+   "reason": "폭염취소"
+  },
+  {
+   "id": "20260809OBSS02026",
+   "date": "2026-08-09",
+   "time": "18:00",
    "stadium": "대구",
-   "away": "한화",
+   "away": "두산",
    "home": "삼성",
    "as": 0,
    "hs": 0,
    "status": "취소",
    "code": "CANCEL",
-   "ap": "박준영",
-   "hp": "페덱",
+   "ap": "",
+   "hp": "",
    "wp": "",
    "lp": "",
    "reason": "폭염취소"
   },
   {
-   "id": "20260805KTHT02026",
-   "date": "2026-08-05",
-   "time": "18:30",
-   "stadium": "광주",
-   "away": "KT",
-   "home": "KIA",
+   "id": "20260809SKNC02026",
+   "date": "2026-08-09",
+   "time": "18:00",
+   "stadium": "창원",
+   "away": "SSG",
+   "home": "NC",
    "as": 0,
    "hs": 0,
    "status": "취소",
    "code": "CANCEL",
-   "ap": "로건",
-   "hp": "올러",
+   "ap": "",
+   "hp": "",
    "wp": "",
    "lp": "",
    "reason": "폭염취소"
   },
   {
-   "id": "20260805LGSK02026",
-   "date": "2026-08-05",
-   "time": "18:30",
-   "stadium": "문학",
-   "away": "LG",
-   "home": "SSG",
-   "as": 0,
-   "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "임찬규",
-   "hp": "해치",
-   "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
-  },
-  {
-   "id": "20260805NCOB02026",
-   "date": "2026-08-05",
-   "time": "18:30",
-   "stadium": "잠실",
-   "away": "NC",
-   "home": "두산",
-   "as": 0,
-   "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "라일리",
-   "hp": "최민석",
-   "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
-  },
-  {
-   "id": "20260805WOLT02026",
-   "date": "2026-08-05",
-   "time": "18:30",
-   "stadium": "사직",
+   "id": "20260809WOHH02026",
+   "date": "2026-08-09",
+   "time": "18:00",
+   "stadium": "대전",
    "away": "키움",
-   "home": "롯데",
+   "home": "한화",
    "as": 0,
    "hs": 0,
    "status": "취소",
    "code": "CANCEL",
-   "ap": "안우진",
-   "hp": "박세웅",
+   "ap": "",
+   "hp": "",
    "wp": "",
    "lp": "",
    "reason": "폭염취소"
@@ -203,76 +203,10 @@
   }
  ],
  "kt": {
-  "gameId": "20260805KTHT02026",
+  "gameId": "20260809LTKT02026",
   "lineup": null,
   "oppLineup": null,
   "week": [
-   {
-    "id": "20260805KTHT02026",
-    "date": "2026-08-05",
-    "time": "18:30",
-    "stadium": "광주",
-    "away": "KT",
-    "home": "KIA",
-    "as": 0,
-    "hs": 0,
-    "status": "취소",
-    "code": "CANCEL",
-    "ap": "로건",
-    "hp": "올러",
-    "wp": "",
-    "lp": "",
-    "reason": "폭염취소"
-   },
-   {
-    "id": "20260806KTHT02026",
-    "date": "2026-08-06",
-    "time": "18:30",
-    "stadium": "광주",
-    "away": "KT",
-    "home": "KIA",
-    "as": 0,
-    "hs": 0,
-    "status": "취소",
-    "code": "CANCEL",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": "",
-    "reason": "폭염취소"
-   },
-   {
-    "id": "20260807LTKT02026",
-    "date": "2026-08-07",
-    "time": "18:30",
-    "stadium": "수원",
-    "away": "롯데",
-    "home": "KT",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
-   {
-    "id": "20260808LTKT02026",
-    "date": "2026-08-08",
-    "time": "18:00",
-    "stadium": "수원",
-    "away": "롯데",
-    "home": "KT",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
    {
     "id": "20260809LTKT02026",
     "date": "2026-08-09",
@@ -282,17 +216,18 @@
     "home": "KT",
     "as": 0,
     "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
+    "status": "취소",
+    "code": "CANCEL",
     "ap": "",
     "hp": "",
     "wp": "",
-    "lp": ""
+    "lp": "",
+    "reason": "폭염취소"
    },
    {
     "id": "20260811KTNC02026",
     "date": "2026-08-11",
-    "time": "18:30",
+    "time": "19:00",
     "stadium": "창원",
     "away": "KT",
     "home": "NC",
@@ -308,10 +243,74 @@
    {
     "id": "20260812KTNC02026",
     "date": "2026-08-12",
-    "time": "18:30",
+    "time": "19:00",
     "stadium": "창원",
     "away": "KT",
     "home": "NC",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260813KTNC02026",
+    "date": "2026-08-13",
+    "time": "19:00",
+    "stadium": "창원",
+    "away": "KT",
+    "home": "NC",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260814WOKT02026",
+    "date": "2026-08-14",
+    "time": "19:00",
+    "stadium": "수원",
+    "away": "키움",
+    "home": "KT",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260815WOKT02026",
+    "date": "2026-08-15",
+    "time": "19:00",
+    "stadium": "수원",
+    "away": "키움",
+    "home": "KT",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260816WOKT02026",
+    "date": "2026-08-16",
+    "time": "19:00",
+    "stadium": "수원",
+    "away": "키움",
+    "home": "KT",
     "as": 0,
     "hs": 0,
     "status": "경기전",
@@ -550,7 +549,7 @@
    "name": "류현인",
    "backnum": "9",
    "hitType": "우투좌타",
-   "opp": "KIA",
+   "opp": "롯데",
    "hra": "0.288",
    "hr": 1,
    "rbi": 10,
@@ -562,96 +561,424 @@
   },
   "starters": {
    "kt": {
-    "name": "로건",
-    "era": "3.08",
-    "w": 3,
-    "l": 1,
-    "pitches": [
-     {
-      "type": "FAST",
-      "rt": 49.900001525878906,
-      "spd": 147
-     },
-     {
-      "type": "SLID",
-      "rt": 21.600000381469727,
-      "spd": 131
-     },
-     {
-      "type": "CHUP",
-      "rt": 13.800000190734863,
-      "spd": 134
-     }
-    ]
+    "era": "0.00",
+    "w": "0",
+    "l": "0",
+    "pitches": []
    },
    "opp": {
-    "name": "올러",
-    "era": "3.36",
-    "w": 9,
-    "l": 8,
-    "pitches": [
-     {
-      "type": "FAST",
-      "rt": 40.79999923706055,
-      "spd": 148
-     },
-     {
-      "type": "SLID",
-      "rt": 30.899999618530273,
-      "spd": 133
-     },
-     {
-      "type": "CHUP",
-      "rt": 12.399999618530273,
-      "spd": 137
-     }
-    ]
+    "era": "0.00",
+    "w": "0",
+    "l": "0",
+    "pitches": []
    },
-   "oppName": "KIA"
+   "oppName": "롯데"
   }
+ },
+ "cancelled": {
+  "date": "2026-08-09",
+  "list": [
+   {
+    "date": "2026-04-09",
+    "away": "키움",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-09",
+    "away": "KT",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-09",
+    "away": "한화",
+    "home": "SSG",
+    "stadium": "문학",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-09",
+    "away": "삼성",
+    "home": "KIA",
+    "stadium": "광주",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-09",
+    "away": "LG",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-17",
+    "away": "LG",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-17",
+    "away": "한화",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-04-17",
+    "away": "SSG",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-07",
+    "away": "롯데",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-20",
+    "away": "NC",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-20",
+    "away": "LG",
+    "home": "KIA",
+    "stadium": "광주",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-20",
+    "away": "롯데",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-20",
+    "away": "KT",
+    "home": "삼성",
+    "stadium": "포항",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-26",
+    "away": "삼성",
+    "home": "SSG",
+    "stadium": "문학",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-05-26",
+    "away": "한화",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-06-14",
+    "away": "NC",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-06-30",
+    "away": "KT",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-07-08",
+    "away": "NC",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-07-09",
+    "away": "키움",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-07-17",
+    "away": "롯데",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-07-22",
+    "away": "NC",
+    "home": "LG",
+    "stadium": "잠실",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-08-01",
+    "away": "삼성",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-01",
+    "away": "KIA",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-02",
+    "away": "KIA",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-04",
+    "away": "NC",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-04",
+    "away": "KT",
+    "home": "KIA",
+    "stadium": "광주",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-05",
+    "away": "NC",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-05",
+    "away": "한화",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-05",
+    "away": "키움",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-05",
+    "away": "LG",
+    "home": "SSG",
+    "stadium": "문학",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-05",
+    "away": "KT",
+    "home": "KIA",
+    "stadium": "광주",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-06",
+    "away": "NC",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-06",
+    "away": "한화",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-06",
+    "away": "키움",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-06",
+    "away": "LG",
+    "home": "SSG",
+    "stadium": "문학",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-06",
+    "away": "KT",
+    "home": "KIA",
+    "stadium": "광주",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-07",
+    "away": "KIA",
+    "home": "LG",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-07",
+    "away": "두산",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-07",
+    "away": "롯데",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-07",
+    "away": "SSG",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-07",
+    "away": "키움",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-08",
+    "away": "KIA",
+    "home": "LG",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-08",
+    "away": "두산",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-08",
+    "away": "롯데",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-08",
+    "away": "SSG",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-08",
+    "away": "키움",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-09",
+    "away": "KIA",
+    "home": "LG",
+    "stadium": "잠실",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-09",
+    "away": "두산",
+    "home": "삼성",
+    "stadium": "대구",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-09",
+    "away": "롯데",
+    "home": "KT",
+    "stadium": "수원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-09",
+    "away": "SSG",
+    "home": "NC",
+    "stadium": "창원",
+    "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-09",
+    "away": "키움",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "폭염취소"
+   }
+  ]
  },
  "news": [
   {
-   "title": "KT 새 외인 대니엘 \"제구에 자신 있지만, 시속 149㎞ 직구 거뜬\"",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5lalZ6eXpBa2tJVVZMZjdJVUhHNkJTNTlNLS1xeElkbWVCejlpOFZoTnkwdTJ5Yzg2Q1VpSDJxbTFHZzJ2RXhwQ3lsQVZkRVpFR042M3VIM01VQm9CRk5lSA?oc=5",
+   "title": "탈삼진 1위 '153.5km'→2위 '151.9km'→3위는 '135.5km'? 이 공으로 K 경쟁이라니…고영표가 보여주는 '느림의 마법'",
+   "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBSLU00RnVLd19xTTNxVERkcTlBT01tdEdQZzVFbHRBYWR5aDl0RXpvMzlwR1dOUzlweFB6c2FZY2lhRDkzeXZIaTJoUXM2V3RpZE5VVENVOEIzR2dfYms5RlZjUXVzbUZN?oc=5",
    "src": "네이트",
-   "date": "08.05",
-   "ts": 1785917820000
+   "date": "08.09",
+   "ts": 1786240560000
   },
   {
-   "title": "KBO 막내 구단 '첫 통합 우승' 캡틴 황재균, 8일 수원 롯데전서 은퇴식…20년간 정든 그라운드 완전히 떠난다",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB4b3ZIbGVMQmZWY0tIYVZYemVXbjRPSXVQUTdSMmVLZGNUdXRkU2Q2WkpNdWVJU3JhSUtfVDdrOEZMUkhsOXpMbmFjVm5FdzRySjkweF8tZGlXc2tyVW0wSA?oc=5",
-   "src": "네이트",
-   "date": "08.05",
-   "ts": 1785909000000
+   "title": "“한국보다 더 뜨거운 곳에서도 던져봤다” 극한 폭염도 새 외인 열정 못 꺾는다…우승 향한 5억 승부수 ‘벌써 대박 예감’",
+   "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE13eXNSeHRjalYwa0ZpZVdPel95UFJpV0kwSDdRMWZTZ2R4VWU5NTJ6Tm1QeDhDSGxNdXZRUklULU9GWnYwaXZMODZCN0JkamVtalFHMA?oc=5",
+   "src": "OSEN",
+   "date": "08.09",
+   "ts": 1786239660000
   },
   {
-   "title": "\"패배를 잊었다\"⋯후반기 12승 1무 1패 kt가 강해진 이유",
-   "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE8zN3FqckI2cHpwTFAtTGZ6Vk93YUFYb3JEQld5eDVUb2pucnVmSFZOZ21OMWdPSm5ONExWYTc0WElJU21EUUtUTDJ2cFh1NFhfLUtOVw?oc=5",
-   "src": "etoday.co.kr",
-   "date": "08.05",
-   "ts": 1785908940000
+   "title": "'타율 0.133' 강백호 진짜 모습 아직 안 나왔다…뜻밖의 추가 회복 시간, 폭염 브레이크가 보약 될까",
+   "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE02cnZtc0FRdk5yTk1lN1pMb0hzZ1FoWENBM0RKd3BLbXhEZ2ZaaG53STZyMlZCRG82VHpYVVF2YWlGeUVjaTJNYUk0eElsdHExSFRFMEc4bTBPeGRCTlRDOF9n?oc=5",
+   "src": "미주중앙일보",
+   "date": "08.08",
+   "ts": 1786180200000
   },
   {
-   "title": "25세 동생이 해냈다! '3승 무패-ERA 1.78' KT 소형준, KBO 7월 '쉘힐릭스플레이어' 선정",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9NaDZRb1R6QnVDRVp5Tm1mbElBTS05YlRMS3IyWjRWZU9OSmZlSlpxanN6R0ZaSFkxaGhYaFZxQUxxeDhvOXo4b0V1cHJ5UDdaNVBPTm1qd0ZVbEtEeUVzbA?oc=5",
-   "src": "네이트",
-   "date": "08.05",
-   "ts": 1785908340000
-  },
-  {
-   "title": "\"김도영 ML 진출? 충분히 통할 재능…KIA 이기려면 김도영부터 막아야\" 빅리그 7시즌→홈런왕 3파전 중심에 선 남자의 진심 [인터뷰]",
-   "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPanZnUEpvZ1FVR2RsdUV2UXY5dV9sdHhlOHcyVXB3WDdFU2E5U1dFN0JxQjl5RG1FVHktbWtwY1Axd3BaSlV0dG41YXJ0c3NJOTVkOFI4UGNxQzRDNTZZTGhBeFN6c3Y5c3ZOTTZZSjJ5VUFXczlmdjdHRmtxeEV5WFNrWQ?oc=5",
-   "src": "조선일보",
-   "date": "08.05",
-   "ts": 1785904180000
-  },
-  {
-   "title": "“납득할 수 없는 ABS 콜에 동요했는데…” 힐리어드 이러면 KBO 최고 외인타자, 이강철도 깜놀[MD광주]",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9KLWFidE1WaWNtOEtsMFVxaTVlMjQ1YmF4THhTMDJ3dV9FbDJydGRDUXg5QVNtTThVVXk5R3lGQUpBZzFWNnBDQlpDdUduMXphSGl0cnY5VEM5QlI1bGkxTA?oc=5",
+   "title": "류현진 생각나네, 7년 만에 신무기 알고 보니 `독학`이었다…\"영상을 보고 따라했어요\"",
+   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9mN28tM0xDZUxWeTVJTTE1RW5iT3dnWURzLV9YRDR5OV9OVDhqeU9qY2g1MGU5WTN1N1JNaTZnOTRZN0hEdGw1ek5ITnhySHlUOFA2SGh6ZUc5d29mNjlNcQ?oc=5",
    "src": "마이데일리",
-   "date": "08.05",
-   "ts": 1785902400000
+   "date": "08.08",
+   "ts": 1786169460000
+  },
+  {
+   "title": "\"마지막 인사는 제대로 하겠다, 조금만 더 기다려달라\" 폭염 취소에 갑작스럽게 은퇴식마저 불발되다니... 직접 입장 밝혔다 - 머니투데이",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFB0MWJBQkd6OVVmTlVOSHdfbU8yZk1iZEUzN1JfVFdwVmphOFNlVjVscTNaZTlQdC1kWVpWNlNjTU13YWM4YzlJdHJBZm9ZMnl0WnNtVm0tcGF0MDRFcGphU25paVhuYVp0bHfSAW9BVV95cUxNOU5JSE8wYmE5alRtdWREYzBZUHNhbnlqWTc4NmhmN0gwUUJkNVFwamJkWE5WVVJQUk9XTUhkaFh5cVdPbm5ybk5BMk5LNDdCM0ZPalp3UWVOT3c4dUxkeDE0eWt2SE1aZnZKNmZ5TzA?oc=5",
+   "src": "mt.co.kr",
+   "date": "08.08",
+   "ts": 1786115760000
+  },
+  {
+   "title": "‘새가슴’ 日독립리거→특급 필승조 만들어놨더니…NPB 군침 흘린다, “스카우트들 관심 폭발, 드래프트 숨은 보석 유력”",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5oNmJ5QkpXdW1Yc1ozY1gzTVpaRE9xZE9UMXBXRWNJZFRHN0twU3pfYnRReUJCak5YUXA2cER1Vm5wNTdoWU9haDd1SEtLMEk?oc=5",
+   "src": "v.daum.net",
+   "date": "08.07",
+   "ts": 1786088497000
   }
  ],
  "videoReview": [
@@ -673,6 +1000,26 @@
  ],
  "youtube": [
   {
+   "id": "L-6SPnkMkz0",
+   "title": "폭염도 막지 못한 선수들의 열정 넘치는 훈련 현장☀️  [위즈티비]",
+   "pub": "2026-08-08"
+  },
+  {
+   "id": "hQhkgt54LWI",
+   "title": "kt wiz는 열심히 훈련 중입니다 😎 → … 🥵",
+   "pub": "2026-08-07"
+  },
+  {
+   "id": "CZuVt6GaZY0",
+   "title": "한여름밤 시원한 무대! 다영 (DAYOUNG)의 WIZ LIVE🎤 [위즈티비]",
+   "pub": "2026-08-07"
+  },
+  {
+   "id": "TI0D35AsbUM",
+   "title": "너.. 워페 안 와봤어? 전용주 선수가 알려주는 8월 홈 경기 브리핑⭐️",
+   "pub": "2026-08-05"
+  },
+  {
    "id": "YDoo_cHVhoo",
    "title": "@: kt wiz가 과거 해왔던 야구를 하고 있는 것 같아요 21시즌을 방불케 한 기록이 차고 넘쳤던 6~7월 명장면 [M.M.M]",
    "pub": "2026-08-05"
@@ -681,32 +1028,12 @@
    "id": "BiEPVtPwdZc",
    "title": "“쟤는 신인이야?”👀 아니요, 神인입니다😎 [WIZIP]",
    "pub": "2026-08-04"
-  },
-  {
-   "id": "5Ov1gF4pRO8",
-   "title": "액티비티에도 안지워지는 선크림이 있다고?🙊 동현, 현민의 선크림 바르는 법 大공개┃아로셀 멜라 TXA 선 세럼 [위즈티비]",
-   "pub": "2026-08-03"
-  },
-  {
-   "id": "hkyEzfQPYuY",
-   "title": "연속 스윕 시리즈를 달성하며 빅이닝 빅모험을 항해하는 kt wiz!⛵💥 (08.02) [위즈덕후]",
-   "pub": "2026-08-03"
-  },
-  {
-   "id": "JoueRmbuyNs",
-   "title": "8월 2일 한화 vs KT [2026 정규시즌 H/L]",
-   "pub": "2026-08-02"
-  },
-  {
-   "id": "Xw6rgZY2UEk",
-   "title": "물 속성 kt wiz 단독 1위🏆✨  윤석의 3타점 싹쓸이 적시타 &amp; 베테랑들의 트리플 플레이의 1위즈 (08.01) [위즈덕후]",
-   "pub": "2026-08-02"
   }
  ],
  "shorts": [],
  "gall": [],
  "pythag": {
-  "date": "2026-08-05",
+  "date": "2026-08-09",
   "v": 6,
   "h2h": {
    "SSG": {
@@ -1420,69 +1747,69 @@
   ]
  },
  "sched": {
-  "date": "2026-08-05",
+  "date": "2026-08-09",
   "v": 2,
-  "sampleGames": 135,
+  "sampleGames": 120,
   "teams": [
-   {
-    "name": "KT",
-    "remaining": 47,
-    "sampleN": 27,
-    "oppWra": 0.487
-   },
    {
     "name": "삼성",
     "remaining": 44,
-    "sampleN": 27,
-    "oppWra": 0.49
-   },
-   {
-    "name": "LG",
-    "remaining": 43,
-    "sampleN": 27,
-    "oppWra": 0.495
+    "sampleN": 24,
+    "oppWra": 0.484
    },
    {
     "name": "두산",
     "remaining": 43,
-    "sampleN": 27,
-    "oppWra": 0.497
+    "sampleN": 24,
+    "oppWra": 0.484
+   },
+   {
+    "name": "LG",
+    "remaining": 43,
+    "sampleN": 24,
+    "oppWra": 0.491
    },
    {
     "name": "KIA",
     "remaining": 44,
-    "sampleN": 27,
-    "oppWra": 0.497
+    "sampleN": 24,
+    "oppWra": 0.491
    },
    {
-    "name": "한화",
-    "remaining": 45,
-    "sampleN": 27,
-    "oppWra": 0.502
-   },
-   {
-    "name": "NC",
-    "remaining": 49,
-    "sampleN": 27,
-    "oppWra": 0.505
+    "name": "KT",
+    "remaining": 47,
+    "sampleN": 24,
+    "oppWra": 0.492
    },
    {
     "name": "롯데",
     "remaining": 44,
-    "sampleN": 27,
-    "oppWra": 0.507
-   },
-   {
-    "name": "SSG",
-    "remaining": 41,
-    "sampleN": 27,
-    "oppWra": 0.513
+    "sampleN": 24,
+    "oppWra": 0.492
    },
    {
     "name": "키움",
     "remaining": 40,
-    "sampleN": 27,
-    "oppWra": 0.515
+    "sampleN": 24,
+    "oppWra": 0.518
+   },
+   {
+    "name": "한화",
+    "remaining": 45,
+    "sampleN": 24,
+    "oppWra": 0.518
+   },
+   {
+    "name": "SSG",
+    "remaining": 41,
+    "sampleN": 24,
+    "oppWra": 0.519
+   },
+   {
+    "name": "NC",
+    "remaining": 49,
+    "sampleN": 24,
+    "oppWra": 0.519
    }
   ]
  }
