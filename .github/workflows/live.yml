@@ -28,8 +28,16 @@ jobs:
           git show origin/data:data/live.json > data/live.json 2>/dev/null || true
           git show origin/data:data/standings-history.json > data/standings-history.json 2>/dev/null || true
           node scripts/fetch-live.js || true
+          # giants(롯데) 보드 데이터 — 같은 주기로 수집, data 브랜치의 giants/data 경로 사용
+          if [ -f giants/scripts/fetch-live.js ]; then
+            mkdir -p giants/data
+            git show origin/data:giants/data/live.json > giants/data/live.json 2>/dev/null || true
+            git show origin/data:giants/data/standings-history.json > giants/data/standings-history.json 2>/dev/null || true
+            node giants/scripts/fetch-live.js || true
+          fi
           if [ -f data/live.json ]; then
             git add data/live.json data/standings-history.json 2>/dev/null || git add data/live.json
+            git add giants/data 2>/dev/null || true
             if ! git diff --cached --quiet; then
               git commit -q -m "live data"
               # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시

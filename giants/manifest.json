@@ -1,0 +1,15 @@
+{
+  "name": "giants board — 롯데 자이언츠 실시간 스코어·라인업·KBO 순위",
+  "short_name": "giants board",
+  "description": "롯데 자이언츠 팬을 위한 KBO 실시간 대시보드",
+  "start_url": "/giants/",
+  "scope": "/giants/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "ko",
+  "icons": [
+    
+    
+  ]
+}
