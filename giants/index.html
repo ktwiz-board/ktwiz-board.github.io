@@ -734,7 +734,7 @@ gtag('config', 'G-8MC9LN4N1R');
 <div class="hero">
   <svg class="castle" id="castle" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
   <div class="wrap">
-    <h1 class="emblem" style="font-size:clamp(46px,9vw,96px);font-weight:900;letter-spacing:.05em;margin:0;line-height:1.05">LOTTE <span style="color:var(--red-soft)">GIANTS</span><br><span style="display:block;font-size:clamp(13px,2vw,18px);font-weight:600;letter-spacing:.4em;color:#9ed2ee;margin-top:14px">부산의 심장 · 바다의 팀</span></h1>
+    <h1 style="font-size:clamp(46px,9vw,96px);font-weight:900;letter-spacing:.05em;margin:0 0 18px;line-height:1.05;text-align:center;width:100%;text-shadow:0 10px 50px rgba(208,15,49,.3)">LOTTE <span style="color:var(--red-soft)">GIANTS</span><br><span style="display:block;font-size:clamp(13px,2vw,18px);font-weight:600;letter-spacing:.4em;color:#9ed2ee;margin-top:14px">부산의 심장 · 바다의 팀</span></h1>
     <p class="sub">롯데 자이언츠 팬을 위한 KBO 상황판 — 스코어·라인업·순위 자동 갱신</p>
     <p class="place">SAJIK BASEBALL STADIUM · BUSAN</p>
   </div>
@@ -1103,7 +1103,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-101136';
+  const BUILD = '20260809-055750';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1195,7 +1195,19 @@ gtag('config', 'G-8MC9LN4N1R');
     }
     // 파도
     add('M0 254 C 60 247, 120 261, 180 254 S 300 247, 360 254 S 480 261, 540 254 S 660 247, 720 254 S 840 261, 900 254 S 1020 247, 1080 254 S 1200 261, 1260 254 S 1380 247, 1440 254');
-    add('M60 272 C 110 266, 150 278, 200 272 M420 276 C 470 270, 510 282, 560 276 M880 272 C 930 266, 970 278, 1020 272 M1240 276 C 1290 270, 1330 282, 1380 276');
+    add('M60 264 C 110 258, 150 270, 200 264 M420 268 C 470 262, 510 274, 560 268 M880 264 C 930 258, 970 270, 1020 264 M1240 268 C 1290 262, 1330 274, 1380 268');
+    // 해변: 물결이 모래에 닿는 포말 라인 (조개 무늬)
+    (function(){
+      let d = 'M0 280';
+      for(let x = 0; x < 1440; x += 48) d += ' q24 9 48 0';
+      add(d, 'ink spire');
+    })();
+    // 모래사장 알갱이
+    for(let x = 30; x <= 1420; x += 46){
+      const y = 288 + ((x * 7) % 8);
+      add('M' + x + ' ' + y + ' h2.5', 'ink spire');
+      if(x % 3 === 0) add('M' + (x + 20) + ' ' + (284 + ((x * 3) % 6)) + ' h1.6');
+    }
     // 갈매기
     add('M200 92 c8 -10 18 -10 26 0 M228 92 c8 -10 18 -10 26 0');
     add('M320 62 c6 -8 14 -8 20 0 M342 62 c6 -8 14 -8 20 0');
