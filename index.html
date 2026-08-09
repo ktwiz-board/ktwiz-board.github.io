@@ -997,8 +997,9 @@ gtag('config', 'G-8MC9LN4N1R');
     <div class="sec-head reveal">
       <p class="kicker">Video Review</p>
       <h2>비디오 판독</h2>
-      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함)</p>
+      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함) · 판독이 신청된 경기만 기록됩니다</p>
     </div>
+    <p class="board-note reveal" id="vrNote" style="display:none;margin:0 0 14px"></p>
     <ul class="vr-list reveal d1" id="vrList"></ul>
   </section>
 
@@ -1096,7 +1097,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-101136';
+  const BUILD = '20260809-112336';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2601,6 +2602,18 @@ gtag('config', 'G-8MC9LN4N1R');
     if(!list || !list.length) return; // 데이터 전엔 섹션 숨김 유지
     const sec = document.getElementById('vrSec');
     sec.style.display = 'block';
+    /* 어느 경기의 판독인지 명시 — 마지막 경기에 판독이 없으면 그 사실을 안내 */
+    const vn = document.getElementById('vrNote');
+    if(vn && list[0] && list[0].date){
+      const latestMd = list[0].date;
+      if(ktLastCache && ktLastCache.date){
+        const lastMd = ktLastCache.date.slice(5).replace('-', '.');
+        vn.style.display = '';
+        vn.innerHTML = latestMd === lastMd
+          ? '아래는 마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)의 판독 기록입니다.'
+          : '마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)에는 판독 신청이 없었습니다 — 아래는 판독이 있었던 가장 최근 경기(<b>' + esc(latestMd) + '</b>) 기록입니다.';
+      }
+    }
     document.getElementById('vrList').innerHTML = list.map(v => {
       const turned = /번복/.test(v.result);
       const kept = /원심/.test(v.result);
