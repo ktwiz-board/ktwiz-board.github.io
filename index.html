@@ -118,7 +118,7 @@ gtag('config', 'G-8MC9LN4N1R');
   /* ---------- sections ---------- */
   section{padding:110px 0 0}
   /* ---------- 구단 보드 내비게이션 ---------- */
-  .teamnav{position:relative;z-index:6;display:flex;align-items:center;gap:8px;padding:10px max(20px,4vw);background:rgba(8,8,10,.85);border-bottom:1px solid var(--line)}
+  .teamnav{position:relative;z-index:6;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px max(20px,4vw);background:rgba(8,8,10,.85);border-bottom:1px solid var(--line)}
   .teamnav .tn-label{font-size:10.5px;letter-spacing:.24em;color:var(--muted);font-weight:700;margin-right:6px}
   .teamnav a{font-size:12.5px;font-weight:700;color:var(--muted);text-decoration:none;padding:5px 13px;border-radius:99px;border:1px solid transparent;transition:color .2s,border-color .2s}
   .teamnav a:hover{color:var(--ink)}
@@ -1096,7 +1096,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-055750';
+  const BUILD = '20260809-101136';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
