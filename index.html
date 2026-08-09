@@ -932,6 +932,22 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="py-note reveal d2" id="pyNote"></p>
   </section>
 
+  <!-- ================= 잔여 일정 난이도 ================= -->
+  <section id="schedSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Remaining Schedule</p>
+      <h2>잔여 일정 난이도</h2>
+      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 남은 일정이 쉽습니다</p>
+    </div>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>쉬운 순</th><th>팀</th><th>현재 순위</th><th>잔여 경기</th><th>남은 상대 평균 승률</th></tr></thead>
+        <tbody id="schedBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="schedNote"></p>
+  </section>
+
   <!-- ================= 구단 이동거리 ================= -->
   <section id="travelSec" style="display:none">
     <div class="sec-head reveal">
@@ -1064,7 +1080,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-043213';
+  const BUILD = '20260809-045115';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2315,6 +2331,34 @@ gtag('config', 'G-8MC9LN4N1R');
     }
   }
 
+  /* ---------- 잔여 일정 난이도 ---------- */
+  function renderSched(sc, standings){
+    if(!sc || !sc.teams || sc.teams.length < 10 || !sc.teams.some(t => t.sampleN > 0)) return;
+    document.getElementById('schedSec').style.display = 'block';
+    const rankOf = {}; (standings || []).forEach(t => rankOf[t.name] = t.rank);
+    const fmt = v => ('' + v.toFixed(3)).replace(/^0\./, '.');
+    const bar = w => Math.max(4, Math.min(100, Math.round((w - 0.35) * 400))); // .35~.60 → 4~100%
+    document.getElementById('schedBody').innerHTML = sc.teams.map((t, i) => {
+      const isKT = t.name === 'KT';
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + (i + 1) + '</span></td>' +
+        '<td>' + esc(t.name) + '</td>' +
+        '<td>' + (rankOf[t.name] ? rankOf[t.name] + '위' : '—') + '</td>' +
+        '<td>' + t.remaining + '</td>' +
+        '<td><span class="pybar"><i style="width:' + bar(t.oppWra) + '%"></i></span>' + fmt(t.oppWra) + '</td></tr>';
+    }).join('');
+    const kt = sc.teams.find(t => t.name === 'KT'), ktIdx = sc.teams.indexOf(kt);
+    const ss = sc.teams.find(t => t.name === '삼성');
+    let note = '';
+    if(kt && ss){
+      const diff = kt.oppWra - ss.oppWra;
+      const cmp = Math.abs(diff) < 0.005 ? '2위 삼성과 비슷한 난이도입니다'
+        : (diff > 0 ? '2위 삼성(' + fmt(ss.oppWra) + ')보다 어려운 일정입니다' : '2위 삼성(' + fmt(ss.oppWra) + ')보다 쉬운 일정입니다');
+      note = '<b>kt wiz</b>: 잔여 ' + kt.remaining + '경기, 남은 상대 평균 승률 <b>' + fmt(kt.oppWra) + '</b> (쉬운 순 ' + (ktIdx + 1) + '위) — ' + cmp + '. ';
+    }
+    document.getElementById('schedNote').innerHTML = note +
+      '공개된 향후 일정 표본 ' + sc.sampleGames + '경기 기준 자체 계산이며, 잔여 경기 수는 정규시즌 144경기 기준입니다. 취소 경기 재편성이 발표되면 자동 반영됩니다. · ' + esc(sc.date) + ' 기준';
+  }
+
   /* ---------- 팀간 상대전적 (KT 중심) ---------- */
   function renderH2H(py, standings, games){
     const h2h = py && py.h2h;
@@ -2575,6 +2619,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderMagic(j.standings);
         renderMagicBanner(j.standings);
         renderPythag(j.pythag);
+        renderSched(j.sched, j.standings);
         renderYT(j.youtube);
         celebrate(j.games);
         return;
