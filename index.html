@@ -140,6 +140,7 @@ gtag('config', 'G-8MC9LN4N1R');
   .game.kt-game{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 70%)}
   .game .stadium{display:flex;flex-direction:column;gap:2px;font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700}
   .game.kt-game .stadium{color:var(--red-soft)}
+  .game .dhtag{font-size:9.5px;letter-spacing:.05em;color:var(--gold);border:1px solid rgba(217,169,76,.4);border-radius:5px;padding:1px 4px;margin-left:5px;vertical-align:1px}
   .game .wx{font-size:11.5px;letter-spacing:0;color:#dddde2;font-weight:500;white-space:nowrap}
   .game .wx .pp{color:#6fb7ff}
   .game .wx .pp.rainy{color:var(--red-soft);font-weight:700}
@@ -880,6 +881,7 @@ gtag('config', 'G-8MC9LN4N1R');
         </tbody>
       </table>
     </div>
+    <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
   </section>
 
   <!-- ================= 시즌 순위 변동 ================= -->
@@ -1080,7 +1082,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-045115';
+  const BUILD = '20260809-045836';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1681,23 +1683,37 @@ gtag('config', 'G-8MC9LN4N1R');
 
   /* KT 타이포 배너 갱신 */
   let ktWeekCache = null; // 다음 경기 안내용 (loadData에서 갱신)
+  let ktLastCache = null; // 마지막 경기 (공백일 카운트용)
+
+  function ktGapNext(){
+    /* "마지막 경기 후 N일째 · 다음 경기 …" — 연속 취소·휴식기용 */
+    let parts = [];
+    if(ktLastCache && ktLastCache.date){
+      const days = Math.round((new Date().setHours(0,0,0,0) - new Date(ktLastCache.date + 'T00:00:00').getTime()) / 86400000);
+      if(days >= 2) parts.push('마지막 경기 후 <b>' + days + '일째</b>');
+    }
+    if(ktWeekCache){
+      const n = ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
+      if(n){
+        const ktHome = n.home === 'KT';
+        parts.push('다음 경기 ' + esc(n.date.slice(5).replace('-', '.')) + ' vs <b>' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + (ktHome ? ' (홈)' : ' (원정)'));
+      }
+    }
+    return parts.join(' · ');
+  }
 
   function updateBanner(games){
-    const g = games.find(x => x.home === 'KT' || x.away === 'KT');
+    /* 더블헤더 대비: 진행 중 > 예정 > (종료·취소 중 마지막) 순으로 대표 경기 선택 */
+    const ktGames = games.filter(x => x.home === 'KT' || x.away === 'KT');
+    const g = ktGames.find(x => x.code === 'STARTED' || x.code === 'LIVE')
+      || ktGames.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code))
+      || ktGames[ktGames.length - 1];
+    const dhTxt = ktGames.length > 1 ? ' · 더블헤더 ' + (ktGames.indexOf(g) + 1) + '차전' : '';
     const m = document.getElementById('ktMatch'), d = document.getElementById('ktDetail');
     if(!g){
       /* 오늘 KT 경기 없음 → 휴식일 표기 + 다음 경기 안내 */
       m.innerHTML = '오늘은 <span class="live-score">경기가 없는 날</span>';
-      let next = '';
-      if(ktWeekCache && ktWeekCache.length){
-        const today = ktWeekCache[0] && ktWeekCache[0].date;
-        const n = ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
-        if(n){
-          const ktHome = n.home === 'KT';
-          next = '다음 경기: ' + n.date.slice(5).replace('-', '. ') + ' vs <b>' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + (ktHome ? ' (홈)' : ' (원정)');
-        }
-      }
-      d.innerHTML = next || '마법사들도 재정비 중 — 다음 경기에서 만나요 🧙';
+      d.innerHTML = ktGapNext() || '마법사들도 재정비 중 — 다음 경기에서 만나요 🧙';
       return;
     }
     const done = g.code === 'RESULT' || g.code === 'ENDED';
@@ -1705,12 +1721,13 @@ gtag('config', 'G-8MC9LN4N1R');
     if(g.code === 'CANCEL'){
       const wname = Object.keys(COORD).find(n => (g.stadium || '').indexOf(n) === 0);
       m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
-      d.innerHTML = '오늘 경기 <b>' + esc(cancelLabel(g, wname && WX[wname])) + '</b> · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)');
+      const gn = ktGapNext();
+      d.innerHTML = '오늘 경기 <b>' + esc(cancelLabel(g, wname && WX[wname])) + '</b> · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + (gn ? '<br>' + gn : '');
       return;
     }
     if(playing || done){
       m.innerHTML = esc(g.away) + ' <span class="live-score">' + g.as + '</span><span class="at">:</span><span class="live-score">' + g.hs + '</span> ' + esc(g.home);
-      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)');
+      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + dhTxt;
     }else{
       m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
       const wname = Object.keys(COORD).find(n => (g.stadium||'').indexOf(n) === 0);
@@ -1720,7 +1737,7 @@ gtag('config', 'G-8MC9LN4N1R');
         const pl = playability(w.pp, w.code, w.at18);
         if(pl) pb = ' <span class="playbadge ' + pl.s + '" title="' + esc(pl.d) + '">' + w.icon + ' ' + esc(pl.t) + '</span>';
       }
-      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + ' · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
+      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + dhTxt + ' · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
     }
   }
 
@@ -1735,7 +1752,13 @@ gtag('config', 'G-8MC9LN4N1R');
       return;
     }
     games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
+    /* 더블헤더 감지: 같은 날 같은 대진 2경기 → DH 1·2차 표기 (취소 재편성 시즌 대비) */
+    const dhCnt = {}, dhSeen = {};
+    games.forEach(g => { const k = g.date + '|' + g.away + '|' + g.home; dhCnt[k] = (dhCnt[k] || 0) + 1; });
     board.innerHTML = games.map(g => {
+      const dhKey = g.date + '|' + g.away + '|' + g.home;
+      let dhTag = '';
+      if(dhCnt[dhKey] > 1){ dhSeen[dhKey] = (dhSeen[dhKey] || 0) + 1; dhTag = ' <span class="dhtag">DH' + dhSeen[dhKey] + '</span>'; }
       const isKT = g.home === 'KT' || g.away === 'KT';
       const done = g.code === 'RESULT' || g.code === 'ENDED';
       const playing = g.code === 'STARTED' || g.code === 'LIVE';
@@ -1752,7 +1775,7 @@ gtag('config', 'G-8MC9LN4N1R');
       const wx = w ? '<span class="wx">' + w.icon + ' ' + w.t + '°' +
         (w.pp != null ? ' <span class="pp' + (w.pp >= 50 ? ' rainy' : '') + '">☂' + w.pp + '%</span>' : '') + '</span>' : '';
       return '<div class="game' + (isKT ? ' kt-game' : '') + '">' +
-        '<span class="stadium"><span>' + esc(g.stadium) + '</span>' + wx + '</span>' +
+        '<span class="stadium"><span>' + esc(g.stadium) + dhTag + '</span>' + wx + '</span>' +
         side(g.away, g.ap, 'away') +
         '<div class="mid"><span class="sc">' + sc + '</span></div>' +
         side(g.home, g.hp, 'home') +
@@ -1777,16 +1800,20 @@ gtag('config', 'G-8MC9LN4N1R');
     const el = document.getElementById('ktWeek');
     if(!week || !week.length){ el.innerHTML = '<li><span class="d">—</span><span class="m">이번 주 예정 경기 없음</span><span class="t"></span></li>'; return; }
     const DOW = ['일','월','화','수','목','금','토'];
+    const wkCnt = {}, wkSeen = {};
+    week.forEach(g => { wkCnt[g.date] = (wkCnt[g.date] || 0) + 1; });
     el.innerHTML = week.map(g => {
       const ktHome = g.home === 'KT';
       const opp = ktHome ? g.away : g.home;
       const dt = new Date(g.date + 'T00:00:00');
       const isToday = g.date === today;
+      let dh = '';
+      if(wkCnt[g.date] > 1){ wkSeen[g.date] = (wkSeen[g.date] || 0) + 1; dh = ' DH' + wkSeen[g.date]; }
       const done = g.code === 'RESULT' || g.code === 'ENDED';
       const right = done
         ? ((ktHome ? g.hs : g.as) + ':' + (ktHome ? g.as : g.hs) + (((ktHome?g.hs:g.as) > (ktHome?g.as:g.hs)) ? ' 승' : ((ktHome?g.hs:g.as) < (ktHome?g.as:g.hs)) ? ' 패' : ' 무'))
         : (g.code === 'CANCEL' ? (g.reason || '취소') : g.time + ' · ' + g.stadium);
-      return '<li><span class="d' + (isToday ? ' today' : '') + '">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')' + '</span>' +
+      return '<li><span class="d' + (isToday ? ' today' : '') + '">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')' + dh + '</span>' +
         '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
         '<span class="t">' + esc(right) + '</span></li>';
     }).join('');
@@ -1997,6 +2024,21 @@ gtag('config', 'G-8MC9LN4N1R');
   function renderStandings(st, date){
     if(!st || st.length < 10) return;
     if(date) document.getElementById('standKicker').textContent = 'Standings · ' + date.replace(/-0?/g, '. ');
+    /* KT 팀 투타 지표 리그 위치 (순위표 부가 데이터 활용) */
+    const kt = st.find(t => t.name === 'KT');
+    if(kt && kt.era != null && kt.hra != null){
+      const rankBy = (key, asc) => {
+        const arr = st.filter(t => t[key] != null).slice().sort((a, b) => asc ? parseFloat(a[key]) - parseFloat(b[key]) : parseFloat(b[key]) - parseFloat(a[key]));
+        const i = arr.findIndex(t => t.name === 'KT');
+        return i < 0 ? null : i + 1;
+      };
+      const er = rankBy('era', true), hr2 = rankBy('hra', false), hrr = rankBy('hr', false);
+      const el2 = document.getElementById('ktStat');
+      if(el2 && er){
+        el2.style.display = '';
+        el2.innerHTML = '<b>kt wiz 팀 지표</b> — 평균자책 <b>' + esc(kt.era) + '</b> (리그 ' + er + '위) · 팀 타율 <b>' + esc(('' + kt.hra).replace(/^0\./, '.')) + '</b> (' + hr2 + '위) · 홈런 <b>' + kt.hr + '개</b> (' + hrr + '위)';
+      }
+    }
     const max = Math.max(...st.map(t => t.w - t.l));
     document.getElementById('standBody').innerHTML = st.map(t => {
       const gb = ((max - (t.w - t.l)) / 2).toFixed(1);
@@ -2602,6 +2644,7 @@ gtag('config', 'G-8MC9LN4N1R');
         updatedKST = j.updatedKST || '';
         updatedISO = j.updated || null;
         ktWeekCache = (j.kt && j.kt.week) || null;
+        ktLastCache = (j.kt && j.kt.lastGame) || null;
         renderStandings(j.standings, j.date);
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);

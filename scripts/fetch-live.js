@@ -375,6 +375,11 @@ async function scheduleDifficulty(today, standings) {
   // 2) 순위표: 오늘 경기들의 preview에서 양팀 standings 수집 (10팀 커버)
   const standings = {};
   let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null, ktStarters = null;
+  // 더블헤더 대비: KT 경기가 2개면 진행 중 > 예정 > 마지막(종료·취소) 순으로 대표 경기 선택
+  const ktTodayGames = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
+  const ktActive = ktTodayGames.find(g => g.code === 'STARTED' || g.code === 'LIVE')
+    || ktTodayGames.find(g => !['RESULT', 'ENDED', 'CANCEL'].includes(g.code))
+    || ktTodayGames[ktTodayGames.length - 1] || null;
   for (const g of todayGames) {
     try {
       const p = await j(`${API}/schedule/games/${g.id}/preview`);
@@ -386,8 +391,8 @@ async function scheduleDifficulty(today, standings) {
           wra: s.wra, era: s.era, hra: s.hra, hr: s.hr
         };
       }
-      // KT 라인업 (발표 시 fullLineUp에 타자 9명 포함)
-      if (g.home === 'KT' || g.away === 'KT') {
+      // KT 라인업 (발표 시 fullLineUp에 타자 9명 포함) — 더블헤더면 대표 경기만
+      if (ktActive && g.id === ktActive.id) {
         ktGameId = g.id;
         const ktSide = g.home === 'KT' ? 'homeTeamLineUp' : 'awayTeamLineUp';
         const opSide = g.home === 'KT' ? 'awayTeamLineUp' : 'homeTeamLineUp';
