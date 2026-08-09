@@ -1208,6 +1208,24 @@ gtag('config', 'G-8MC9LN4N1R');
       add('M' + x + ' ' + y + ' h2.5', 'ink spire');
       if(x % 3 === 0) add('M' + (x + 20) + ' ' + (284 + ((x * 3) % 6)) + ' h1.6');
     }
+    // 광안리 해변 전경: 파라솔
+    function parasol(cx, s, tilt){
+      const y = 292, top = y - 48 * s, px = cx + tilt, w = 30 * s;
+      add('M' + cx + ' ' + y + ' L' + px + ' ' + (top + 6 * s));                        // 기둥
+      add('M' + (px - w) + ' ' + (top + 14 * s) + ' Q' + px + ' ' + (top - 10 * s) + ' ' + (px + w) + ' ' + (top + 14 * s), 'ink spire'); // 캐노피
+      add('M' + px + ' ' + (top - 1 * s) + ' L' + (px - w * 0.55) + ' ' + (top + 13 * s) + ' M' + px + ' ' + (top - 1 * s) + ' L' + (px + w * 0.55) + ' ' + (top + 13 * s), 'ink spire'); // 살
+      let sc = 'M' + (px - w) + ' ' + (top + 14 * s);
+      for(let i = 0; i < 4; i++) sc += ' q' + (w / 2) + ' ' + (7 * s) + ' ' + (w / 2) + ' 0';
+      add(sc, 'ink spire');                                                             // 스캘럽 밑단
+    }
+    parasol(170, 1, -4);
+    parasol(330, 0.72, 3);
+    parasol(1240, 0.9, 5);
+    // 돗자리
+    add('M410 290 h48 M413 294 h42', 'ink spire');
+    // 비치볼
+    add('M1140 284 a7 7 0 1 0 0.1 0', 'ink spire');
+    add('M1135 280 q5 6 10 10 M1146 280 q-5 6 -10 10', 'ink spire');
     // 갈매기
     add('M200 92 c8 -10 18 -10 26 0 M228 92 c8 -10 18 -10 26 0');
     add('M320 62 c6 -8 14 -8 20 0 M342 62 c6 -8 14 -8 20 0');
