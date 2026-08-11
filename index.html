@@ -1097,7 +1097,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260809-112336';
+  const BUILD = '20260811-141045';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2431,10 +2431,11 @@ gtag('config', 'G-8MC9LN4N1R');
       const w = r.w || 0, l = r.l || 0, d = r.d || 0;
       return { name: n, w, l, d, left: Math.max(0, 16 - w - l - d), diff: w - l };
     });
-    rows.sort((a, b) => (b.diff - a.diff) || (b.w - a.w) || (rankOf[a.name] - rankOf[b.name]));
+    /* 표시는 순위순(경쟁 구도 중심 — 2위 경쟁팀이 상단), 요약 칩만 우세순 집계 */
+    const byDiff = rows.slice().sort((a, b) => (b.diff - a.diff) || (b.w - a.w) || (rankOf[a.name] - rankOf[b.name]));
 
     const up = rows.filter(r => r.diff > 0).length, dn = rows.filter(r => r.diff < 0).length;
-    const best = rows[0], worst = rows[rows.length - 1];
+    const best = byDiff[0], worst = byDiff[byDiff.length - 1];
     document.getElementById('h2hSum').innerHTML =
       '<span class="chip"><b style="color:var(--ok)">우세 ' + up + '팀</b> · 백중 ' + (rows.length - up - dn) + '팀 · <b style="color:var(--red-soft)">열세 ' + dn + '팀</b></span>' +
       (best.diff > 0 ? '<span class="chip">최다 우세: <b>' + esc(best.name) + '</b> ' + best.w + '승 ' + best.l + '패</span>' : '') +
@@ -2462,7 +2463,7 @@ gtag('config', 'G-8MC9LN4N1R');
     }).join('');
 
     document.getElementById('h2hNote').innerHTML =
-      '막대 한 칸 = 1경기 (팀당 16차전) — <span style="color:var(--ok);font-weight:700">승</span> · <span style="color:var(--gold);font-weight:700">무</span> · <span style="color:var(--red-soft);font-weight:700">패</span> · 회색 = 남은 경기. KT가 우세한 상대부터 정렬.';
+      '막대 한 칸 = 1경기 (팀당 16차전) — <span style="color:var(--ok);font-weight:700">승</span> · <span style="color:var(--gold);font-weight:700">무</span> · <span style="color:var(--red-soft);font-weight:700">패</span> · 회색 = 남은 경기. 현재 순위순 정렬.';
 
     // 전체 매트릭스 (토글, 기본 접힘)
     const tgl = document.getElementById('h2hTgl'), wrap = document.getElementById('h2hMatWrap');
