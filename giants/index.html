@@ -1104,7 +1104,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260811-141420';
+  const BUILD = '20260811-142839';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2230,38 +2230,40 @@ gtag('config', 'G-8MC9LN4N1R');
       '<li><span class="k">' + esc(k.how) + '</span><span>' + esc(k.result) + '</span></li>').join('') || '<li>기록 없음</li>';
   }
 
-  /* ---------- 매직넘버 트래커 ---------- */
-  /* 가을야구(5위 이내) 확률 — 피타고리안 70%+실제 30% 블렌드, 리그평균 15% 회귀, 잔여 상대 난이도 log5 반영 몬테카를로 */
-  function kboPsProb(st, py, sc, me){
+  /* 시즌 결과 확률 (topN위 이내 마감 확률) — 피타고리안 70%+실제 30% 블렌드,
+     리그평균 15% 회귀, 잔여 상대 난이도 log5 반영 몬테카를로 4,000회 */
+  function kboPsProb(st, py, sc, topN){
     try{
       if(!st || st.length < 10) return null;
-      var pyMap = {}; ((py && py.teams) || []).forEach(function(t){ pyMap[t.name] = t.exp; });
-      var T = st.map(function(t){
-        var played = t.w + t.l + t.d;
-        var rem = Math.max(0, 144 - played);
-        var act = t.w / Math.max(1, t.w + t.l);
-        var exp = pyMap[t.name] != null ? pyMap[t.name] : act;
-        var str = (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15;
-        var e = sc && sc.teams ? sc.teams.find(function(x){ return x.name === t.name; }) : null;
-        var opp = e && e.sampleN ? e.oppWra : 0.5;
-        var p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp);
+      const pyMap = {}; ((py && py.teams) || []).forEach(t => { pyMap[t.name] = t.exp; });
+      const T = st.map(t => {
+        const played = t.w + t.l + t.d;
+        const rem = Math.max(0, 144 - played);
+        const act = t.w / Math.max(1, t.w + t.l);
+        const exp = pyMap[t.name] != null ? pyMap[t.name] : act;
+        const str = (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15;
+        const e = sc && sc.teams ? sc.teams.find(x => x.name === t.name) : null;
+        const opp = e && e.sampleN ? e.oppWra : 0.5;
+        const p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp);
         return { name: t.name, w: t.w, l: t.l, rem: rem, p: p };
       });
-      var N = 4000, cnt = 0;
-      for(var i = 0; i < N; i++){
-        var fin = [];
-        for(var k = 0; k < T.length; k++){
-          var t = T[k], w = t.w, l = t.l;
-          for(var g = 0; g < t.rem; g++){ if(Math.random() < t.p) w++; else l++; }
+      const N = 4000; let cnt = 0;
+      for(let i = 0; i < N; i++){
+        const fin = [];
+        for(const t of T){
+          let w = t.w, l = t.l;
+          for(let g = 0; g < t.rem; g++){ if(Math.random() < t.p) w++; else l++; }
           fin.push({ name: t.name, pct: w / Math.max(1, w + l) + Math.random() * 1e-6 });
         }
-        fin.sort(function(a, b){ return b.pct - a.pct; });
-        for(var r = 0; r < 5; r++) if(fin[r].name === me){ cnt++; break; }
+        fin.sort((a, b) => b.pct - a.pct);
+        for(let r = 0; r < topN; r++) if(fin[r].name === '롯데'){ cnt++; break; }
       }
       return 100 * cnt / N;
     }catch(e){ return null; }
   }
+  function probFmt(p){ return p == null ? null : (p > 99 ? '99%+' : (p < 1 ? '<1%' : Math.round(p) + '%')); }
 
+  /* ---------- 매직넘버 트래커 ---------- */
   function computeMagic(st){
     if(!st || st.length < 10) return null;
     const SEASON = 144;
@@ -2317,29 +2319,37 @@ gtag('config', 'G-8MC9LN4N1R');
       $('mbNum').textContent = '+' + m.gb(m.r2) + 'G';
       $('mbHead').innerHTML = '<b>1위 수성 중</b> — 2위 ' + esc(m.r2.name) + '에 ' + m.gb(m.r2) + '경기 앞서 있습니다.';
       $('mbEx').textContent = '1위 확정에 필요한 승수(' + m.chMagic + ')가 아직 남은 경기(' + m.remKt + ')보다 많아 매직넘버는 점등 전입니다. 매직넘버는 "2위가 남은 경기를 전부 이겨도 못 따라오는" 시점부터 켜집니다.';
-    } else {
-      if(m.kt.rank > 5 && m.r5){
+    } else if(m.kt.rank > 5 && m.r5){
+      /* 5위 밖: 가을야구(5강) 확률 중심 표시 */
+      const aux = window.__aux || {};
+      const prob = kboPsProb(m.st, aux.py, aux.sc, 5);
+      const probTxt = probFmt(prob);
+      if(probTxt){
         $('mbKicker').textContent = '가을야구 추격전';
-        var aux = window.__aux || {};
-        var prob = kboPsProb(m.st, aux.py, aux.sc, '롯데');
-        var probTxt = prob == null ? null : (prob < 1 ? '1% 미만' : Math.round(prob) + '%');
-        $('mbNum').textContent = prob == null ? m.gb(m.r5) + 'G' : (prob < 1 ? '<1%' : Math.round(prob) + '%');
-        $('mbHead').innerHTML = probTxt
-          ? '가을야구 확률 <b>' + probTxt + '</b> — 마지노선 5위 ' + esc(m.r5.name) + '까지 ' + m.gb(m.r5) + '경기 차입니다.'
-          : '가을야구 마지노선 <b>5위 ' + esc(m.r5.name) + '</b>까지 <b>' + m.gb(m.r5) + '경기</b> — 포스트시즌 티켓을 쫓습니다.';
-        $('mbEx').textContent = (probTxt ? '피타고리안 전력(70%)+실제 승률(30%) 블렌드, 잔여 상대 난이도 반영 몬테카를로 4,000회 시뮬레이션. ' : '') + '1위 ' + m.r1.name + '와는 ' + m.gb(m.r1) + '경기 차, 롯데가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
+        $('mbNum').textContent = probTxt;
+        $('mbHead').innerHTML = '가을야구 확률 <b>' + probTxt + '</b> — 마지노선 5위 ' + esc(m.r5.name) + '까지 ' + m.gb(m.r5) + '경기 차입니다.';
+        $('mbEx').textContent = '피타고리안 전력(70%)+실제 승률(30%) 블렌드, 잔여 상대 난이도 반영 몬테카를로 4,000회 시뮬레이션. 1위 ' + m.r1.name + '와는 ' + m.gb(m.r1) + '경기 차, 롯데가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
       }else{
         $('mbKicker').textContent = 'Chase Mode';
         $('mbNum').textContent = m.gb(m.r1) + 'G';
         $('mbHead').innerHTML = '1위 ' + esc(m.r1.name) + '까지 <b>' + m.gb(m.r1) + '경기</b> — 먼저 선두를 따라잡아야 합니다.';
         $('mbEx').textContent = '롯데가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
       }
+    } else {
+      $('mbKicker').textContent = 'Chase Mode';
+      $('mbNum').textContent = m.gb(m.r1) + 'G';
+      $('mbHead').innerHTML = '1위 ' + esc(m.r1.name) + '까지 <b>' + m.gb(m.r1) + '경기</b> — 먼저 선두를 따라잡아야 합니다.';
+      $('mbEx').textContent = '롯데가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
     }
+    const auxC = window.__aux || {};
+    const champTxt = m.kt.rank <= 5 && !m.chClinched ? probFmt(kboPsProb(m.st, auxC.py, auxC.sc, 1)) : null;
     $('mbChips').innerHTML = [
       '<span>남은 경기 <b>' + m.remKt + '</b></span>',
       '<span>현재 <b>' + m.kt.rank + '위</b></span>',
       m.kt.rank === 1 ? '<span>2위 ' + esc(m.r2.name) + ' <b>+' + m.gb(m.r2) + 'G</b></span>'
-                      : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>' + (m.kt.rank > 5 && m.r5 ? '<span>5위 ' + esc(m.r5.name) + ' <b>' + m.gb(m.r5) + 'G</b></span>' : ''),
+                      : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>' +
+                        (m.kt.rank > 5 && m.r5 ? '<span>5위 ' + esc(m.r5.name) + ' <b>' + m.gb(m.r5) + 'G</b></span>' : ''),
+      champTxt ? '<span>우승 확률 <b>' + champTxt + '</b></span>' : '',
       m.clinched ? '<span>가을야구 확정 🎉</span>' : (m.lit ? '<span>PS 매직 <b>' + m.psMagic + '</b></span>' : '')
     ].filter(Boolean).join('');
   }
@@ -2805,6 +2815,7 @@ gtag('config', 'G-8MC9LN4N1R');
         updatedISO = j.updated || null;
         ktWeekCache = (j.kt && j.kt.week) || null;
         ktLastCache = (j.kt && j.kt.lastGame) || null;
+        window.__aux = { py: j.pythag, sc: j.sched }; // 확률 시뮬레이션용 (매직넘버 배너)
         renderStandings(j.standings, j.date);
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
@@ -2821,7 +2832,6 @@ gtag('config', 'G-8MC9LN4N1R');
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
         renderMagicBanner(j.standings);
-        window.__aux = {py: j.pythag, sc: j.sched};
         renderPythag(j.pythag);
         renderSched(j.sched, j.standings);
         renderYT(j.youtube);
