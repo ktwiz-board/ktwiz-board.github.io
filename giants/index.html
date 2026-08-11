@@ -1104,7 +1104,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260811-141045';
+  const BUILD = '20260811-141420';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2737,10 +2737,14 @@ gtag('config', 'G-8MC9LN4N1R');
       const latestMd = list[0].date;
       if(ktLastCache && ktLastCache.date){
         const lastMd = ktLastCache.date.slice(5).replace('-', '.');
+        const now2 = new Date();
+        const todayMd = String(now2.getMonth() + 1).padStart(2, '0') + '.' + String(now2.getDate()).padStart(2, '0');
         vn.style.display = '';
-        vn.innerHTML = latestMd === lastMd
-          ? '아래는 마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)의 판독 기록입니다.'
-          : '마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)에는 판독 신청이 없었습니다 — 아래는 판독이 있었던 가장 최근 경기(<b>' + esc(latestMd) + '</b>) 기록입니다.';
+        vn.innerHTML = latestMd === todayMd
+          ? '아래는 <b>오늘 경기(' + esc(latestMd) + ')</b>의 판독 기록입니다.'
+          : (latestMd === lastMd
+            ? '아래는 마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)의 판독 기록입니다.'
+            : '마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)에는 판독 신청이 없었습니다 — 아래는 판독이 있었던 가장 최근 경기(<b>' + esc(latestMd) + '</b>) 기록입니다.');
       }
     }
     document.getElementById('vrList').innerHTML = list.map(v => {
