@@ -1097,7 +1097,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260811-142839';
+  const BUILD = '20260812-093236';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1752,7 +1752,8 @@ gtag('config', 'G-8MC9LN4N1R');
         const pl = playability(w.pp, w.code, w.at18);
         if(pl) pb = ' <span class="playbadge ' + pl.s + '" title="' + esc(pl.d) + '">' + w.icon + ' ' + esc(pl.t) + '</span>';
       }
-      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + dhTxt + ' · 선발 <b>' + esc(g.hp || '') + '</b> vs ' + esc(g.ap || '') + pb;
+      const bh = g.home === 'KT'; // 원정이어도 우리 팀 선발을 앞에·볼드로
+      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (bh ? ' (홈)' : ' (원정)') + dhTxt + ' · 선발 <b>' + esc((bh ? g.hp : g.ap) || '미정') + '</b> vs ' + esc((bh ? g.ap : g.hp) || '미정') + pb;
     }
   }
 
