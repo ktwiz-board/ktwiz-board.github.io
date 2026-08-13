@@ -96,6 +96,38 @@ async function fetchCancelledList(yearMonths) {
   return out;
 }
 
+// KBO 공식 메인 개인 기록 랭킹 (타자: 타율·홈런·타점 / 투수: 평균자책·다승·탈삼진, 각 TOP3) — 수치 텍스트만 사용
+async function fetchTitleRace() {
+  const H = {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36',
+    'Referer': 'https://www.koreabaseball.com/',
+    'X-Requested-With': 'XMLHttpRequest'
+  };
+  const get = async (ep, cats) => {
+    const r = await fetch('https://www.koreabaseball.com/ws/Main.asmx/' + ep, { method: 'POST', headers: H, body: '{}', signal: AbortSignal.timeout(15000) });
+    if (!r.ok) return null;
+    const t = await r.text();
+    const cut = t.indexOf('<!DOCTYPE'); // 응답 뒤에 에러 HTML이 붙는 경우 대비
+    const tb = JSON.parse(JSON.parse(t.slice(0, cut > 0 ? cut : t.length)).table);
+    const out = cats.map(c => ({ cat: c, top: [] }));
+    for (const row of tb.rows || []) {
+      const cells = row.row.map(c => c.Text.replace(/<[^>]+>/g, '').trim());
+      for (let k = 0; k < 3; k++) {
+        const rank = parseInt(cells[k * 2]) || 0;
+        const m = (cells[k * 2 + 1] || '').match(/^(.+?)\(([^)]+)\)([\d.]+)$/);
+        if (m) out[k].top.push({ rank, name: m[1], team: m[2], val: m[3] });
+      }
+    }
+    return out.every(c => c.top.length >= 3) ? out : null;
+  };
+  try {
+    const h = await get('GetHitterRank', ['타율', '홈런', '타점']);
+    const p = await get('GetPitcherRank', ['평균자책', '다승', '탈삼진']);
+    return (h && p) ? [...h, ...p] : null;
+  } catch (e) { console.error('title race fail', e.message); return null; }
+}
+
 // KBO 공식 비디오판독센터 — 텍스트(이닝·요청팀·소요시간·유형·결과)만 사용, 영상은 절대 가져오지 않음
 async function fetchVideoReview() {
   try {
@@ -341,7 +373,7 @@ async function scheduleDifficulty(today, standings) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2 && prev.cancelled;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
@@ -477,6 +509,13 @@ async function scheduleDifficulty(today, standings) {
     if (c) g.reason = c.reason;
   }
 
+  // 3.7) 개인 타이틀 레이스 — 하루 1회 캐시
+  let titleRace = (prev && prev.titleRace && prev.titleRace.date === today) ? prev.titleRace : null;
+  if (!titleRace) {
+    const trList = await fetchTitleRace();
+    titleRace = trList ? { date: today, list: trList } : ((prev && prev.titleRace) || null);
+  }
+
   // 4) KT 최근 결과 (지난 12일, 종료 경기 최근 5)
   const recent = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
     .map(mapGame)
@@ -589,6 +628,7 @@ async function scheduleDifficulty(today, standings) {
       starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
     },
     cancelled: { date: today, list: cancelledList },
+    titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
     videoReview: videoReview.length ? videoReview : ((prev && prev.videoReview) || []),
     youtube, shorts, gall, pythag, sched

@@ -168,6 +168,18 @@ gtag('config', 'G-8MC9LN4N1R');
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
   .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
 
+  /* ---------- 개인 타이틀 레이스 ---------- */
+  .titlegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+  .tcard{background:var(--panel);border-radius:16px;padding:16px 18px}
+  .tcard h5{margin:0 0 12px;font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .tcard ol{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+  .tcard li{display:flex;gap:7px;align-items:baseline}
+  .tcard .rk{color:var(--muted);font-size:11px;width:14px;flex:none}
+  .tcard .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tcard .tm{color:var(--muted);font-size:11px;flex:none}
+  .tcard .vl{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+  .tcard li.mine .nm,.tcard li.mine .vl{color:var(--red-soft)}
+
   /* ---------- 전국 구장 날씨 지도 ---------- */
   .wxmap{background:var(--panel);border-radius:22px;padding:26px;display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:28px;align-items:center}
   @media (max-width:680px){.wxmap{grid-template-columns:1fr}}
@@ -898,6 +910,16 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
   </section>
 
+  <!-- ================= 개인 타이틀 레이스 ================= -->
+  <section id="titleSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Title Race</p>
+      <h2>개인 타이틀 레이스</h2>
+      <p class="sub">부문별 리그 TOP3 — KBO 공식 기록, 우리 팀 선수 강조</p>
+    </div>
+    <div class="titlegrid reveal d1" id="titleGrid"></div>
+  </section>
+
   <!-- ================= 시즌 순위 변동 ================= -->
   <section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
@@ -1097,7 +1119,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260812-093236';
+  const BUILD = '20260813-132341';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2442,6 +2464,22 @@ gtag('config', 'G-8MC9LN4N1R');
     }
   }
 
+  /* ---------- 개인 타이틀 레이스 ---------- */
+  function renderTitleRace(tr){
+    if(!tr || !tr.list || tr.list.length < 6) return;
+    document.getElementById('titleSec').style.display = 'block';
+    document.getElementById('titleGrid').innerHTML = tr.list.map(c =>
+      '<div class="tcard"><h5>' + esc(c.cat) + '</h5><ol>' +
+      c.top.map(p =>
+        '<li' + (p.team === 'KT' ? ' class="mine"' : '') + '>' +
+        '<span class="rk">' + p.rank + '</span>' +
+        '<span class="nm">' + esc(p.name) + '</span>' +
+        '<span class="tm">' + esc(p.team) + '</span>' +
+        '<span class="vl">' + esc(p.val) + '</span></li>'
+      ).join('') + '</ol></div>'
+    ).join('');
+  }
+
   /* ---------- 잔여 일정 난이도 ---------- */
   function renderSched(sc, standings){
     if(!sc || !sc.teams || sc.teams.length < 10 || !sc.teams.some(t => t.sampleN > 0)) return;
@@ -2750,6 +2788,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderMagicBanner(j.standings);
         renderPythag(j.pythag);
         renderSched(j.sched, j.standings);
+        renderTitleRace(j.titleRace);
         renderYT(j.youtube);
         celebrate(j.games);
         return;
