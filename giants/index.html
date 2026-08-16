@@ -2070,7 +2070,7 @@ gtag('config', 'G-8MC9LN4N1R');
     // frame일까지의 각 팀 선 + 머리점 + 팀명 라벨 (KT는 마지막에 굵게)
     const teamNames = hist[hist.length - 1].teams.map(t => t.name);
     const drawTeam = nm => {
-      const isKT = nm === '롯데';
+      const isLotte = nm === '롯데';
       const color = TEAM_COLORS[nm] || 'rgba(255,255,255,.35)';
       ctx.beginPath();
       let head = null;
@@ -2081,17 +2081,17 @@ gtag('config', 'G-8MC9LN4N1R');
         head = { x, y };
       }
       ctx.strokeStyle = color; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      if(isKT){
+      if(isLotte){
         ctx.lineWidth = 3;
         ctx.shadowColor = 'rgba(208,15,49,.5)'; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
       }else{
         ctx.globalAlpha = .75; ctx.lineWidth = 1.8; ctx.stroke(); ctx.globalAlpha = 1;
       }
       if(head){
-        ctx.beginPath(); ctx.arc(head.x, head.y, isKT ? 4.5 : 3, 0, 7); ctx.fillStyle = color; ctx.fill();
-        ctx.font = (isKT ? '800 ' : '600 ') + '11px -apple-system,sans-serif';
+        ctx.beginPath(); ctx.arc(head.x, head.y, isLotte ? 4.5 : 3, 0, 7); ctx.fillStyle = color; ctx.fill();
+        ctx.font = (isLotte ? '800 ' : '600 ') + '11px -apple-system,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(isKT ? 'kt wiz' : nm, head.x + 7, head.y);
+        ctx.fillText(isLotte ? '롯데 자이언츠' : nm, head.x + 7, head.y);
       }
     };
     teamNames.filter(nm => nm !== '롯데').forEach(drawTeam);
