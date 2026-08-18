@@ -168,6 +168,15 @@ gtag('config', 'G-8MC9LN4N1R');
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
   .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
 
+  /* ---------- 한국시리즈 진출 예측 ---------- */
+  .ksgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .kstile{background:var(--panel);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:6px}
+  .kstile b{font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .kstile span{font-size:12px;color:var(--muted);font-weight:600}
+  .kstile.champ{background:linear-gradient(135deg,rgba(127,178,222,.16),var(--panel))}
+  .kstile.champ b{color:var(--gold)}
+  @media (max-width:520px){.ksgrid{grid-template-columns:1fr}}
+
   /* ---------- 개인 타이틀 레이스 ---------- */
   .titlegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
   .tcard{background:var(--panel);border-radius:16px;padding:16px 18px}
@@ -994,6 +1003,26 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="py-note reveal d2" id="schedNote"></p>
   </section>
 
+  <!-- ================= 한국시리즈 진출 예측 ================= -->
+  <section id="ksSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">KS Forecast</p>
+      <h2>한국시리즈 진출 예측</h2>
+      <p class="sub" id="ksSub">정규시즌 잔여 성적을 반영한 PS 대진 몬테카를로 시뮬레이션</p>
+    </div>
+    <div class="ksgrid reveal d1">
+      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
+      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
+    </div>
+    <div class="tablebox reveal d2">
+      <table>
+        <thead><tr><th>예상 KS 상대</th><th>확률</th></tr></thead>
+        <tbody id="ksOppBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="ksNote"></p>
+  </section>
+
   <!-- ================= 구단 이동거리 ================= -->
   <section id="travelSec" style="display:none">
     <div class="sec-head reveal">
@@ -1126,7 +1155,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260817-134032';
+  const BUILD = '20260818-072818';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2070,7 +2099,7 @@ gtag('config', 'G-8MC9LN4N1R');
     // frame일까지의 각 팀 선 + 머리점 + 팀명 라벨 (KT는 마지막에 굵게)
     const teamNames = hist[hist.length - 1].teams.map(t => t.name);
     const drawTeam = nm => {
-      const isLotte = nm === '롯데';
+      const isKT = nm === '롯데';
       const color = TEAM_COLORS[nm] || 'rgba(255,255,255,.35)';
       ctx.beginPath();
       let head = null;
@@ -2081,17 +2110,17 @@ gtag('config', 'G-8MC9LN4N1R');
         head = { x, y };
       }
       ctx.strokeStyle = color; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      if(isLotte){
+      if(isKT){
         ctx.lineWidth = 3;
         ctx.shadowColor = 'rgba(208,15,49,.5)'; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
       }else{
         ctx.globalAlpha = .75; ctx.lineWidth = 1.8; ctx.stroke(); ctx.globalAlpha = 1;
       }
       if(head){
-        ctx.beginPath(); ctx.arc(head.x, head.y, isLotte ? 4.5 : 3, 0, 7); ctx.fillStyle = color; ctx.fill();
-        ctx.font = (isLotte ? '800 ' : '600 ') + '11px -apple-system,sans-serif';
+        ctx.beginPath(); ctx.arc(head.x, head.y, isKT ? 4.5 : 3, 0, 7); ctx.fillStyle = color; ctx.fill();
+        ctx.font = (isKT ? '800 ' : '600 ') + '11px -apple-system,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(isLotte ? '롯데 자이언츠' : nm, head.x + 7, head.y);
+        ctx.fillText(isKT ? '롯데 자이언츠' : nm, head.x + 7, head.y);
       }
     };
     teamNames.filter(nm => nm !== '롯데').forEach(drawTeam);
@@ -2286,6 +2315,76 @@ gtag('config', 'G-8MC9LN4N1R');
   }
   function probFmt(p){ return p == null ? null : (p > 99 ? '99%+' : (p < 1 ? '<1%' : Math.round(p) + '%')); }
 
+  /* KBO 포스트시즌 대진 시뮬레이션 — 정규시즌 결과(위와 동일한 팀 전력 모델) + PS 브래킷 규정을 몬테카를로 3,000회로 결합.
+     정규시즌이 끝나면 잔여 경기가 0이 되어 시즌 파트의 무작위성이 자연히 사라지고, 남는 변수는 시리즈 대진뿐이 되므로
+     "PS 확정 전/후" 전환을 위한 별도 분기 없이 동일 로직이 자동으로 정확해진다.
+     대진: 4위·5위(4위 1승만 필요·5위 2연승 필요) → 준PO(5전3선) → PO(5전3선) → KS(7전4선, 1위 직행) */
+  function log5(a, b){ return (a - a * b) / (a + b - 2 * a * b) || 0.5; }
+  function seriesWin(need, pA){ let a = 0, b = 0; while(a < need && b < need){ if(Math.random() < pA) a++; else b++; } return a === need; }
+  function kboKsSim(st, py, sc){
+    try{
+      if(!st || st.length < 10) return null;
+      const pyMap = {}; ((py && py.teams) || []).forEach(t => { pyMap[t.name] = t.exp; });
+      const T = st.map(t => {
+        const played = t.w + t.l + t.d;
+        const rem = Math.max(0, 144 - played);
+        const act = t.w / Math.max(1, t.w + t.l);
+        const exp = pyMap[t.name] != null ? pyMap[t.name] : act;
+        const str = (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15; // 전력(리그평균 회귀) — 대진 시리즈 승률 산출에 사용
+        const e = sc && sc.teams ? sc.teams.find(x => x.name === t.name) : null;
+        const opp = e && e.sampleN ? e.oppWra : 0.5;
+        const p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp); // 잔여 일정 난이도 반영 — 순위 시뮬레이션용
+        return { name: t.name, w: t.w, l: t.l, rem: rem, p: p, str: str };
+      });
+      const N = 3000; let ksCnt = 0, champCnt = 0, directCnt = 0; const oppCnt = {};
+      for(let i = 0; i < N; i++){
+        const fin = [];
+        for(const t of T){
+          let w = t.w, l = t.l;
+          for(let g = 0; g < t.rem; g++){ if(Math.random() < t.p) w++; else l++; }
+          fin.push({ name: t.name, str: t.str, pct: w / Math.max(1, w + l) + Math.random() * 1e-6 });
+        }
+        fin.sort((a, b) => b.pct - a.pct);
+        const [s1, s2, s3, s4, s5] = fin;
+        const wcFifthWins = Math.random() < log5(s5.str, s4.str) && Math.random() < log5(s5.str, s4.str);
+        const wc = wcFifthWins ? s5 : s4;
+        const semi = seriesWin(3, log5(wc.str, s3.str)) ? wc : s3;
+        const po = seriesWin(3, log5(semi.str, s2.str)) ? semi : s2;
+        const ksWinner = seriesWin(4, log5(po.str, s1.str)) ? po : s1;
+        const ksOpp = ksWinner === s1 ? po : s1;
+        if(s1.name === '롯데' || po.name === '롯데'){
+          ksCnt++;
+          const opp = s1.name === '롯데' ? po.name : s1.name;
+          oppCnt[opp] = (oppCnt[opp] || 0) + 1;
+          if(s1.name === '롯데') directCnt++;
+        }
+        if(ksWinner.name === '롯데') champCnt++;
+      }
+      const opponents = Object.entries(oppCnt).map(([name, c]) => ({ name, pct: 100 * c / N })).sort((a, b) => b.pct - a.pct);
+      return { ksProb: 100 * ksCnt / N, champProb: 100 * champCnt / N, directProb: 100 * directCnt / N, opponents, n: N };
+    }catch(e){ return null; }
+  }
+
+  function renderKsForecast(st, py, sc){
+    const r = kboKsSim(st, py, sc);
+    if(!r) return;
+    document.getElementById('ksSec').style.display = 'block';
+    document.getElementById('ksReach').textContent = probFmt(r.ksProb);
+    document.getElementById('ksChamp').textContent = probFmt(r.champProb);
+    document.getElementById('ksOppBody').innerHTML = r.opponents.length
+      ? r.opponents.slice(0, 5).map(o =>
+          '<tr><td>' + esc(o.name) + '</td><td><span class="pybar"><i style="width:' + Math.max(3, Math.round(o.pct)) + '%"></i></span>' + probFmt(o.pct) + '</td></tr>'
+        ).join('')
+      : '<tr><td colspan="2" style="color:var(--muted)">KS 진출 가능성이 희박해 상대 예측이 어렵습니다</td></tr>';
+    const seasonOver = st.every(t => (t.w + t.l + t.d) >= 144) || (sc && sc.teams && sc.teams.every(t => t.remaining === 0));
+    document.getElementById('ksSub').textContent = seasonOver
+      ? 'PS 대진 몬테카를로 시뮬레이션 (정규시즌 종료 — 남은 변수는 시리즈 결과뿐)'
+      : '정규시즌 잔여 성적을 반영한 PS 대진 몬테카를로 시뮬레이션';
+    document.getElementById('ksNote').innerHTML =
+      (r.directProb > 0.5 ? '이 중 1위 직행(KS 바로 진출) 케이스 <b>' + probFmt(r.directProb) + '</b>, 와일드카드부터 뚫고 온 케이스 <b>' + probFmt(Math.max(0, r.ksProb - r.directProb)) + '</b>. ' : '') +
+      '대진: 4위·5위(4위 1승·5위 2연승 필요) → 준PO(5전3선) → PO(5전3선) → 한국시리즈(7전4선, 1위 직행). 팀 전력은 피타고리안·실제 승률 블렌드, 시뮬레이션 ' + r.n.toLocaleString() + '회 기준.';
+  }
+
   /* ---------- 매직넘버 트래커 ---------- */
   function computeMagic(st){
     if(!st || st.length < 10) return null;
@@ -2372,7 +2471,7 @@ gtag('config', 'G-8MC9LN4N1R');
       m.kt.rank === 1 ? '<span>2위 ' + esc(m.r2.name) + ' <b>+' + m.gb(m.r2) + 'G</b></span>'
                       : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>' +
                         (m.kt.rank > 5 && m.r5 ? '<span>5위 ' + esc(m.r5.name) + ' <b>' + m.gb(m.r5) + 'G</b></span>' : ''),
-      champTxt ? '<span>우승 확률 <b>' + champTxt + '</b></span>' : '',
+      champTxt ? '<span>정규시즌 1위 확률 <b>' + champTxt + '</b></span>' : '',
       m.clinched ? '<span>가을야구 확정 🎉</span>' : (m.lit ? '<span>PS 매직 <b>' + m.psMagic + '</b></span>' : '')
     ].filter(Boolean).join('');
   }
@@ -2873,6 +2972,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderMagicBanner(j.standings);
         renderPythag(j.pythag);
         renderSched(j.sched, j.standings);
+        renderKsForecast(j.standings, j.pythag, j.sched);
         renderTitleRace(j.titleRace);
         renderYT(j.youtube);
         celebrate(j.games);
