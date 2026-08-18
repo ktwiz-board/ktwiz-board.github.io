@@ -166,6 +166,17 @@ gtag('config', 'G-8MC9LN4N1R');
   .game .status.live{background:rgba(48,209,88,.14);color:var(--ok)}
   .game .status.end{background:rgba(217,169,76,.14);color:var(--gold)}
   .board-note{font-size:12px;color:var(--muted);margin-top:14px;font-weight:500}
+  .scorelog{background:var(--panel);border-radius:22px;padding:22px 26px;margin-top:14px}
+  .scorelog h4{margin:0 0 14px;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .scorelog ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .scorelog li{display:grid;grid-template-columns:52px 22px 1fr;gap:10px;align-items:baseline;font-size:13.5px}
+  .scorelog .inn{color:var(--muted);font-weight:700;font-size:12px}
+  .scorelog .sign{font-weight:800;font-size:13px}
+  .scorelog li.plus .sign{color:var(--ok)}
+  .scorelog li.minus .sign{color:var(--red-soft)}
+  .scorelog .desc b{font-weight:700}
+  .scorelog .desc span{color:var(--muted);font-size:12px;margin-left:6px}
+  @media (max-width:520px){.scorelog{padding:18px}.scorelog li{grid-template-columns:44px 18px 1fr;font-size:12.5px}}
   .empty{padding:34px;text-align:center;color:var(--muted);font-size:14px;font-weight:500}
 
   /* ---------- 한국시리즈 진출 예측 ---------- */
@@ -792,6 +803,10 @@ gtag('config', 'G-8MC9LN4N1R');
       <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
     </div>
     <div class="board reveal d1" id="board"></div>
+    <div class="scorelog reveal d2" id="scoreLog" style="display:none">
+      <h4>득점 로그</h4>
+      <ul id="scoreLogList"></ul>
+    </div>
     <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
   </section>
 
@@ -832,7 +847,7 @@ gtag('config', 'G-8MC9LN4N1R');
       </div>
       <div class="boxcols">
         <div class="boxpanel"><h4>kt 투수 기록</h4>
-          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
+          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>투구수</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
         </div>
         <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
       </div>
@@ -1148,7 +1163,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260818-072818';
+  const BUILD = '20260818-110538';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2164,6 +2179,30 @@ gtag('config', 'G-8MC9LN4N1R');
       '<li><b>' + esc(b.name) + '</b><span class="ps">' + (POS[b.pos] || esc(b.pos)) + '</span></li>').join('');
   }
 
+  /* ---------- 득점 로그 (KT 기준 — 언제·무엇으로 득점/실점했는지) ---------- */
+  function renderScoreLog(kt, games){
+    const box = document.getElementById('scoreLog');
+    const sl = kt && kt.scoreLog;
+    if(!box || !sl || !sl.events) { if(box) box.style.display = 'none'; return; }
+    const flat = [];
+    Object.keys(sl.events).sort((a, b) => +a - +b).forEach(inn => {
+      (sl.events[inn] || []).forEach(e => flat.push(e));
+    });
+    // 초 → 말 순서 보정 (같은 이닝 내에서 초의 실점이 먼저 오도록)
+    flat.sort((a, b) => (a.inn - b.inn) || ((a.half === '초' ? 0 : 1) - (b.half === '초' ? 0 : 1)));
+    if(!flat.length){ box.style.display = 'none'; return; }
+    box.style.display = '';
+    document.getElementById('scoreLogList').innerHTML = flat.map(e => {
+      const isKt = e.team === 'KT';
+      const scorer = (e.scorer || '').replace(/^\d+루주자\s*/, '').replace(/^타자주자\s*/, '');
+      const selfScored = scorer === e.batter; // 홈런: 타자 본인이 곧바로 득점 — 이름 중복 표기 방지
+      return '<li class="' + (isKt ? 'plus' : 'minus') + '"><span class="inn">' + e.inn + '회' + esc(e.half) + '</span>' +
+        '<span class="sign">' + (isKt ? '+' : '−') + '</span>' +
+        '<span class="desc"><b>' + esc(scorer) + '</b> 득점' + (e.how ? ' · ' + (selfScored ? '' : esc(e.batter) + ' ') + esc(e.how) : '') +
+        '<span>(' + (isKt ? 'KT 득점' : esc(e.team) + ' 득점 — KT 실점') + ')</span></span></li>';
+    }).join('');
+  }
+
   function renderBox(kt, games){
     const box = kt && kt.box;
     const sec = document.getElementById('boxSec');
@@ -2188,9 +2227,10 @@ gtag('config', 'G-8MC9LN4N1R');
       '<tr' + (b.h >= 2 || b.hr > 0 ? ' class="hot"' : '') + '><td>' + b.o + '</td><td><b>' + esc(b.name) + '</b> <span style="color:var(--muted);font-size:11px">' + esc(b.pos) + '</span></td>' +
       '<td>' + b.ab + '</td><td>' + b.h + '</td><td>' + b.rbi + '</td><td>' + b.r + '</td><td>' + b.hr + '</td><td>' + b.bb + '</td><td>' + b.kk + '</td><td>' + esc(b.avg) + '</td></tr>'
     ).join('') + (box.batTotal ? '<tr><td></td><td><b>팀 합계</b></td><td>' + box.batTotal.ab + '</td><td>' + box.batTotal.hit + '</td><td>' + box.batTotal.rbi + '</td><td>' + box.batTotal.run + '</td><td colspan="4"></td></tr>' : '');
-    /* 투수 */
+    /* 투수 (투구수는 문자중계에서 집계 — 없으면 —) */
+    const pc = (kt.pitchCounts && kt.pitchCounts.byName) || {};
     document.getElementById('pitBox').innerHTML = box.pitchers.map(p =>
-      '<tr' + (p.wls === '승' || p.wls === '세' ? ' class="hot"' : '') + '><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.inn) + '</td><td>' + p.h + '</td><td>' + p.r + '</td><td>' + p.er + '</td><td>' + p.kk + '</td><td>' + ({'승':'승리','패':'패전','세':'세이브','홀':'홀드'}[p.wls] || '—') + '</td></tr>'
+      '<tr' + (p.wls === '승' || p.wls === '세' ? ' class="hot"' : '') + '><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.inn) + '</td><td>' + (pc[p.name] != null ? pc[p.name] : '—') + '</td><td>' + p.h + '</td><td>' + p.r + '</td><td>' + p.er + '</td><td>' + p.kk + '</td><td>' + ({'승':'승리','패':'패전','세':'세이브','홀':'홀드'}[p.wls] || '—') + '</td></tr>'
     ).join('');
     /* 주요 기록 */
     document.getElementById('keyRec').innerHTML = (box.keys || []).map(k =>
@@ -2876,6 +2916,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderCancelled(j.cancelled, j.standings);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
+        renderScoreLog(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
         renderNews(j.news);
         renderVideoReview(j.videoReview);

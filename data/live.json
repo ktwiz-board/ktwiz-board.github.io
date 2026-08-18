@@ -1,8 +1,8 @@
 {
- "updated": "2026-08-18T07:20:17.572Z",
- "updatedKST": "16:20",
+ "updated": "2026-08-18T11:03:48.190Z",
+ "updatedKST": "20:03",
  "date": "2026-08-18",
- "mode": "pre",
+ "mode": "live",
  "games": [
   {
    "id": "20260818HTHH02026",
@@ -12,9 +12,9 @@
    "away": "KIA",
    "home": "한화",
    "as": 0,
-   "hs": 0,
-   "status": "경기전",
-   "code": "BEFORE",
+   "hs": 1,
+   "status": "4회초",
+   "code": "STARTED",
    "ap": "네일",
    "hp": "왕옌청",
    "wp": "",
@@ -27,10 +27,10 @@
    "stadium": "잠실",
    "away": "KT",
    "home": "LG",
-   "as": 0,
-   "hs": 0,
-   "status": "경기전",
-   "code": "BEFORE",
+   "as": 1,
+   "hs": 2,
+   "status": "4회초",
+   "code": "STARTED",
    "ap": "소형준",
    "hp": "임찬규",
    "wp": "",
@@ -44,9 +44,9 @@
    "away": "두산",
    "home": "NC",
    "as": 0,
-   "hs": 0,
-   "status": "경기전",
-   "code": "BEFORE",
+   "hs": 3,
+   "status": "3회말",
+   "code": "STARTED",
    "ap": "벤자민",
    "hp": "라일리",
    "wp": "",
@@ -59,10 +59,10 @@
    "stadium": "대구",
    "away": "SSG",
    "home": "삼성",
-   "as": 0,
-   "hs": 0,
-   "status": "경기전",
-   "code": "BEFORE",
+   "as": 1,
+   "hs": 1,
+   "status": "5회초",
+   "code": "STARTED",
    "ap": "김민준",
    "hp": "페덱",
    "wp": "",
@@ -75,10 +75,10 @@
    "stadium": "사직",
    "away": "키움",
    "home": "롯데",
-   "as": 0,
+   "as": 7,
    "hs": 0,
-   "status": "경기전",
-   "code": "BEFORE",
+   "status": "3회말",
+   "code": "STARTED",
    "ap": "전준표",
    "hp": "비슬리",
    "wp": "",
@@ -199,8 +199,106 @@
  ],
  "kt": {
   "gameId": "20260818KTLG02026",
-  "lineup": null,
-  "oppLineup": null,
+  "lineup": {
+   "starter": "소형준",
+   "batters": [
+    {
+     "o": 1,
+     "name": "최원준",
+     "pos": "중견수"
+    },
+    {
+     "o": 2,
+     "name": "김현수",
+     "pos": "1루수"
+    },
+    {
+     "o": 3,
+     "name": "안현민",
+     "pos": "우익수"
+    },
+    {
+     "o": 4,
+     "name": "힐리어드",
+     "pos": "좌익수"
+    },
+    {
+     "o": 5,
+     "name": "허경민",
+     "pos": "3루수"
+    },
+    {
+     "o": 6,
+     "name": "김상수",
+     "pos": "2루수"
+    },
+    {
+     "o": 7,
+     "name": "김민혁",
+     "pos": "지명타자"
+    },
+    {
+     "o": 8,
+     "name": "조대현",
+     "pos": "포수"
+    },
+    {
+     "o": 9,
+     "name": "장준원",
+     "pos": "유격수"
+    }
+   ]
+  },
+  "oppLineup": {
+   "starter": "임찬규",
+   "batters": [
+    {
+     "o": 1,
+     "name": "신민재",
+     "pos": "2루수"
+    },
+    {
+     "o": 2,
+     "name": "박해민",
+     "pos": "중견수"
+    },
+    {
+     "o": 3,
+     "name": "오스틴",
+     "pos": "지명타자"
+    },
+    {
+     "o": 4,
+     "name": "문정빈",
+     "pos": "1루수"
+    },
+    {
+     "o": 5,
+     "name": "송찬의",
+     "pos": "좌익수"
+    },
+    {
+     "o": 6,
+     "name": "오지환",
+     "pos": "유격수"
+    },
+    {
+     "o": 7,
+     "name": "박동원",
+     "pos": "포수"
+    },
+    {
+     "o": 8,
+     "name": "이영빈",
+     "pos": "3루수"
+    },
+    {
+     "o": 9,
+     "name": "홍창기",
+     "pos": "우익수"
+    }
+   ]
+  },
   "week": [
    {
     "id": "20260818KTLG02026",
@@ -209,10 +307,10 @@
     "stadium": "잠실",
     "away": "KT",
     "home": "LG",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
+    "as": 1,
+    "hs": 2,
+    "status": "4회초",
+    "code": "STARTED",
     "ap": "소형준",
     "hp": "임찬규",
     "wp": "",
@@ -301,7 +399,7 @@
    {
     "id": "20260825OBKT02026",
     "date": "2026-08-25",
-    "time": "19:00",
+    "time": "18:30",
     "stadium": "수원",
     "away": "두산",
     "home": "KT",
@@ -417,7 +515,192 @@
     "r": "W"
    }
   ],
-  "box": null,
+  "box": {
+   "rheb": {
+    "away": {
+     "r": 1,
+     "b": 1,
+     "e": 0,
+     "h": 3
+    },
+    "home": {
+     "r": 2,
+     "b": 0,
+     "e": 0,
+     "h": 5
+    }
+   },
+   "inn": {
+    "away": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "home": [
+     2,
+     0,
+     0
+    ]
+   },
+   "ktSide": "away",
+   "batters": [
+    {
+     "o": 1,
+     "name": "최원준",
+     "pos": "중",
+     "ab": 2,
+     "h": 1,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.352"
+    },
+    {
+     "o": 2,
+     "name": "김현수",
+     "pos": "一",
+     "ab": 2,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 1,
+     "avg": "0.278"
+    },
+    {
+     "o": 3,
+     "name": "안현민",
+     "pos": "우",
+     "ab": 2,
+     "h": 1,
+     "rbi": 1,
+     "r": 1,
+     "hr": 1,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.297"
+    },
+    {
+     "o": 4,
+     "name": "힐리어드",
+     "pos": "좌",
+     "ab": 2,
+     "h": 1,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.304"
+    },
+    {
+     "o": 5,
+     "name": "허경민",
+     "pos": "三",
+     "ab": 1,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.338"
+    },
+    {
+     "o": 6,
+     "name": "김상수",
+     "pos": "二",
+     "ab": 0,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 1,
+     "kk": 0,
+     "avg": "0.286"
+    },
+    {
+     "o": 7,
+     "name": "김민혁",
+     "pos": "지",
+     "ab": 1,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.311"
+    },
+    {
+     "o": 8,
+     "name": "조대현",
+     "pos": "포",
+     "ab": 1,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 0,
+     "avg": "0.226"
+    },
+    {
+     "o": 9,
+     "name": "장준원",
+     "pos": "유",
+     "ab": 1,
+     "h": 0,
+     "rbi": 0,
+     "r": 0,
+     "hr": 0,
+     "bb": 0,
+     "kk": 1,
+     "avg": "0.205"
+    }
+   ],
+   "batTotal": {
+    "ab": 12,
+    "hit": 3,
+    "hra": "-",
+    "rbi": 1,
+    "run": 1,
+    "sb": 0
+   },
+   "pitchers": [
+    {
+     "name": "소형준",
+     "pcode": "50030",
+     "inn": "3.0",
+     "h": 5,
+     "r": 2,
+     "er": 2,
+     "bb": 0,
+     "kk": 3,
+     "era": "3.06",
+     "wls": ""
+    }
+   ],
+   "oppPitchers": [
+    {
+     "name": "임찬규",
+     "pcode": "61101",
+     "inn": "3.0",
+     "h": 3,
+     "r": 1,
+     "er": 1,
+     "bb": 1,
+     "kk": 2,
+     "era": "4.25",
+     "wls": ""
+    }
+   ],
+   "keys": []
+  },
   "lastGame": {
    "date": "2026-08-16",
    "stadium": "수원",
@@ -557,19 +840,66 @@
     "r": 2
    }
   },
+  "scoreLog": {
+   "gameId": "20260818KTLG02026",
+   "doneFull": [
+    1,
+    2,
+    3
+   ],
+   "events": {
+    "1": [
+     {
+      "inn": 1,
+      "half": "말",
+      "team": "LG",
+      "scorer": "2루주자 오스틴",
+      "how": "좌익수 앞 1루타",
+      "batter": "송찬의"
+     },
+     {
+      "inn": 1,
+      "half": "말",
+      "team": "LG",
+      "scorer": "3루주자 박해민",
+      "how": "좌익수 앞 1루타",
+      "batter": "송찬의"
+     }
+    ],
+    "2": [],
+    "3": [],
+    "4": [
+     {
+      "inn": 4,
+      "half": "초",
+      "team": "KT",
+      "scorer": "안현민",
+      "how": "좌중간 뒤 홈런 (홈런거리:145M)",
+      "batter": "안현민"
+     }
+    ]
+   }
+  },
+  "pitchCounts": {
+   "gameId": "20260818KTLG02026",
+   "byName": {
+    "임찬규": 54,
+    "소형준": 54
+   }
+  },
   "top": {
-   "name": "권동진",
-   "backnum": "52",
+   "name": "최원준",
+   "backnum": "3",
    "hitType": "우투좌타",
    "opp": "LG",
-   "hra": "0.269",
-   "hr": 2,
-   "rbi": 25,
-   "obp": 0.365,
-   "games": 88,
-   "r5hra": "0.500",
-   "r5hit": 3,
-   "r5ab": 6
+   "hra": "0.351",
+   "hr": 8,
+   "rbi": 57,
+   "obp": 0.427,
+   "games": 99,
+   "r5hra": "0.435",
+   "r5hit": 10,
+   "r5ab": 23
   },
   "starters": {
    "kt": {
@@ -1135,46 +1465,46 @@
  },
  "news": [
   {
-   "title": "[핌 포커스] '2.2이닝 8실점' KT 좌완 오원석, 결국 1군 엔트리 말소…AG 마운드 운용 변수",
-   "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9HWkhQYUtBY2d0QlZaTmRMR2RXam1MUE1LYnFjX1JvSFZJcHR0X0l2Nm5LMk9xRjhRb2txeEZmR05RT0FEbURmVG0wWjNkR3lMd1BzSkJXOTV5UFdjQ19xOHVKY2JXejhieTFKVTFxQUJaNWM2d0E?oc=5",
+   "title": "가수 규빈 '승리의 요정'",
+   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1RRE5kZ202bWJUYWxabXhhWjV5d0FLc0J2b3prNTdXeV84cXpoSkctVjZPbFRCRUxCVmlvZGxyRWZRYlVMUmJiZUJHQU9SeEZUMDVScXFVZzJHMnRRQXRhZw?oc=5",
    "src": "네이트",
    "date": "08.18",
-   "ts": 1787035140000
+   "ts": 1787049240000
   },
   {
-   "title": "KT 위즈 허경민, 강복자피플과 동행 계속",
-   "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5oNjllS0pURHBod29YZXpMaGR5T0dXSTJIYXJxUVRIeEl5TThYNVowdjVzcDlCR0hUSG1WMkN0NDF6WXZ6Sl9nbHlRR1BJb0xYbHZxV1R1bW1vQUFKdWtYMFMyTHE?oc=5",
-   "src": "FT스포츠",
+   "title": "‘잠실의 왕’ KT 외인, 출산 휴가 언제 갈까...이강철 희망 “잠실 3연전은 뛰고 갔으면” - 머니투데이",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBrRUx0dUk0R09qRFpqMEE0WGk1NzVESDdtalVKeGRkVjNEUzBzSFhVa2h6M054MGRWZlllVzRPREluYkFtSDY2S01oY05keklhU0lfa09iWHpEenNXQVBCSzA5cDJLSkY4MUHSAW9BVV95cUxNSmtCM0ZrempzZ2JkMTk4QlBnc0wyOXhTQzhzUjlsbFZyR2t2SkN3cmtWWk5BNXpqVWtWbXQyc0xXLTdrY0c1RnZ0OTdSTGlETVFOcmlyYmstM3hNUUc5aDQ2WGVYTUJwYkR0UjNDUFk?oc=5",
+   "src": "머니투데이",
    "date": "08.18",
-   "ts": 1787033590000
+   "ts": 1787047260000
   },
   {
-   "title": "[굿모닝위즈·번외] 힐리어드 스토리 ①",
-   "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5JOXBvYWQxbnFXalI1bEhqcFhEU0ZmTmlrZENnVWxwSFA4dC1wd2dYakF6OGxPQ05IdVRHUFRKNnVVX29rRlYtUnU2cHlURmExZmc?oc=5",
-   "src": "경인일보",
+   "title": "\"우리도 겨우 버텼다\" 이강철도 아찔했던 14일 고척 6회초, '후반기 승률 5할' 최하위 팀 무엇이 달랐나 - 머니투데이",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1WWGFtNzlEdlRESXBWMXlwa21vb3d5VVpiRlVVZFJDMzZkQlp2U3VYdnhzeGE2YVROSERGWUxwRG45VklsNDdOS0lGVnU2SjNwUHBGVlh5MkZmWXJwNG9zTTBJN3hxRGcxM3fSAW9BVV95cUxQNXRjdms0U2I1NVFYRHhsTkY1QWZVUDM0RzFTdjd3aC1vcER6d0dKTjhadmFnMFFFLWlpcjdjQnc2Slg3ekV3cnhFb1locmdGSDRERXUwOEEwYnh0REtFVGVKZ25HQUZtVWFja1Z2YnM?oc=5",
+   "src": "머니투데이",
    "date": "08.18",
-   "ts": 1787033061000
+   "ts": 1787045245000
   },
   {
-   "title": "\"야구 보는데 더위가 무슨 상관이야\"…야구장 먹거리 매출 '급증'",
-   "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTFBWTDZ0aWVoOEVnTjRzWUZxdUJIYjlzTXc0bjZ5NE01LUNDTzBBQTAzYzg2YXpGZVh3MWI2bzFDV1FtUnRlZk5mYUdpNDBaLXFhTS13?oc=5",
-   "src": "네이트",
+   "title": "“이 참에 좀 더 확실히” 이강철 KT 감독, 장성우 복귀 서두르지 않는 이유",
+   "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1admxWMHF0bFJaQi14SGJuc2xHdFJsd2dMdDhra1ZxcElQSWxvOGpIX1MzMWRIYVZiWkZyS0pDc08xbnBCNUF6UGloNVNqZ19BX2dhU2FBeU5OSHBTZXVBLXhDQmlxc09JNlgtcFltNDVyZw?oc=5",
+   "src": "스포츠동아",
    "date": "08.18",
-   "ts": 1787026920000
+   "ts": 1787045222000
   },
   {
-   "title": "프로야구 kt 위즈, 17년만에 5회 이후 역전승 승률 ‘0.300’ 도전",
-   "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBPV2FfWnBERWVLbWdvY2xvZ0xtZk9fcUZrS0ZQckhBTU1PZS1CTW5pUDQ3R3VDQmFhTjJ1azd3Wm1wSDEyVHVSWmhQUWVMYnFELVA3S3htbDN4eWE2LVFoUnNGUTU4NF9ET1F1aWtuQQ?oc=5",
-   "src": "kihoilbo.co.kr",
+   "title": "\"힐러어드 믿습니다\" 잠실구장 6홈런 20타점 활약…이강철 KT 감독의 신뢰 [MD잠실]",
+   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE8yb0NvWFV4Rjdnam5UYWlrellvMk1Lem0xZkFVcjdQN0VyRzJ1eGFQRV9zUDdzYkc2bW1SOERLUWJFekpwNnhWdndWWXVWLWotRkRfcVpCaWg4TFFNVnpjdQ?oc=5",
+   "src": "마이데일리",
    "date": "08.18",
-   "ts": 1787026702000
+   "ts": 1787045109000
   },
   {
-   "title": "[AI프리뷰] 18일 잠실 LG-KT전, 잠실 KT전 6전 전패 극복해야 할 LG 임찬규",
-   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9uZ1lMRFJrT0xXeVFLN3Vzcll6SFlSMFI5bi1ncldkdjMxYmdzUGVQeTVPTnZVc1BwQjFlUTN5d3dDYmtYTHpPWHM1eHNLeDlRVUl1SzJsOF9Bcm5O?oc=5",
-   "src": "뉴스핌",
+   "title": "잠실만 오면 펄펄 나는 KT 힐리어드…이강철 감독 \"첫 기억이 좋아서 그런 듯\"",
+   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE94QlZGRmJhT3JyU2NNWVByclhEN2RELU9qalVYT01NV2pmZF9YS3dHeHBkYTBFOTFxZTA4R2pwbFlROWo4ODVrMmpjWk5yeUJMY0Q4RTB4WVdkbndQbi00MtIBeEFVX3lxTE84VmtTLXQ0dlc3bmhaWUNVYXNCc3FnaC0yajJLaTFzaWVRNm0zSm1faUFQR1Jkek4xa2twdGlNdm5ic0VfaFlxM0xLOHhyWDNoS2hCamlaa3NGdHFXc2xpd2lVMmxYOVh2Yy1GcFFZdkI2dlI4YU51dw?oc=5",
+   "src": "뉴시스",
    "date": "08.18",
-   "ts": 1787025720000
+   "ts": 1787044740000
   }
  ],
  "videoReview": [
@@ -1211,6 +1541,11 @@
    "pub": "2026-08-17"
   },
   {
+   "id": "g5at5KB9nHI",
+   "title": "[LIVE] 상무 vs KT | KBO퓨처스리그 @익산 (08.16)",
+   "pub": "2026-08-16"
+  },
+  {
    "id": "2m-xqfCkMFU",
    "title": "8월 16일 키움 vs KT [2026 정규시즌 H/L]",
    "pub": "2026-08-16"
@@ -1218,11 +1553,6 @@
   {
    "id": "u-1clGYpdd4",
    "title": "수원 kt wiz park에 강림한 여신 #강미나 시구⚾️ (feat. #황재균)",
-   "pub": "2026-08-16"
-  },
-  {
-   "id": "jVYA3mbvWJQ",
-   "title": "언제나 환한 미소로 kt wiz에서 오래 함께해 주세요!",
    "pub": "2026-08-16"
   }
  ],

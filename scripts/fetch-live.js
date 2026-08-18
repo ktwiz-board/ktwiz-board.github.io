@@ -469,7 +469,7 @@ async function scheduleDifficulty(today, standings) {
         const side = g.home === 'KT' ? 'home' : 'away';
         const opSide = side === 'home' ? 'away' : 'home';
         const mapBat = b => ({ o: b.batOrder, name: b.name, pos: b.pos, ab: b.ab, h: b.hit, rbi: b.rbi, r: b.run, hr: b.hr, bb: b.bb, kk: b.kk, avg: b.hra });
-        const mapPit = p => ({ name: p.name, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, era: p.era, wls: p.wls || '' });
+        const mapPit = p => ({ name: p.name, pcode: p.pcode, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, era: p.era, wls: p.wls || '' });
         box = {
           rheb: rd.scoreBoard && rd.scoreBoard.rheb,
           inn: rd.scoreBoard && rd.scoreBoard.inn,
@@ -482,6 +482,87 @@ async function scheduleDifficulty(today, standings) {
         };
       }
     } catch (e) { console.error('record fail', e.message); }
+  }
+
+  // 2.6) KT 경기 이닝별 득점/실점 로그 — 문자중계(텍스트 릴레이)에서 "홈인" 순간만 추출.
+  // 네이버 relay API는 half 파라미터로 초/말이 나뉘지 않고 inning 파라미터로 그 이닝 전체(초+말)를
+  // 최신순으로 묶어 반환하므로, 배열을 시간순으로 뒤집어 "N회 초/말 OOO 공격" 마커를 지날 때마다
+  // 공격팀을 갱신하는 상태기계로 파싱한다. 이닝별로 결과를 캐시해 완료된 이닝은 재조회하지 않는다.
+  let scoreLog = (prev && prev.kt && prev.kt.scoreLog && prev.kt.scoreLog.gameId === ktGameId) ? prev.kt.scoreLog : null;
+  let pitchCounts = (prev && prev.kt && prev.kt.pitchCounts && prev.kt.pitchCounts.gameId === ktGameId) ? prev.kt.pitchCounts.byName : {};
+  if (ktGameId) {
+    try {
+      const g = todayGames.find(x => x.id === ktGameId);
+      if (g && g.code !== 'BEFORE' && g.code !== 'CANCEL') {
+        const base = await j(`${API}/schedule/games/${ktGameId}/relay`);
+        const rd = base.result && base.result.textRelayData;
+        if (rd && rd.inningScore) {
+          const doneFull = new Set((scoreLog && scoreLog.doneFull) || []);
+          const byInning = Object.assign({}, (scoreLog && scoreLog.events) || {});
+          const finished = g.code === 'RESULT' || g.code === 'ENDED';
+          for (let n = 1; n <= 9; n++) {
+            const a = rd.inningScore.away && rd.inningScore.away[n];
+            const h = rd.inningScore.home && rd.inningScore.home[n];
+            if (a == null || a === '-') continue; // 아직 이 이닝 초가 시작 안 함
+            if (doneFull.has(n)) continue; // 이미 완결 캐시됨
+            try {
+              const rr = await j(`${API}/schedule/games/${ktGameId}/relay?inning=${n}`);
+              const trd = rr.result && rr.result.textRelayData;
+              const list = ((trd && trd.textRelays) || []).slice().reverse(); // 시간순으로 뒤집기
+              // pcode → 이름 로스터 (투구수 집계용). relay의 homeEntry/awayEntry.pitcher 명단은
+              // "현재 등판 중인" 투수를 제외한 나머지 불펜만 나열해 활성 투수가 빠지므로,
+              // 이미 수집한 박스스코어(box.pitchers/oppPitchers, pcode 포함)를 우선 사용하고
+              // relay 명단은 아직 박스스코어에 안 잡힌 경우의 보조 폴백으로만 쓴다.
+              const roster = {};
+              [...((trd && trd.homeEntry && trd.homeEntry.pitcher) || []), ...((trd && trd.awayEntry && trd.awayEntry.pitcher) || [])]
+                .forEach(p => { roster[p.pcode] = p.name; });
+              [...((box && box.pitchers) || []), ...((box && box.oppPitchers) || [])]
+                .forEach(p => { if (p.pcode) roster[p.pcode] = p.name; });
+              const evs = [];
+              let curTeam = null, curHalf = null;
+              for (const e of list) {
+                const first = e.textOptions && e.textOptions[0];
+                if (first && first.type === 0) {
+                  const m = (first.text || '').match(/^(\d+)회(초|말)\s*(.+?)\s*공격/);
+                  if (m) { curHalf = m[2]; curTeam = m[3]; }
+                  continue;
+                }
+                for (const o of (e.textOptions || [])) {
+                  // 투구수: 그 시점 마운드 위 투수의 누적 스트라이크+볼 — 최댓값을 그 투수의 최종 투구수로 채택
+                  const pcode = o.currentGameState && o.currentGameState.pitcher;
+                  const info = o.currentPlayersInfo && (
+                    (o.currentPlayersInfo.away && o.currentPlayersInfo.away.playerType === 'pitcher') ? o.currentPlayersInfo.away
+                      : (o.currentPlayersInfo.home && o.currentPlayersInfo.home.playerType === 'pitcher') ? o.currentPlayersInfo.home : null
+                  );
+                  const cgs = info && info.currentGamePlayerStats;
+                  if (pcode && cgs && (cgs.ballCount != null || cgs.strikeCount != null)) {
+                    const name = roster[pcode];
+                    const pitches = (cgs.ballCount || 0) + (cgs.strikeCount || 0);
+                    if (name && pitches > (pitchCounts[name] || 0)) pitchCounts[name] = pitches;
+                  }
+                  if (o.type === 24 && /홈인/.test(o.text || '')) {
+                    const scorer = (o.text.match(/^(.+?)\s*[:：]\s*홈인/) || [])[1] || '';
+                    const hitLine = (e.textOptions || []).find(x => x.type === 13 || x.type === 23);
+                    const how = hitLine ? hitLine.text.replace(/^[^:：]+[:：]\s*/, '') : '';
+                    evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer, how, batter: (e.title || '').replace(/^\d+번타자\s*/, '') });
+                  }
+                }
+                // 홈런은 주자 이동(type24 "홈인") 없이 타자 본인이 직접 득점하므로 별도 처리 —
+                // 안 하면 스코어 로그에서 홈런 득점이 통째로 누락된다.
+                const batterName = (e.title || '').replace(/^\d+번타자\s*/, '');
+                const homerLine = (e.textOptions || []).find(x => (x.type === 13 || x.type === 23) && /홈런/.test(x.text || ''));
+                if (homerLine) {
+                  evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer: batterName, how: homerLine.text.replace(/^[^:：]+[:：]\s*/, ''), batter: batterName });
+                }
+              }
+              byInning[n] = evs;
+              if (finished || (h != null && h !== '-')) doneFull.add(n); // 초+말 모두 끝났거나 경기 종료면 캐시 확정
+            } catch (e) { console.error('relay fail', n, e.message); }
+          }
+          scoreLog = { gameId: ktGameId, doneFull: [...doneFull], events: byInning };
+        }
+      }
+    } catch (e) { console.error('scoreLog fail', e.message); }
   }
 
   // 3) KT 주간 일정 (오늘 ~ +7일)
@@ -622,7 +703,8 @@ async function scheduleDifficulty(today, standings) {
     games: todayGames,
     standings: finalStandings,
     kt: {
-      gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame,
+      gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame, scoreLog,
+      pitchCounts: ktGameId ? { gameId: ktGameId, byName: pitchCounts } : null,
       // 경기 없는 날엔 프리뷰가 없어 키플레이어를 못 구함 → 직전 값 유지
       top: ktTop || (prev && prev.kt && prev.kt.top) || null,
       starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
