@@ -1,283 +1,293 @@
 {
- "updated": "2026-08-09T05:23:35.619Z",
- "updatedKST": "14:23",
- "date": "2026-08-09",
- "mode": "post",
+ "updated": "2026-08-22T19:30:23.629Z",
+ "updatedKST": "04:30",
+ "date": "2026-08-23",
+ "mode": "pre",
  "games": [
   {
-   "id": "20260809HTLG02026",
-   "date": "2026-08-09",
-   "time": "18:00",
-   "stadium": "잠실",
+   "id": "20260823HTWO02026",
+   "date": "2026-08-23",
+   "time": "14:00",
+   "stadium": "고척",
    "away": "KIA",
-   "home": "LG",
+   "home": "키움",
    "as": 0,
    "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "",
-   "hp": "",
+   "status": "경기전",
+   "code": "BEFORE",
+   "ap": "네일",
+   "hp": "전준표",
    "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
+   "lp": ""
   },
   {
-   "id": "20260809LTKT02026",
-   "date": "2026-08-09",
-   "time": "18:00",
-   "stadium": "수원",
-   "away": "롯데",
-   "home": "KT",
+   "id": "20260823KTSK02026",
+   "date": "2026-08-23",
+   "time": "19:00",
+   "stadium": "문학",
+   "away": "KT",
+   "home": "SSG",
    "as": 0,
    "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "",
-   "hp": "",
+   "status": "경기전",
+   "code": "BEFORE",
+   "ap": "로건",
+   "hp": "아빌라",
    "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
+   "lp": ""
   },
   {
-   "id": "20260809OBSS02026",
-   "date": "2026-08-09",
-   "time": "18:00",
-   "stadium": "대구",
-   "away": "두산",
-   "home": "삼성",
-   "as": 0,
-   "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "",
-   "hp": "",
-   "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
-  },
-  {
-   "id": "20260809SKNC02026",
-   "date": "2026-08-09",
-   "time": "18:00",
-   "stadium": "창원",
-   "away": "SSG",
-   "home": "NC",
-   "as": 0,
-   "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "",
-   "hp": "",
-   "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
-  },
-  {
-   "id": "20260809WOHH02026",
-   "date": "2026-08-09",
-   "time": "18:00",
+   "id": "20260823LGHH02026",
+   "date": "2026-08-23",
+   "time": "19:00",
    "stadium": "대전",
-   "away": "키움",
+   "away": "LG",
    "home": "한화",
    "as": 0,
    "hs": 0,
-   "status": "취소",
-   "code": "CANCEL",
-   "ap": "",
-   "hp": "",
+   "status": "경기전",
+   "code": "BEFORE",
+   "ap": "카라스코",
+   "hp": "박준영",
    "wp": "",
-   "lp": "",
-   "reason": "폭염취소"
+   "lp": ""
+  },
+  {
+   "id": "20260823LTOB02026",
+   "date": "2026-08-23",
+   "time": "19:00",
+   "stadium": "잠실",
+   "away": "롯데",
+   "home": "두산",
+   "as": 0,
+   "hs": 0,
+   "status": "경기전",
+   "code": "BEFORE",
+   "ap": "박세웅",
+   "hp": "곽빈",
+   "wp": "",
+   "lp": ""
+  },
+  {
+   "id": "20260823SSNC02026",
+   "date": "2026-08-23",
+   "time": "19:00",
+   "stadium": "창원",
+   "away": "삼성",
+   "home": "NC",
+   "as": 0,
+   "hs": 0,
+   "status": "경기전",
+   "code": "BEFORE",
+   "ap": "페덱",
+   "hp": "라일리",
+   "wp": "",
+   "lp": ""
   }
  ],
  "standings": [
   {
    "name": "KT",
    "rank": 1,
-   "w": 59,
-   "l": 36,
-   "d": 2,
-   "wra": 0.621,
-   "era": "4.43",
-   "hra": "0.283",
-   "hr": 75
+   "w": 63,
+   "l": 41,
+   "d": 3,
+   "wra": 0.606,
+   "era": "4.41",
+   "hra": "0.279",
+   "hr": 82
   },
   {
    "name": "삼성",
    "rank": 2,
-   "w": 59,
-   "l": 39,
+   "w": 64,
+   "l": 44,
    "d": 2,
-   "wra": 0.602,
-   "era": "4.21",
-   "hra": "0.278",
-   "hr": 87
-  },
-  {
-   "name": "LG",
-   "rank": 3,
-   "w": 55,
-   "l": 45,
-   "d": 1,
-   "wra": 0.55,
-   "era": "4.90",
-   "hra": "0.270",
-   "hr": 92
-  },
-  {
-   "name": "두산",
-   "rank": 4,
-   "w": 52,
-   "l": 45,
-   "d": 4,
-   "wra": 0.536,
-   "era": "3.76",
-   "hra": "0.269",
-   "hr": 77
+   "wra": 0.593,
+   "era": "4.29",
+   "hra": "0.280",
+   "hr": 104
   },
   {
    "name": "KIA",
-   "rank": 5,
-   "w": 52,
-   "l": 46,
-   "d": 2,
-   "wra": 0.531,
-   "era": "4.49",
-   "hra": "0.271",
-   "hr": 128
-  },
-  {
-   "name": "한화",
-   "rank": 6,
-   "w": 47,
+   "rank": 3,
+   "w": 60,
    "l": 49,
-   "d": 3,
-   "wra": 0.49,
-   "era": "4.74",
-   "hra": "0.277",
-   "hr": 114
+   "d": 2,
+   "wra": 0.55,
+   "era": "4.35",
+   "hra": "0.272",
+   "hr": 141
   },
   {
-   "name": "NC",
-   "rank": 7,
-   "w": 43,
+   "name": "LG",
+   "rank": 4,
+   "w": 60,
    "l": 50,
-   "d": 2,
-   "wra": 0.462,
-   "era": "4.80",
-   "hra": "0.273",
-   "hr": 92
+   "d": 1,
+   "wra": 0.545,
+   "era": "4.95",
+   "hra": "0.268",
+   "hr": 103
+  },
+  {
+   "name": "두산",
+   "rank": 5,
+   "w": 57,
+   "l": 50,
+   "d": 4,
+   "wra": 0.533,
+   "era": "3.72",
+   "hra": "0.270",
+   "hr": 84
   },
   {
    "name": "롯데",
-   "rank": 8,
-   "w": 44,
-   "l": 54,
+   "rank": 6,
+   "w": 50,
+   "l": 57,
    "d": 2,
-   "wra": 0.449,
-   "era": "4.40",
-   "hra": "0.264",
-   "hr": 72
+   "wra": 0.467,
+   "era": "4.47",
+   "hra": "0.269",
+   "hr": 86
+  },
+  {
+   "name": "한화",
+   "rank": 7,
+   "w": 49,
+   "l": 56,
+   "d": 3,
+   "wra": 0.467,
+   "era": "4.92",
+   "hra": "0.277",
+   "hr": 132
+  },
+  {
+   "name": "NC",
+   "rank": 8,
+   "w": 48,
+   "l": 55,
+   "d": 2,
+   "wra": 0.466,
+   "era": "4.82",
+   "hra": "0.274",
+   "hr": 100
   },
   {
    "name": "SSG",
    "rank": 9,
-   "w": 39,
-   "l": 60,
-   "d": 4,
-   "wra": 0.394,
-   "era": "5.63",
-   "hra": "0.261",
-   "hr": 114
+   "w": 45,
+   "l": 63,
+   "d": 5,
+   "wra": 0.417,
+   "era": "5.56",
+   "hra": "0.262",
+   "hr": 121
   },
   {
    "name": "키움",
    "rank": 10,
-   "w": 38,
-   "l": 64,
+   "w": 41,
+   "l": 72,
    "d": 2,
-   "wra": 0.373,
-   "era": "5.05",
-   "hra": "0.244",
-   "hr": 72
+   "wra": 0.363,
+   "era": "5.21",
+   "hra": "0.245",
+   "hr": 83
   }
  ],
  "kt": {
-  "gameId": "20260809LTKT02026",
+  "gameId": "20260823LTOB02026",
   "lineup": null,
   "oppLineup": null,
   "week": [
    {
-    "id": "20260809LTKT02026",
-    "date": "2026-08-09",
+    "id": "20260823LTOB02026",
+    "date": "2026-08-23",
+    "time": "19:00",
+    "stadium": "잠실",
+    "away": "롯데",
+    "home": "두산",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "박세웅",
+    "hp": "곽빈",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260825LTHT02026",
+    "date": "2026-08-25",
+    "time": "18:30",
+    "stadium": "광주",
+    "away": "롯데",
+    "home": "KIA",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260826LTHT02026",
+    "date": "2026-08-26",
+    "time": "18:30",
+    "stadium": "광주",
+    "away": "롯데",
+    "home": "KIA",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260827LTHT02026",
+    "date": "2026-08-27",
+    "time": "18:30",
+    "stadium": "광주",
+    "away": "롯데",
+    "home": "KIA",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260828LGLT02026",
+    "date": "2026-08-28",
+    "time": "18:30",
+    "stadium": "사직",
+    "away": "LG",
+    "home": "롯데",
+    "as": 0,
+    "hs": 0,
+    "status": "경기전",
+    "code": "BEFORE",
+    "ap": "",
+    "hp": "",
+    "wp": "",
+    "lp": ""
+   },
+   {
+    "id": "20260829LGLT02026",
+    "date": "2026-08-29",
     "time": "18:00",
-    "stadium": "수원",
-    "away": "롯데",
-    "home": "KT",
-    "as": 0,
-    "hs": 0,
-    "status": "취소",
-    "code": "CANCEL",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": "",
-    "reason": "폭염취소"
-   },
-   {
-    "id": "20260811LTSK02026",
-    "date": "2026-08-11",
-    "time": "19:00",
-    "stadium": "문학",
-    "away": "롯데",
-    "home": "SSG",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
-   {
-    "id": "20260812LTSK02026",
-    "date": "2026-08-12",
-    "time": "19:00",
-    "stadium": "문학",
-    "away": "롯데",
-    "home": "SSG",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
-   {
-    "id": "20260813LTSK02026",
-    "date": "2026-08-13",
-    "time": "19:00",
-    "stadium": "문학",
-    "away": "롯데",
-    "home": "SSG",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
-   {
-    "id": "20260814NCLT02026",
-    "date": "2026-08-14",
-    "time": "19:00",
     "stadium": "사직",
-    "away": "NC",
+    "away": "LG",
     "home": "롯데",
     "as": 0,
     "hs": 0,
@@ -289,27 +299,11 @@
     "lp": ""
    },
    {
-    "id": "20260815NCLT02026",
-    "date": "2026-08-15",
-    "time": "19:00",
+    "id": "20260830LGLT02026",
+    "date": "2026-08-30",
+    "time": "18:00",
     "stadium": "사직",
-    "away": "NC",
-    "home": "롯데",
-    "as": 0,
-    "hs": 0,
-    "status": "경기전",
-    "code": "BEFORE",
-    "ap": "",
-    "hp": "",
-    "wp": "",
-    "lp": ""
-   },
-   {
-    "id": "20260816NCLT02026",
-    "date": "2026-08-16",
-    "time": "19:00",
-    "stadium": "사직",
-    "away": "NC",
+    "away": "LG",
     "home": "롯데",
     "as": 0,
     "hs": 0,
@@ -323,181 +317,190 @@
   ],
   "recent": [
    {
-    "id": "20260729LTHH02026",
-    "date": "2026-07-29",
-    "time": "18:30",
-    "stadium": "대전",
-    "away": "롯데",
-    "home": "한화",
-    "as": 3,
-    "hs": 5,
+    "id": "20260815NCLT02026",
+    "date": "2026-08-15",
+    "time": "19:00",
+    "stadium": "사직",
+    "away": "NC",
+    "home": "롯데",
+    "as": 5,
+    "hs": 8,
     "status": "9회초",
     "code": "RESULT",
-    "ap": "로드리게스",
-    "hp": "왕옌청",
-    "wp": "왕옌청",
-    "lp": "로드리게스",
-    "opp": "한화",
-    "my": 3,
+    "ap": "원종해",
+    "hp": "박세웅",
+    "wp": "이이무라",
+    "lp": "김진호",
+    "opp": "NC",
+    "my": 8,
     "op": 5,
-    "r": "L"
-   },
-   {
-    "id": "20260730LTHH02026",
-    "date": "2026-07-30",
-    "time": "18:30",
-    "stadium": "대전",
-    "away": "롯데",
-    "home": "한화",
-    "as": 2,
-    "hs": 3,
-    "status": "9회말",
-    "code": "RESULT",
-    "ap": "나균안",
-    "hp": "박준영",
-    "wp": "박상원",
-    "lp": "김원중",
-    "opp": "한화",
-    "my": 2,
-    "op": 3,
-    "r": "L"
-   },
-   {
-    "id": "20260731SSLT02026",
-    "date": "2026-07-31",
-    "time": "18:30",
-    "stadium": "사직",
-    "away": "삼성",
-    "home": "롯데",
-    "as": 9,
-    "hs": 7,
-    "status": "9회말",
-    "code": "RESULT",
-    "ap": "원태인",
-    "hp": "김진욱",
-    "wp": "원태인",
-    "lp": "이이무라",
-    "opp": "삼성",
-    "my": 7,
-    "op": 9,
-    "r": "L"
-   },
-   {
-    "id": "20260802SSLT02026",
-    "date": "2026-08-02",
-    "time": "18:00",
-    "stadium": "사직",
-    "away": "삼성",
-    "home": "롯데",
-    "as": 7,
-    "hs": 10,
-    "status": "9회초",
-    "code": "RESULT",
-    "ap": "보스",
-    "hp": "비슬리",
-    "wp": "비슬리",
-    "lp": "보스",
-    "opp": "삼성",
-    "my": 10,
-    "op": 7,
     "r": "W"
    },
    {
-    "id": "20260804WOLT02026",
-    "date": "2026-08-04",
-    "time": "18:30",
+    "id": "20260818WOLT02026",
+    "date": "2026-08-18",
+    "time": "19:00",
     "stadium": "사직",
     "away": "키움",
     "home": "롯데",
-    "as": 2,
-    "hs": 3,
+    "as": 10,
+    "hs": 15,
     "status": "9회초",
     "code": "RESULT",
-    "ap": "하영민",
-    "hp": "로드리게스",
-    "wp": "로드리게스",
-    "lp": "하영민",
+    "ap": "전준표",
+    "hp": "비슬리",
+    "wp": "이민석",
+    "lp": "박지성",
     "opp": "키움",
-    "my": 3,
-    "op": 2,
+    "my": 15,
+    "op": 10,
+    "r": "W"
+   },
+   {
+    "id": "20260819WOLT02026",
+    "date": "2026-08-19",
+    "time": "19:00",
+    "stadium": "사직",
+    "away": "키움",
+    "home": "롯데",
+    "as": 4,
+    "hs": 5,
+    "status": "9회말",
+    "code": "RESULT",
+    "ap": "알칸타라",
+    "hp": "로드리게스",
+    "wp": "박정민",
+    "lp": "원종현",
+    "opp": "키움",
+    "my": 5,
+    "op": 4,
+    "r": "W"
+   },
+   {
+    "id": "20260820WOLT02026",
+    "date": "2026-08-20",
+    "time": "19:00",
+    "stadium": "사직",
+    "away": "키움",
+    "home": "롯데",
+    "as": 1,
+    "hs": 7,
+    "status": "9회초",
+    "code": "RESULT",
+    "ap": "박준현",
+    "hp": "나균안",
+    "wp": "나균안",
+    "lp": "박준현",
+    "opp": "키움",
+    "my": 7,
+    "op": 1,
+    "r": "W"
+   },
+   {
+    "id": "20260821LTOB02026",
+    "date": "2026-08-21",
+    "time": "19:00",
+    "stadium": "잠실",
+    "away": "롯데",
+    "home": "두산",
+    "as": 11,
+    "hs": 4,
+    "status": "9회말",
+    "code": "RESULT",
+    "ap": "김진욱",
+    "hp": "최승용",
+    "wp": "김진욱",
+    "lp": "최승용",
+    "opp": "두산",
+    "my": 11,
+    "op": 4,
     "r": "W"
    }
   ],
   "box": null,
   "lastGame": {
-   "date": "2026-08-04",
-   "stadium": "사직",
-   "opp": "키움",
-   "ktHome": true,
-   "my": 3,
-   "op": 2,
-   "as": 2,
-   "hs": 3,
-   "away": "키움",
-   "home": "롯데",
-   "starter": "로드리게스",
+   "date": "2026-08-21",
+   "stadium": "잠실",
+   "opp": "두산",
+   "ktHome": false,
+   "my": 11,
+   "op": 4,
+   "as": 11,
+   "hs": 4,
+   "away": "롯데",
+   "home": "두산",
+   "starter": "김진욱",
    "keys": [
     {
      "how": "결승타",
-     "result": "황성빈(4회 2사 만루서 밀어내기 4구)"
+     "result": "레이예스(5회 2사 2루서 우전 안타)"
     },
     {
-     "how": "3루타",
-     "result": "황성빈(1회)"
+     "how": "홈런",
+     "result": "고승민11호12호(6회1점 8회4점 김정우 이병헌)"
     },
     {
      "how": "2루타",
-     "result": "레이예스(5회)"
+     "result": "전민재(2회) 레이예스(3회) 나승엽(5회) 안재석(7회) 정수빈(9회)"
     },
     {
      "how": "실책",
-     "result": "로드리게스(4회) 고승민(6회) 김웅빈(7회)"
+     "result": "박지훈(7회) 박찬호(8회)"
     },
     {
-     "how": "병살타",
-     "result": "김웅빈(4회) 김태진(7회)"
+     "how": "도루",
+     "result": "전민재(6회) 김동혁(8회)"
     },
     {
-     "how": "심판",
-     "result": "이기중 박종철 김정 문동균"
+     "how": "주루사",
+     "result": "한태양(6회)"
     }
    ],
    "pitchers": [
     {
-     "name": "로드리게스",
+     "name": "김진욱",
      "inn": "6",
-     "h": 3,
-     "r": 2,
-     "er": 0,
-     "kk": 6,
+     "h": 1,
+     "r": 1,
+     "er": 1,
+     "kk": 7,
      "wls": "승"
     },
     {
-     "name": "이이무라",
-     "inn": "1",
-     "h": 1,
-     "r": 0,
-     "er": 0,
-     "kk": 0,
-     "wls": "홀"
-    },
-    {
      "name": "최준용",
-     "inn": "1",
+     "inn": "0",
      "h": 1,
-     "r": 0,
-     "er": 0,
-     "kk": 2,
-     "wls": "홀"
+     "r": 2,
+     "er": 2,
+     "kk": 0,
+     "wls": ""
     },
     {
-     "name": "김원중",
-     "inn": "1",
-     "h": 2,
+     "name": "이이무라",
+     "inn": "1 ⅓",
+     "h": 1,
      "r": 0,
      "er": 0,
      "kk": 1,
-     "wls": "세"
+     "wls": "홀"
+    },
+    {
+     "name": "김한결",
+     "inn": "0 ⅔",
+     "h": 0,
+     "r": 0,
+     "er": 0,
+     "kk": 0,
+     "wls": ""
+    },
+    {
+     "name": "현도훈",
+     "inn": "1",
+     "h": 2,
+     "r": 1,
+     "er": 1,
+     "kk": 1,
+     "wls": ""
     }
    ],
    "r": "W",
@@ -510,7 +513,7 @@
     {
      "o": 2,
      "name": "나승엽",
-     "pos": "一"
+     "pos": "지"
     },
     {
      "o": 3,
@@ -520,22 +523,22 @@
     {
      "o": 4,
      "name": "한동희",
-     "pos": "지"
+     "pos": "三"
     },
     {
      "o": 5,
      "name": "고승민",
-     "pos": "二一"
+     "pos": "一"
     },
     {
      "o": 6,
-     "name": "윤동희",
-     "pos": "우"
+     "name": "한태양",
+     "pos": "二"
     },
     {
      "o": 7,
-     "name": "노진혁",
-     "pos": "三"
+     "name": "손성빈",
+     "pos": "포"
     },
     {
      "o": 8,
@@ -544,48 +547,87 @@
     },
     {
      "o": 9,
-     "name": "손성빈",
-     "pos": "포"
+     "name": "윤동희",
+     "pos": "우"
     }
    ],
    "spLine": {
-    "name": "로드리게스",
+    "name": "김진욱",
     "inn": "6",
-    "r": 2
+    "r": 1
    }
   },
+  "scoreLog": null,
+  "pitchCounts": {
+   "gameId": "20260823LTOB02026",
+   "byName": {}
+  },
   "top": {
-   "name": "유강남",
-   "backnum": "27",
-   "hitType": "우투우타",
-   "opp": "KT",
-   "hra": "0.241",
-   "hr": 3,
-   "rbi": 9,
-   "obp": 0.271,
-   "games": 48,
-   "r5hra": "0.429",
-   "r5hit": 3,
-   "r5ab": 7
+   "name": "장두성",
+   "backnum": "7",
+   "hitType": "우투좌타",
+   "opp": "두산",
+   "hra": "0.282",
+   "hr": 0,
+   "rbi": 16,
+   "obp": 0.322,
+   "games": 71,
+   "r5hra": "0.556",
+   "r5hit": 5,
+   "r5ab": 9
   },
   "starters": {
    "kt": {
-    "era": "0.00",
-    "w": "0",
-    "l": "0",
-    "pitches": []
+    "name": "박세웅",
+    "era": "4.77",
+    "w": 2,
+    "l": 7,
+    "pitches": [
+     {
+      "type": "FAST",
+      "rt": 35.400001525878906,
+      "spd": 145
+     },
+     {
+      "type": "SLID",
+      "rt": 22,
+      "spd": 135
+     },
+     {
+      "type": "SWEE",
+      "rt": 17.5,
+      "spd": 126
+     }
+    ]
    },
    "opp": {
-    "era": "0.00",
-    "w": "0",
-    "l": "0",
-    "pitches": []
+    "name": "곽빈",
+    "era": "2.46",
+    "w": 9,
+    "l": 5,
+    "pitches": [
+     {
+      "type": "FAST",
+      "rt": 42.29999923706055,
+      "spd": 152
+     },
+     {
+      "type": "CUTT",
+      "rt": 19.399999618530273,
+      "spd": 146
+     },
+     {
+      "type": "SLID",
+      "rt": 14,
+      "spd": 136
+     }
+    ]
    },
-   "oppName": "KT"
+   "oppName": "두산"
   }
  },
  "cancelled": {
-  "date": "2026-08-09",
+  "date": "2026-08-23",
   "list": [
    {
     "date": "2026-04-09",
@@ -943,151 +985,292 @@
     "home": "한화",
     "stadium": "대전",
     "reason": "폭염취소"
+   },
+   {
+    "date": "2026-08-16",
+    "away": "NC",
+    "home": "롯데",
+    "stadium": "사직",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-08-22",
+    "away": "롯데",
+    "home": "두산",
+    "stadium": "잠실",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-08-22",
+    "away": "KT",
+    "home": "SSG",
+    "stadium": "문학",
+    "reason": "우천취소"
+   },
+   {
+    "date": "2026-08-22",
+    "away": "LG",
+    "home": "한화",
+    "stadium": "대전",
+    "reason": "우천취소"
+   }
+  ]
+ },
+ "titleRace": {
+  "date": "2026-08-23",
+  "list": [
+   {
+    "cat": "타율",
+    "top": [
+     {
+      "rank": 1,
+      "name": "레이예스",
+      "team": "롯데",
+      "val": "0.359"
+     },
+     {
+      "rank": 2,
+      "name": "구자욱",
+      "team": "삼성",
+      "val": "0.355"
+     },
+     {
+      "rank": 3,
+      "name": "최원준",
+      "team": "KT",
+      "val": "0.349"
+     }
+    ]
+   },
+   {
+    "cat": "홈런",
+    "top": [
+     {
+      "rank": 1,
+      "name": "김도영",
+      "team": "KIA",
+      "val": "37"
+     },
+     {
+      "rank": 2,
+      "name": "오스틴",
+      "team": "LG",
+      "val": "32"
+     },
+     {
+      "rank": 3,
+      "name": "힐리어드",
+      "team": "KT",
+      "val": "30"
+     }
+    ]
+   },
+   {
+    "cat": "타점",
+    "top": [
+     {
+      "rank": 1,
+      "name": "오스틴",
+      "team": "LG",
+      "val": "99"
+     },
+     {
+      "rank": 1,
+      "name": "힐리어드",
+      "team": "KT",
+      "val": "99"
+     },
+     {
+      "rank": 3,
+      "name": "디아즈",
+      "team": "삼성",
+      "val": "96"
+     }
+    ]
+   },
+   {
+    "cat": "평균자책",
+    "top": [
+     {
+      "rank": 1,
+      "name": "곽빈",
+      "team": "두산",
+      "val": "2.46"
+     },
+     {
+      "rank": 2,
+      "name": "최민석",
+      "team": "두산",
+      "val": "2.72"
+     },
+     {
+      "rank": 3,
+      "name": "올러",
+      "team": "KIA",
+      "val": "3.08"
+     }
+    ]
+   },
+   {
+    "cat": "다승",
+    "top": [
+     {
+      "rank": 1,
+      "name": "임찬규",
+      "team": "LG",
+      "val": "11"
+     },
+     {
+      "rank": 1,
+      "name": "톨허스트",
+      "team": "LG",
+      "val": "11"
+     },
+     {
+      "rank": 1,
+      "name": "올러",
+      "team": "KIA",
+      "val": "11"
+     }
+    ]
+   },
+   {
+    "cat": "탈삼진",
+    "top": [
+     {
+      "rank": 1,
+      "name": "곽빈",
+      "team": "두산",
+      "val": "153"
+     },
+     {
+      "rank": 2,
+      "name": "로드리게스",
+      "team": "롯데",
+      "val": "140"
+     },
+     {
+      "rank": 3,
+      "name": "올러",
+      "team": "KIA",
+      "val": "135"
+     }
+    ]
    }
   ]
  },
  "news": [
   {
-   "title": "\"초반보다 나아졌어도…골고루 잘 쳐야지\" 편식 NO, 갈 길 바쁜 롯데에도 희망은 있습니다 [SS시선집중]",
-   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE0xVFV4bUxGRTZmNFF2UHZaN3VQbHZfMTJkYldvN0VVbW1XSVVLTnBJM2s4Z2QyQmh4ZzNhUnNoRzBlNmV1X2JpYTNPdG1QWnM5T0o4TXlxVnVyZG5P?oc=5",
+   "title": "'고마워요 삼성!' 롯데, 우천취소 휴식+6위 도약 휘파람…박세웅 앞세워 7연승 도전",
+   "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1naTF5RmRYZGUzVVNONC1CUm9idk1uT2syVnNKTUFLQWlMaTJONWJwMUtaNnYxZE12cTBKNEVTVzdfd3VYUWZSbTBuaUhtdTJ0UWpYdw?oc=5",
+   "src": "xportsnews.com",
+   "date": "08.23",
+   "ts": 1787412108000
+  },
+  {
+   "title": "'승승승승승' 롯데 무려 333일 만에 6데 등극! 가을야구 확률 3.7% 급상승, 아직 포기할 수 없는 이유",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1DQjNHSGxvUEt3MmZwTFB3SWFSSWhocTJhSm1QU1oteGtlV0NoUzZIeHlEZU51SG1WMDBkb2hjeXlsU3VRMDlrd3lqeFBIVUE?oc=5",
+   "src": "v.daum.net",
+   "date": "08.23",
+   "ts": 1787411560000
+  },
+  {
+   "title": "‘이도류’는 끝나고 다시 투수 올인인가…롯데 1라운드 유망주, 친정팀 상대로 무실점 '전준우 병살타' - 머니투데이",
+   "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5fTzJJaGZNX0VWZnE4Sk8xd0xGampZek1zeGRobjB2RHQwLUxFalBCOW02RkkxOC1nMFZNYnJqbkdqT3BaQzlvUzBWZzVVaDRZa0tidFM4Z2I1Ym9ZRjRZT3hBaFR1Q1JjTmfSAW9BVV95cUxOdFc4N1BYT2ZDWGwyLWdXZ25lUUZfN2Jpek5IdUJidGgtZ0M1UkZDVWE2WGxnQ0VsRHNOX00tUmJscDR4al90aTM5MGdvWjRUYTBXZFJHZ2ZuRTd0ODFycF9ILXhhLU9mWUFrdlA5bUk?oc=5",
+   "src": "머니투데이",
+   "date": "08.23",
+   "ts": 1787411400000
+  },
+  {
+   "title": "\"요즘 야구 어떻게 될지 몰라\"…8개 던진 최준용 교체, 김태형 감독 이유 있는 승부수였다 [잠실 현장]",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5wOFBIUXZnNVZsbzVlMEFRTjU5d1hPOU5wN25PdmFCWUxxVjJtSHFyS252REk3YV9MdnI5MHA2amsxbTlMRU1BQ2RPeXVUSG8?oc=5",
+   "src": "v.daum.net",
+   "date": "08.22",
+   "ts": 1787406667000
+  },
+  {
+   "title": "‘와’ 롯데 亞쿼터 배짱 넘치네, 호랑이 김태형 “한 타자 더 던질래?”→고개를 가로젓다 “내일 던지겠습니다” [오!쎈 잠실]",
+   "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9SQ3ZNT1pmTW43ZjI2dkVlbzJqQ0R2VXBqd3piMU5sNy1hMnBMc0QzN2ZYTWRZU0kxY3AyVXBhQVk2U1RkNUhNck9MaFlpdGM?oc=5",
+   "src": "v.daum.net",
+   "date": "08.22",
+   "ts": 1787395388000
+  },
+  {
+   "title": "7시즌 연속 100K '눈앞' 롯데 박세웅…비로 밀린 선발 등판",
+   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBFdHhtOGpFY1oyZ1JBZXpSUW45Tk9oNUN2VG95R2FnN09jczZPM3k5eUNOWEVFd1NnTlRuT2hRUS02NTFfYkVvQVZqS2d0T1VydVRHMXR1RzhWcVpy?oc=5",
    "src": "네이트",
-   "date": "08.09",
-   "ts": 1786250880000
-  },
-  {
-   "title": "정철원 4번째 2군행...오래 보아야 알 수 있는 트레이드 손익",
-   "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE81SFNMTEdWbzg4aHUwSHQxaHpnWDZKS0pwN0FOYktCWXUyejM1WWtjd01UNE5icmtoNmZuaGp0bDJKSnp2VWxjYXV4RUVjTGhMenU0Qjh3WXFxT1k?oc=5",
-   "src": "일간스포츠",
-   "date": "08.09",
-   "ts": 1786242840000
-  },
-  {
-   "title": "'이 투수는 KBO 출신입니다!' 레일리의 놀라운 변신, 38세에도 ML 정상급 불펜→\"강속구 없어도 된다, 상대 약점 공략하는 게 내 장점\"",
-   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5xamdfN0ViWjREeVV3U0ItV29rZTN3NHdnYVR2ZzJGVVlUMm8xcG5KQ3VlTHBuVzg5VGVkel9feS1HNllWOERFNkpRX3Z1RnlqREdCY0Qydmk0SU9L?oc=5",
-   "src": "네이트",
-   "date": "08.09",
-   "ts": 1786242660000
-  },
-  {
-   "title": "롯데 레이예스, 타율 1리 차 선두…베네수엘라 매체도 주목",
-   "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1CSVZob1RsZjJvMG1VaEdIYzdrTS1NZmlsczJYSV9jUUJ0TEZ2cWZvOVE0VVYzQ0otejNOcVdMNGZRNUotZVUtUDllckM5MVo1T1lWR2Y1N1B0YWdE?oc=5",
-   "src": "네이트",
-   "date": "08.09",
-   "ts": 1786241040000
-  },
-  {
-   "title": "\"물 많이 자주 마셔야죠\" 선발진 재합류 준비 `이상무` 롯데 김진욱 [MD수원]",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9fZExxRlBiZmxrc2NyUFZ5QmRMclZvOGhVMDVfcG9odHQwTGs5Mll4WnRpS19CNW1CN3pGSU9YcXpUWXNqcXU0Rm9xY0pvZDFtbEk0NTJIZWVPOVZHTUV4Nw?oc=5",
-   "src": "마이데일리",
-   "date": "08.09",
-   "ts": 1786236446000
-  },
-  {
-   "title": "야구도 안 하는데 또 사라졌다…부상은 NO, 정철원이 2군으로 향한 이유→결국 '스피드'에 달렸다",
-   "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9XOTZQRGNRQ2hhUDBDSVM1YlRSTHFNdVhkcUZxaEk1Vk1zcHZoNk83YVlHcG1GUllvX01UZ2Y5bFlNLTBFbW0yWFhVclVPQWFvQzlBQU1NelRBSUhsc1FFUVBVc3QxREdtNm04dDVTONIBc0FVX3lxTE5ubHVHSGZMVE1BSjZQYVRkWU00NUhiOEE0ZU91eG9XS0oyMDZWVy1HVjR2NVpBamMtRW9QN2h1Y0tqWmZoeEZNenA0a09nc1NhbW0wa0ctX3lUX1ZnNW1BS1JMX3pXaWhiNGp1bWRoem8yZm8?oc=5",
-   "src": "SPOTV NEWS",
-   "date": "08.09",
-   "ts": 1786234200000
+   "date": "08.22",
+   "ts": 1787394240000
   }
  ],
  "videoReview": [
   {
-   "seq": "6404",
-   "date": "08.02",
-   "stadium": "사직",
+   "seq": "6467",
+   "date": "08.21",
+   "stadium": "잠실-두",
    "broadcast": "MBC SPORTS+",
    "result": "번복",
    "teams": [
-    "삼성",
-    "롯데"
+    "롯데",
+    "두산"
    ],
-   "inning": "7회초",
+   "inning": "8회말",
    "reqTeam": "롯데",
-   "duration": "32초",
+   "duration": "48초",
    "type": "태그/포스(1루)"
   },
   {
-   "seq": "6403",
-   "date": "08.02",
-   "stadium": "사직",
+   "seq": "6465",
+   "date": "08.21",
+   "stadium": "잠실-두",
    "broadcast": "MBC SPORTS+",
    "result": "원심",
    "teams": [
-    "삼성",
-    "롯데"
+    "롯데",
+    "두산"
    ],
-   "inning": "6회초",
-   "reqTeam": "롯데",
-   "duration": "24초",
-   "type": "페어/파울"
-  },
-  {
-   "seq": "6402",
-   "date": "08.02",
-   "stadium": "사직",
-   "broadcast": "MBC SPORTS+",
-   "result": "번복",
-   "teams": [
-    "삼성",
-    "롯데"
-   ],
-   "inning": "4회말",
-   "reqTeam": "삼성",
-   "duration": "37초",
-   "type": "태그/포스(3루)"
-  },
-  {
-   "seq": "6401",
-   "date": "08.02",
-   "stadium": "사직",
-   "broadcast": "MBC SPORTS+",
-   "result": "원심",
-   "teams": [
-    "삼성",
-    "롯데"
-   ],
-   "inning": "4회말",
-   "reqTeam": "삼성",
-   "duration": "1분04초",
+   "inning": "8회초",
+   "reqTeam": "두산",
+   "duration": "29초",
    "type": "태그/포스(2루)"
   }
  ],
  "youtube": [
   {
-   "id": "KhQXeStIRek",
-   "title": "모델이 된 전민재의 광고 촬영 현장 비하인드📸",
-   "pub": "2026-08-08"
+   "id": "EkV71GdB2Xw",
+   "title": "'진짜 이런 말을 쓰는 거예요...?😳', 한동희, 손성빈, 윤동희의 영크크 테스트🔎",
+   "pub": "2026-08-22"
   },
   {
-   "id": "GW5MjZL7kCw",
-   "title": "대환장 파티(?), 도파민이 팡팡 터졌던 사빛밤 촬영 현장✨",
-   "pub": "2026-08-07"
+   "id": "RNhWi6pu-y4",
+   "title": "[HOTDUG] 김진욱의 6이닝 7K 호투와 고승민의 그랜드슬램으로 뜨거운 더그아웃🔥 (08.21)",
+   "pub": "2026-08-22"
   },
   {
-   "id": "_xFUrkRWQ1c",
-   "title": "✨우리가 진정한 승리요정✨ | 주니언츠 총출동!",
-   "pub": "2026-08-06"
+   "id": "AZNp9PpQ2hw",
+   "title": "고승민 멀티홈런! 두 번째는 만루홈런으로🔥#핫클립 #고승민",
+   "pub": "2026-08-21"
   },
   {
-   "id": "8odPD5msH-Y",
-   "title": "황성빈 굿즈 제작 비하인드 | 디자인부터 모델까지✨",
-   "pub": "2026-08-05"
+   "id": "fNSeZDMmNw4",
+   "title": "선취점을 가져오는 전민재의 적시타! #핫클립 #전민재",
+   "pub": "2026-08-21"
   },
   {
-   "id": "YkERqeWdat8",
-   "title": "[HOTDUG]1점 차 리드를 지켜낸 승리✨ (08.04)",
-   "pub": "2026-08-05"
+   "id": "Mv4HJAzaLFA",
+   "title": "[HIGHLIGHT] 롯데 VS 두산 (08.21) | 고승민의 그랜드슬램! 두 자릿수 득점으로 완성한 승리🔥",
+   "pub": "2026-08-21"
   },
   {
-   "id": "G91FScKkVCM",
-   "title": "4타수 2안타 결승타의 주인공! #수훈선수 #황성빈",
-   "pub": "2026-08-05"
+   "id": "jYt3F5qLzgo",
+   "title": "승리의 하이파이브✋",
+   "pub": "2026-08-21"
   }
  ],
  "shorts": [],
  "gall": [],
  "pythag": {
-  "date": "2026-08-09",
+  "date": "2026-08-23",
   "v": 6,
   "h2h": {
    "SSG": {
@@ -1102,8 +1285,8 @@
      "d": 0
     },
     "롯데": {
-     "w": 5,
-     "l": 6,
+     "w": 7,
+     "l": 7,
      "d": 1
     },
     "한화": {
@@ -1112,8 +1295,8 @@
      "d": 0
     },
     "LG": {
-     "w": 2,
-     "l": 8,
+     "w": 4,
+     "l": 9,
      "d": 0
     },
     "두산": {
@@ -1127,14 +1310,14 @@
      "d": 2
     },
     "삼성": {
-     "w": 4,
-     "l": 7,
+     "w": 6,
+     "l": 8,
      "d": 0
     },
     "KT": {
      "w": 7,
      "l": 5,
-     "d": 0
+     "d": 1
     }
    },
    "KIA": {
@@ -1154,23 +1337,23 @@
      "d": 0
     },
     "삼성": {
-     "w": 7,
-     "l": 4,
+     "w": 9,
+     "l": 5,
      "d": 0
     },
     "한화": {
-     "w": 6,
+     "w": 9,
      "l": 6,
      "d": 0
     },
     "키움": {
-     "w": 10,
-     "l": 2,
+     "w": 11,
+     "l": 3,
      "d": 0
     },
     "두산": {
-     "w": 5,
-     "l": 7,
+     "w": 7,
+     "l": 8,
      "d": 0
     },
     "KT": {
@@ -1186,8 +1369,8 @@
    },
    "LG": {
     "KT": {
-     "w": 3,
-     "l": 9,
+     "w": 5,
+     "l": 10,
      "d": 0
     },
     "KIA": {
@@ -1196,8 +1379,8 @@
      "d": 0
     },
     "키움": {
-     "w": 8,
-     "l": 4,
+     "w": 10,
+     "l": 5,
      "d": 0
     },
     "NC": {
@@ -1206,8 +1389,8 @@
      "d": 0
     },
     "SSG": {
-     "w": 8,
-     "l": 2,
+     "w": 9,
+     "l": 4,
      "d": 0
     },
     "롯데": {
@@ -1222,7 +1405,7 @@
     },
     "한화": {
      "w": 5,
-     "l": 6,
+     "l": 7,
      "d": 0
     },
     "두산": {
@@ -1233,8 +1416,8 @@
    },
    "KT": {
     "LG": {
-     "w": 9,
-     "l": 3,
+     "w": 10,
+     "l": 5,
      "d": 0
     },
     "한화": {
@@ -1258,13 +1441,13 @@
      "d": 1
     },
     "NC": {
-     "w": 9,
-     "l": 2,
+     "w": 10,
+     "l": 4,
      "d": 0
     },
     "키움": {
-     "w": 8,
-     "l": 2,
+     "w": 10,
+     "l": 3,
      "d": 1
     },
     "KIA": {
@@ -1275,7 +1458,7 @@
     "SSG": {
      "w": 5,
      "l": 7,
-     "d": 0
+     "d": 1
     }
    },
    "삼성": {
@@ -1295,17 +1478,17 @@
      "d": 0
     },
     "KIA": {
-     "w": 4,
-     "l": 7,
+     "w": 5,
+     "l": 9,
      "d": 0
     },
     "NC": {
-     "w": 9,
-     "l": 3,
+     "w": 10,
+     "l": 4,
      "d": 0
     },
     "한화": {
-     "w": 6,
+     "w": 8,
      "l": 3,
      "d": 1
     },
@@ -1315,8 +1498,8 @@
      "d": 0
     },
     "SSG": {
-     "w": 7,
-     "l": 4,
+     "w": 8,
+     "l": 6,
      "d": 0
     },
     "키움": {
@@ -1332,13 +1515,13 @@
      "d": 0
     },
     "NC": {
-     "w": 4,
-     "l": 8,
+     "w": 5,
+     "l": 9,
      "d": 0
     },
     "SSG": {
-     "w": 6,
-     "l": 5,
+     "w": 7,
+     "l": 7,
      "d": 1
     },
     "KT": {
@@ -1347,7 +1530,7 @@
      "d": 0
     },
     "키움": {
-     "w": 8,
+     "w": 11,
      "l": 2,
      "d": 0
     },
@@ -1362,7 +1545,7 @@
      "d": 0
     },
     "두산": {
-     "w": 4,
+     "w": 5,
      "l": 8,
      "d": 0
     },
@@ -1374,13 +1557,13 @@
    },
    "NC": {
     "두산": {
-     "w": 2,
-     "l": 6,
+     "w": 3,
+     "l": 8,
      "d": 0
     },
     "롯데": {
-     "w": 8,
-     "l": 4,
+     "w": 9,
+     "l": 5,
      "d": 0
     },
     "KIA": {
@@ -1394,13 +1577,13 @@
      "d": 0
     },
     "삼성": {
-     "w": 3,
-     "l": 9,
+     "w": 4,
+     "l": 10,
      "d": 0
     },
     "KT": {
-     "w": 2,
-     "l": 9,
+     "w": 4,
+     "l": 10,
      "d": 0
     },
     "SSG": {
@@ -1421,8 +1604,8 @@
    },
    "두산": {
     "NC": {
-     "w": 6,
-     "l": 2,
+     "w": 8,
+     "l": 3,
      "d": 0
     },
     "삼성": {
@@ -1431,8 +1614,8 @@
      "d": 1
     },
     "한화": {
-     "w": 5,
-     "l": 6,
+     "w": 7,
+     "l": 7,
      "d": 1
     },
     "키움": {
@@ -1451,13 +1634,13 @@
      "d": 0
     },
     "KIA": {
-     "w": 7,
-     "l": 5,
+     "w": 8,
+     "l": 7,
      "d": 0
     },
     "롯데": {
      "w": 8,
-     "l": 4,
+     "l": 5,
      "d": 0
     },
     "LG": {
@@ -1478,8 +1661,8 @@
      "d": 0
     },
     "두산": {
-     "w": 6,
-     "l": 5,
+     "w": 7,
+     "l": 7,
      "d": 1
     },
     "SSG": {
@@ -1489,12 +1672,12 @@
     },
     "KIA": {
      "w": 6,
-     "l": 6,
+     "l": 9,
      "d": 0
     },
     "삼성": {
      "w": 3,
-     "l": 6,
+     "l": 8,
      "d": 1
     },
     "롯데": {
@@ -1503,7 +1686,7 @@
      "d": 0
     },
     "LG": {
-     "w": 6,
+     "w": 7,
      "l": 5,
      "d": 0
     },
@@ -1525,8 +1708,8 @@
      "d": 0
     },
     "LG": {
-     "w": 4,
-     "l": 8,
+     "w": 5,
+     "l": 10,
      "d": 0
     },
     "두산": {
@@ -1536,17 +1719,17 @@
     },
     "롯데": {
      "w": 2,
-     "l": 8,
+     "l": 11,
      "d": 0
     },
     "KIA": {
-     "w": 2,
-     "l": 10,
+     "w": 3,
+     "l": 11,
      "d": 0
     },
     "KT": {
-     "w": 2,
-     "l": 8,
+     "w": 3,
+     "l": 10,
      "d": 1
     },
     "NC": {
@@ -1564,306 +1747,306 @@
   "travel": {
    "teams": [
     {
-     "name": "삼성",
-     "km": 5121,
-     "moves": 29,
-     "last": "대구"
-    },
-    {
-     "name": "LG",
-     "km": 5106,
-     "moves": 27,
-     "last": "문학"
-    },
-    {
      "name": "키움",
-     "km": 4915,
-     "moves": 30,
-     "last": "사직"
-    },
-    {
-     "name": "SSG",
-     "km": 4909,
-     "moves": 31,
-     "last": "문학"
+     "km": 5884,
+     "moves": 34,
+     "last": "고척"
     },
     {
      "name": "롯데",
-     "km": 4806,
-     "moves": 28,
-     "last": "사직"
-    },
-    {
-     "name": "KIA",
-     "km": 4784,
-     "moves": 28,
-     "last": "창원"
-    },
-    {
-     "name": "한화",
-     "km": 4400,
-     "moves": 28,
-     "last": "대구"
-    },
-    {
-     "name": "두산",
-     "km": 4344,
-     "moves": 28,
+     "km": 5774,
+     "moves": 31,
      "last": "잠실"
     },
     {
-     "name": "NC",
-     "km": 4225,
-     "moves": 28,
+     "name": "삼성",
+     "km": 5548,
+     "moves": 32,
      "last": "창원"
     },
     {
-     "name": "KT",
-     "km": 3811,
+     "name": "SSG",
+     "km": 5429,
+     "moves": 34,
+     "last": "문학"
+    },
+    {
+     "name": "LG",
+     "km": 5277,
      "moves": 30,
-     "last": "수원"
+     "last": "대전"
+    },
+    {
+     "name": "KIA",
+     "km": 5216,
+     "moves": 31,
+     "last": "고척"
+    },
+    {
+     "name": "두산",
+     "km": 5048,
+     "moves": 31,
+     "last": "잠실"
+    },
+    {
+     "name": "한화",
+     "km": 4994,
+     "moves": 31,
+     "last": "대전"
+    },
+    {
+     "name": "KT",
+     "km": 4411,
+     "moves": 34,
+     "last": "문학"
+    },
+    {
+     "name": "NC",
+     "km": 4313,
+     "moves": 30,
+     "last": "창원"
     }
    ],
    "ktSeq": [
     "사직",
-    "잠실",
-    "수원",
-    "사직",
     "대구",
     "사직",
     "대전",
-    "사직"
+    "사직",
+    "문학",
+    "사직",
+    "잠실"
    ],
    "seqByTeam": {
     "KT": [
-     "수원",
-     "잠실",
-     "수원",
-     "사직",
      "창원",
-     "수원"
-    ],
-    "LG": [
-     "잠실",
-     "대구",
-     "잠실",
-     "대전",
+     "수원",
+     "창원",
+     "수원",
      "잠실",
      "문학"
     ],
-    "삼성": [
-     "대구",
+    "LG": [
+     "대전",
+     "잠실",
+     "문학",
      "고척",
      "잠실",
+     "대전"
+    ],
+    "삼성": [
      "대구",
      "사직",
-     "대구"
+     "대구",
+     "광주",
+     "대구",
+     "창원"
     ],
     "두산": [
      "잠실",
-     "창원",
-     "수원",
-     "잠실",
      "문학",
+     "잠실",
+     "광주",
+     "창원",
      "잠실"
     ],
     "KIA": [
      "광주",
-     "사직",
-     "문학",
-     "광주",
      "대구",
-     "창원"
+     "창원",
+     "광주",
+     "대전",
+     "고척"
     ],
     "롯데": [
-     "수원",
-     "사직",
-     "대구",
      "사직",
      "대전",
-     "사직"
-    ],
-    "SSG": [
-     "잠실",
-     "문학",
      "사직",
      "문학",
+     "사직",
+     "잠실"
+    ],
+    "SSG": [
+     "문학",
      "고척",
+     "문학",
+     "잠실",
+     "대구",
      "문학"
     ],
     "NC": [
-     "광주",
-     "대전",
      "창원",
      "잠실",
      "문학",
+     "창원",
+     "사직",
      "창원"
     ],
     "키움": [
-     "대전",
      "고척",
-     "광주",
-     "잠실",
+     "사직",
      "고척",
-     "사직"
+     "수원",
+     "사직",
+     "고척"
     ],
     "한화": [
-     "잠실",
-     "대전",
-     "광주",
      "대전",
      "수원",
-     "대구"
+     "대구",
+     "잠실",
+     "대구",
+     "대전"
     ]
    }
   },
   "teams": [
    {
     "name": "삼성",
-    "rs": 569,
-    "ra": 459,
-    "exp": 0.597,
-    "act": 0.602,
-    "diff": 0.005
+    "rs": 636,
+    "ra": 512,
+    "exp": 0.598,
+    "act": 0.593,
+    "diff": -0.005
    },
    {
     "name": "KT",
-    "rs": 544,
-    "ra": 461,
-    "exp": 0.575,
-    "act": 0.621,
-    "diff": 0.046
-   },
-   {
-    "name": "한화",
-    "rs": 578,
-    "ra": 523,
-    "exp": 0.546,
-    "act": 0.49,
-    "diff": -0.056
+    "rs": 595,
+    "ra": 505,
+    "exp": 0.574,
+    "act": 0.606,
+    "diff": 0.031
    },
    {
     "name": "KIA",
-    "rs": 537,
-    "ra": 487,
-    "exp": 0.545,
-    "act": 0.531,
-    "diff": -0.014
+    "rs": 599,
+    "ra": 527,
+    "exp": 0.558,
+    "act": 0.55,
+    "diff": -0.008
    },
    {
     "name": "두산",
-    "rs": 467,
-    "ra": 436,
-    "exp": 0.531,
-    "act": 0.536,
-    "diff": 0.005
+    "rs": 519,
+    "ra": 483,
+    "exp": 0.533,
+    "act": 0.533,
+    "diff": 0
+   },
+   {
+    "name": "한화",
+    "rs": 629,
+    "ra": 591,
+    "exp": 0.528,
+    "act": 0.467,
+    "diff": -0.062
    },
    {
     "name": "LG",
-    "rs": 511,
-    "ra": 516,
-    "exp": 0.496,
-    "act": 0.55,
-    "diff": 0.054
-   },
-   {
-    "name": "NC",
-    "rs": 489,
-    "ra": 511,
-    "exp": 0.48,
-    "act": 0.462,
-    "diff": -0.018
+    "rs": 567,
+    "ra": 573,
+    "exp": 0.495,
+    "act": 0.545,
+    "diff": 0.05
    },
    {
     "name": "롯데",
-    "rs": 452,
-    "ra": 490,
-    "exp": 0.463,
-    "act": 0.449,
-    "diff": -0.014
+    "rs": 522,
+    "ra": 540,
+    "exp": 0.484,
+    "act": 0.467,
+    "diff": -0.017
+   },
+   {
+    "name": "NC",
+    "rs": 535,
+    "ra": 567,
+    "exp": 0.473,
+    "act": 0.466,
+    "diff": -0.007
    },
    {
     "name": "SSG",
-    "rs": 515,
-    "ra": 626,
-    "exp": 0.412,
-    "act": 0.394,
-    "diff": -0.018
+    "rs": 562,
+    "ra": 678,
+    "exp": 0.415,
+    "act": 0.417,
+    "diff": 0.002
    },
    {
     "name": "키움",
-    "rs": 405,
-    "ra": 558,
-    "exp": 0.357,
-    "act": 0.373,
-    "diff": 0.015
+    "rs": 452,
+    "ra": 640,
+    "exp": 0.346,
+    "act": 0.363,
+    "diff": 0.017
    }
   ]
  },
  "sched": {
-  "date": "2026-08-09",
+  "date": "2026-08-23",
   "v": 2,
-  "sampleGames": 120,
+  "sampleGames": 65,
   "teams": [
    {
-    "name": "삼성",
-    "remaining": 44,
-    "sampleN": 24,
-    "oppWra": 0.484
+    "name": "KIA",
+    "remaining": 33,
+    "sampleN": 13,
+    "oppWra": 0.479
    },
    {
     "name": "두산",
-    "remaining": 43,
-    "sampleN": 24,
-    "oppWra": 0.484
-   },
-   {
-    "name": "LG",
-    "remaining": 43,
-    "sampleN": 24,
-    "oppWra": 0.491
-   },
-   {
-    "name": "KIA",
-    "remaining": 44,
-    "sampleN": 24,
-    "oppWra": 0.491
-   },
-   {
-    "name": "KT",
-    "remaining": 47,
-    "sampleN": 24,
-    "oppWra": 0.492
-   },
-   {
-    "name": "롯데",
-    "remaining": 44,
-    "sampleN": 24,
-    "oppWra": 0.492
-   },
-   {
-    "name": "키움",
-    "remaining": 40,
-    "sampleN": 24,
-    "oppWra": 0.518
-   },
-   {
-    "name": "한화",
-    "remaining": 45,
-    "sampleN": 24,
-    "oppWra": 0.518
+    "remaining": 33,
+    "sampleN": 13,
+    "oppWra": 0.482
    },
    {
     "name": "SSG",
-    "remaining": 41,
-    "sampleN": 24,
-    "oppWra": 0.519
+    "remaining": 31,
+    "sampleN": 13,
+    "oppWra": 0.488
    },
    {
     "name": "NC",
-    "remaining": 49,
-    "sampleN": 24,
-    "oppWra": 0.519
+    "remaining": 39,
+    "sampleN": 13,
+    "oppWra": 0.49
+   },
+   {
+    "name": "삼성",
+    "remaining": 34,
+    "sampleN": 13,
+    "oppWra": 0.493
+   },
+   {
+    "name": "한화",
+    "remaining": 36,
+    "sampleN": 13,
+    "oppWra": 0.493
+   },
+   {
+    "name": "키움",
+    "remaining": 29,
+    "sampleN": 13,
+    "oppWra": 0.506
+   },
+   {
+    "name": "LG",
+    "remaining": 33,
+    "sampleN": 13,
+    "oppWra": 0.511
+   },
+   {
+    "name": "KT",
+    "remaining": 37,
+    "sampleN": 13,
+    "oppWra": 0.527
+   },
+   {
+    "name": "롯데",
+    "remaining": 35,
+    "sampleN": 13,
+    "oppWra": 0.538
    }
   ]
  }
