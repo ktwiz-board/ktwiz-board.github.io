@@ -318,8 +318,9 @@ async function selfStandings(today) {
 }
 
 // 잔여 일정 난이도: 남은 상대들의 현재 승률 가중 평균 (자체 산식)
-// 주의: KBO 일정 API가 시즌 전체를 미리 공개하지 않아, 공개된 만큼의 표본으로 "상대 평균 승률"만 추정하고
-// "남은 경기수"는 정규시즌 144경기 - 소화경기로 정확히 계산한다 (표본 수와 혼동 금지).
+// 주의: KBO가 잔여 일정을 시즌 중 나눠서 공개하므로(취소 경기 재편성 포함) 시점에 따라 표본이 달라진다.
+// 공개된 만큼의 표본으로 "상대 평균 승률"을 추정하고, "남은 경기수"는 정규시즌 144경기 - 소화경기로
+// 정확히 계산한다 (표본 수와 혼동 금지). 표본이 잔여 경기 전체를 덮으면 추정이 아니라 확정값이 된다.
 async function scheduleDifficulty(today, standings) {
   const SEASON_GAMES = 144;
   const wraMap = {}, playedMap = {};
@@ -338,7 +339,7 @@ async function scheduleDifficulty(today, standings) {
   }
   const sampleTotal = future.length;
   return {
-    date: today, v: 2, sampleGames: sampleTotal,
+    date: today, v: 3, sampleGames: sampleTotal,
     teams: KBO_TEAMS.map(name => {
       const a = acc[name] || { n: 0, sum: 0 };
       const remaining = Math.max(0, SEASON_GAMES - (playedMap[name] || 0));
@@ -373,7 +374,7 @@ async function scheduleDifficulty(today, standings) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 2 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 3 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
@@ -672,12 +673,27 @@ async function scheduleDifficulty(today, standings) {
     try { pythag = await pythagorean(today); } catch (e) { console.error('pythag fail', e.message); pythag = (prev && prev.pythag) || null; }
   }
 
-  // 7.5) 잔여 일정 난이도 — 하루 1회 (순위 확정 후 계산)
+  // 7.5) 잔여 일정 난이도 — 기본은 하루 1회 캐시.
+  // 단 KBO가 잔여 일정을 시즌 중 뒤늦게 공개하거나 취소 경기를 재편성하면 표본이 늘어나므로,
+  // 캐시된 표본이 실제 잔여 경기 수(순위표 기준)에 못 미치면 같은 날이라도 1시간 주기로 다시 계산한다.
+  // (일정이 끝내 완전 공개되지 않는 구간에서 5분마다 재조회하는 낭비를 막기 위한 시간 버킷)
   const stForSched = Object.keys(standings).length >= 10
     ? Object.values(standings) : ((prev && prev.standings) || []);
-  let sched = (prev && prev.sched && prev.sched.date === today && prev.sched.v === 2) ? prev.sched : null;
+  const expectedFuture = stForSched.length >= 10
+    ? Math.round(stForSched.reduce((s, t) => s + Math.max(0, 144 - (t.w + t.l + t.d)), 0) / 2) : 0;
+  const schedStamp = today + '-' + String(now.getUTCHours()).padStart(2, '0'); // now는 KST 기준
+  const prevSched = (prev && prev.sched && prev.sched.v === 3 && prev.sched.date === today) ? prev.sched : null;
+  const schedUsable = prevSched && (
+    expectedFuture === 0 ||
+    prevSched.sampleGames >= expectedFuture * 0.9 || // 표본이 잔여 일정 대부분을 덮음 → 완전한 것으로 간주
+    prevSched.stamp === schedStamp                    // 이번 시간대에 이미 재시도함
+  );
+  let sched = schedUsable ? prevSched : null;
   if (!sched && stForSched.length >= 10) {
-    try { sched = await scheduleDifficulty(today, stForSched); }
+    try {
+      sched = await scheduleDifficulty(today, stForSched);
+      sched.stamp = schedStamp;
+    }
     catch (e) { console.error('sched fail', e.message); sched = (prev && prev.sched) || null; }
   }
   if (!sched) sched = (prev && prev.sched) || null;
