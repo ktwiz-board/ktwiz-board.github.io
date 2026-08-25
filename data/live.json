@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-25T06:13:25.921Z",
- "updatedKST": "15:13",
+ "updated": "2026-08-25T06:49:15.039Z",
+ "updatedKST": "15:49",
  "date": "2026-08-25",
  "mode": "pre",
  "games": [
@@ -1143,6 +1143,20 @@
  },
  "news": [
   {
+   "title": "애태우며 기다린 AG 2주간의 편성···‘선발 공백’ 두산 KT, 4인 로테이션 가능, ‘김도영 차출’ KIA는...",
+   "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBEaU55R20xQWg3N2hRR0NnX1pXdjNwbktqSVB6dkNaeERCb3AweENYa0RmZzVHN1FTSURJWTBod0dZZTQzbTUwdWt6WE9uaEVCZjBfMmdZSmxDR2d3ZEHSAWNBVV95cUxPVGZzV01pQkIza002VFRMZzNlLTNqUGpOYmhkOS1lWTFXRnFaNzdhR1dYQlRoRFYtODV0X0NPbjFGVmFkYzhzU2tra2JwWk8wNkkxVG44U0RDYjdaQ1BsN3RWclU?oc=5",
+   "src": "스포츠경향",
+   "date": "08.25",
+   "ts": 1787638140000
+  },
+  {
+   "title": "한주간(8월19일~8월24일) 퓨처스리그 익산홈팀 KT위즈 소식] 현재 4위",
+   "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE85MXpmVURmRHhmOEs2d25Ba2QwLVJxTlduQnAzOW9BWG9FcnhRZWpBam5uTjBxbWpiSDZBV19nX3RwTkp5YjBHTkdZT0JSNjAtVHNnRk1aeFZyeEFqVFRnUnhOQXg5OXVPZTZz?oc=5",
+   "src": "익산시민뉴스",
+   "date": "08.25",
+   "ts": 1787638036000
+  },
+  {
    "title": "KT-삼성 최종일 맞대결+잠실구장 최종전은 두산-LG…KBO, 올 시즌 잔여경기 일정 발표",
    "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9tQkw3azZNbXAzYUtrcGxkdHFncFJfUER5U2dvdDhFUUQ1eHpWTVRHbUdNRURCX3BibWJfTGxkV2dOSTJXNk04WGROdWdYenpNRFlvMnpDVmNoRUtWWk9lWEpKQ3Z0WmxDdTMybzhNc05PZw?oc=5",
    "src": "스포츠동아",
@@ -1169,20 +1183,6 @@
    "src": "미주중앙일보",
    "date": "08.25",
    "ts": 1787631000000
-  },
-  {
-   "title": "`놀랍다` 삼성·LG 제친 이유 있었네, 역전승 리그 1위! 비결 물었더니…\"구위형 투수를 안 쓴다\"",
-   "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE41MTV4ZnRJWnUwLTY2LTl6aG1YU1ZVTEZrZzh3ZTVYS1FOb2l5NWhEeTVkWU9vdkw5YzFkUzhzeDF5R09TV2w4eXpKdlVfTUZpNGVFMlprUFZHWHNmSUsyTQ?oc=5",
-   "src": "마이데일리",
-   "date": "08.25",
-   "ts": 1787628660000
-  },
-  {
-   "title": "[굿모닝위즈·번외] 다시, 이들의 시간",
-   "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1WSkU0NHBQUTZHX2RzRjJGTDNmX2Z2ckxGaUhoREk0Y1NTajY4U1dlMUpQY0o0N1hqUy1CbGNCdElZQXNsNnBmNGpacVBpQnQ1YUE?oc=5",
-   "src": "경인일보",
-   "date": "08.25",
-   "ts": 1787627201000
   }
  ],
  "videoReview": [
@@ -1921,8 +1921,230 @@
  },
  "sched": {
   "date": "2026-08-25",
-  "v": 3,
+  "v": 4,
   "sampleGames": 165,
+  "makeups": {
+   "2026-04-09|키움|두산": {
+    "date": "2026-09-18",
+    "sure": false
+   },
+   "2026-04-09|KT|롯데": {
+    "date": "2026-09-11",
+    "sure": false
+   },
+   "2026-04-09|한화|SSG": {
+    "date": "2026-09-10",
+    "sure": false
+   },
+   "2026-04-09|삼성|KIA": {
+    "date": "2026-10-06",
+    "sure": true
+   },
+   "2026-04-09|LG|NC": {
+    "date": "2026-09-16",
+    "sure": false
+   },
+   "2026-04-17|LG|삼성": {
+    "date": "2026-09-13",
+    "sure": false
+   },
+   "2026-04-17|한화|롯데": {
+    "date": "2026-09-27",
+    "sure": false
+   },
+   "2026-04-17|SSG|NC": {
+    "date": "2026-09-17",
+    "sure": true
+   },
+   "2026-08-07|SSG|NC": {
+    "date": "2026-10-03",
+    "sure": true
+   },
+   "2026-08-08|SSG|NC": {
+    "date": "2026-10-04",
+    "sure": true
+   },
+   "2026-08-09|SSG|NC": {
+    "date": "2026-10-05",
+    "sure": true
+   },
+   "2026-05-07|롯데|KT": {
+    "date": "2026-09-13",
+    "sure": true
+   },
+   "2026-08-07|롯데|KT": {
+    "date": "2026-10-03",
+    "sure": true
+   },
+   "2026-08-08|롯데|KT": {
+    "date": "2026-10-04",
+    "sure": true
+   },
+   "2026-08-09|롯데|KT": {
+    "date": "2026-10-05",
+    "sure": true
+   },
+   "2026-05-20|NC|두산": {
+    "date": "2026-09-13",
+    "sure": false
+   },
+   "2026-08-04|NC|두산": {
+    "date": "2026-09-29",
+    "sure": false
+   },
+   "2026-08-05|NC|두산": {
+    "date": "2026-09-30",
+    "sure": false
+   },
+   "2026-08-06|NC|두산": {
+    "date": "2026-10-01",
+    "sure": false
+   },
+   "2026-05-20|LG|KIA": {
+    "date": "2026-09-27",
+    "sure": false
+   },
+   "2026-05-20|롯데|한화": {
+    "date": "2026-09-23",
+    "sure": false
+   },
+   "2026-05-20|KT|삼성": {
+    "date": "2026-09-09",
+    "sure": false
+   },
+   "2026-05-26|삼성|SSG": {
+    "date": "2026-09-25",
+    "sure": false
+   },
+   "2026-05-26|한화|NC": {
+    "date": "2026-09-26",
+    "sure": false
+   },
+   "2026-06-14|NC|KT": {
+    "date": "2026-09-24",
+    "sure": false
+   },
+   "2026-06-30|KT|한화": {
+    "date": "2026-09-16",
+    "sure": false
+   },
+   "2026-07-08|NC|한화": {
+    "date": "2026-09-11",
+    "sure": false
+   },
+   "2026-07-09|키움|KT": {
+    "date": "2026-09-26",
+    "sure": true
+   },
+   "2026-07-17|롯데|삼성": {
+    "date": "2026-09-15",
+    "sure": false
+   },
+   "2026-07-22|NC|LG": {
+    "date": "2026-10-06",
+    "sure": false
+   },
+   "2026-08-01|삼성|롯데": {
+    "date": "2026-09-20",
+    "sure": false
+   },
+   "2026-08-01|KIA|NC": {
+    "date": "2026-09-19",
+    "sure": false
+   },
+   "2026-08-02|KIA|NC": {
+    "date": "2026-09-20",
+    "sure": false
+   },
+   "2026-08-04|KT|KIA": {
+    "date": "2026-09-29",
+    "sure": false
+   },
+   "2026-08-05|KT|KIA": {
+    "date": "2026-09-30",
+    "sure": false
+   },
+   "2026-08-06|KT|KIA": {
+    "date": "2026-10-01",
+    "sure": false
+   },
+   "2026-08-05|한화|삼성": {
+    "date": "2026-09-30",
+    "sure": false
+   },
+   "2026-08-06|한화|삼성": {
+    "date": "2026-10-01",
+    "sure": false
+   },
+   "2026-08-05|키움|롯데": {
+    "date": "2026-09-29",
+    "sure": true
+   },
+   "2026-08-06|키움|롯데": {
+    "date": "2026-09-30",
+    "sure": true
+   },
+   "2026-08-05|LG|SSG": {
+    "date": "2026-09-30",
+    "sure": false
+   },
+   "2026-08-06|LG|SSG": {
+    "date": "2026-10-01",
+    "sure": false
+   },
+   "2026-08-07|KIA|LG": {
+    "date": "2026-10-03",
+    "sure": true
+   },
+   "2026-08-08|KIA|LG": {
+    "date": "2026-10-04",
+    "sure": true
+   },
+   "2026-08-09|KIA|LG": {
+    "date": "2026-10-05",
+    "sure": true
+   },
+   "2026-08-07|두산|삼성": {
+    "date": "2026-10-03",
+    "sure": true
+   },
+   "2026-08-08|두산|삼성": {
+    "date": "2026-10-04",
+    "sure": true
+   },
+   "2026-08-09|두산|삼성": {
+    "date": "2026-10-05",
+    "sure": true
+   },
+   "2026-08-07|키움|한화": {
+    "date": "2026-10-03",
+    "sure": true
+   },
+   "2026-08-08|키움|한화": {
+    "date": "2026-10-04",
+    "sure": true
+   },
+   "2026-08-09|키움|한화": {
+    "date": "2026-10-05",
+    "sure": true
+   },
+   "2026-08-16|NC|롯데": {
+    "date": "2026-09-18",
+    "sure": true
+   },
+   "2026-08-22|롯데|두산": {
+    "date": "2026-09-25",
+    "sure": true
+   },
+   "2026-08-22|KT|SSG": {
+    "date": "2026-09-22",
+    "sure": true
+   },
+   "2026-08-22|LG|한화": {
+    "date": "2026-09-09",
+    "sure": true
+   }
+  },
   "teams": [
    {
     "name": "한화",

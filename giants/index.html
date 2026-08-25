@@ -264,6 +264,11 @@ gtag('config', 'G-8MC9LN4N1R');
   .week .m .ha.h{background:rgba(208,15,49,.14);color:var(--red-soft)}
   .week .m .ha.a{background:rgba(255,255,255,.08);color:var(--muted)}
   .week .t{font-size:12.5px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* 취소 경기 → 재편성 날짜 태그 */
+  .week .mk{font-size:11px;font-weight:700;margin-left:8px;padding:2px 8px;border-radius:6px;white-space:nowrap;
+    background:rgba(48,209,88,.13);color:var(--ok);vertical-align:1px;cursor:help}
+  .week .mk.est{background:rgba(255,255,255,.07);color:var(--muted)}
+  @media (max-width:560px){.week .mk{display:inline-block;margin:5px 0 0 0}}
   .form{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
   .form .f{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:16px}
   .form .f.W{background:rgba(208,15,49,.16);color:var(--red-soft)}
@@ -1170,7 +1175,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260825-061616';
+  const BUILD = '20260825-065015';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1999,8 +2004,20 @@ gtag('config', 'G-8MC9LN4N1R');
       const ktHome = c.home === '롯데';
       const opp = ktHome ? c.away : c.home;
       const dt = new Date(c.date + 'T00:00:00');
+      /* 재편성 날짜: 대진별 잔여 경기 수로 역산 (sure=수학적 확정 / 아니면 추정) */
+      const mk = sched && sched.makeups ? sched.makeups[c.date + '|' + c.away + '|' + c.home] : null;
+      let mkTag = '';
+      if(mk && mk.date){
+        const mDt = new Date(mk.date + 'T00:00:00');
+        const label = mk.date.slice(5).replace('-','.') + ' (' + DOW[mDt.getDay()] + ')';
+        mkTag = '<span class="mk' + (mk.sure ? '' : ' est') + '" title="' +
+          (mk.sure
+            ? '이 대진의 잔여 경기 수가 취소 경기 수와 같아 재편성 날짜가 확정적으로 특정됩니다'
+            : 'KBO가 재편성 경기를 일정에 따로 표시하지 않아, 같은 대진의 잔여 경기 중 뒤쪽 경기를 재편성분으로 추정한 값입니다') +
+          '">→ ' + label + (mk.sure ? '' : ' 추정') + '</span>';
+      }
       return '<li><span class="d">' + c.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')</span>' +
-        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span>' + mkTag + '</span>' +
         '<span class="t">' + icon(c.reason) + esc(c.reason) + ' · ' + esc(c.stadium) + '</span></li>';
     }).join('');
     const heat = kt.filter(c => c.reason.indexOf('폭염') >= 0).length;
