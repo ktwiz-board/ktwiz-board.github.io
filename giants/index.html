@@ -910,6 +910,12 @@ gtag('config', 'G-8MC9LN4N1R');
         <div class="form" id="ktForm"></div>
         <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
       </div>
+      <div class="calbox reveal d3" id="ktRestBox" style="grid-column:1/-1;display:none">
+        <h4>잔여 경기 일정 <span id="ktRestCount"></span></h4>
+        <ul class="week" id="ktRestList"></ul>
+        <button class="h2h-toggle" id="ktRestTgl" type="button" aria-expanded="false" aria-controls="ktRestList" style="margin-top:14px"></button>
+        <p class="board-note" id="ktRestNote" style="margin-top:12px"></p>
+      </div>
       <div class="calbox reveal d3" id="ktCancelBox" style="grid-column:1/-1;display:none">
         <h4>시즌 취소 경기</h4>
         <ul class="week" id="ktCancelList"></ul>
@@ -1175,7 +1181,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260825-065015';
+  const BUILD = '20260825-073817';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1992,6 +1998,45 @@ gtag('config', 'G-8MC9LN4N1R');
   }
 
   /* 시즌 취소 경기 (KT) — KBO 공식 일정 기준, 사유·잔여 경기 포함 */
+  /* ---------- 잔여 경기 일정 (시즌 끝까지) ---------- */
+  let ktRestOpen = false;
+  function renderRest(sched){
+    const box = document.getElementById('ktRestBox');
+    const list = sched && sched.mine;
+    if(!box || !list || !list.length) return;
+    box.style.display = '';
+    const DOW = ['일','월','화','수','목','금','토'];
+    /* 재편성 경기 표시: makeups의 값(재편성 날짜)+대진으로 역인덱스를 만든다 */
+    const mkSet = {};
+    Object.entries((sched && sched.makeups) || {}).forEach(([k, v]) => {
+      const p = k.split('|');
+      if(v && v.date) mkSet[v.date + '|' + p[1] + '|' + p[2]] = v.sure;
+    });
+    const SHOW = 8;
+    const rows = ktRestOpen ? list : list.slice(0, SHOW);
+    document.getElementById('ktRestCount').textContent = '· 총 ' + list.length + '경기';
+    document.getElementById('ktRestList').innerHTML = rows.map(g => {
+      const ktHome = g.home === '롯데';
+      const opp = ktHome ? g.away : g.home;
+      const dt = new Date(g.date + 'T00:00:00');
+      const sure = mkSet[g.date + '|' + g.away + '|' + g.home];
+      const mkTag = sure === undefined ? '' :
+        '<span class="mk' + (sure ? '' : ' est') + '" title="' +
+        (sure ? '취소 경기의 재편성분입니다' : '재편성분으로 추정되는 경기입니다') + '">재편성' + (sure ? '' : '?') + '</span>';
+      return '<li><span class="d">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span>' + mkTag + '</span>' +
+        '<span class="t">' + esc(g.time || '') + ' · ' + esc(g.stadium) + '</span></li>';
+    }).join('');
+    const tgl = document.getElementById('ktRestTgl');
+    tgl.textContent = ktRestOpen ? '접기 ▴' : ('전체 ' + list.length + '경기 보기 ▾');
+    tgl.setAttribute('aria-expanded', String(ktRestOpen));
+    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched); };
+    const home = list.filter(g => g.home === '롯데').length;
+    document.getElementById('ktRestNote').innerHTML =
+      'KBO 공개 잔여 일정 기준 — 홈 <b>' + home + '</b> · 원정 <b>' + (list.length - home) + '</b>경기. ' +
+      '<span class="mk" style="margin:0">재편성</span> 표시는 취소 경기가 다시 편성된 경기입니다.';
+  }
+
   function renderCancelled(cn, standings, sched){
     const box = document.getElementById('ktCancelBox');
     if(!box || !cn || !cn.list) return;
@@ -3026,6 +3071,7 @@ gtag('config', 'G-8MC9LN4N1R');
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
+        renderRest(j.sched);
         renderCancelled(j.cancelled, j.standings, j.sched);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);

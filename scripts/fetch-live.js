@@ -363,8 +363,14 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     csTail.forEach((c, i) => { makeups[c.date + '|' + c.away + '|' + c.home] = { date: fsTail[i], sure }; });
   }
 
+  // 우리 팀 잔여 경기 전체 (화면에서 "이번 주" 대신 시즌 끝까지 보여주기 위함)
+  const mine = future
+    .filter(g => g.homeTeamName === 'KT' || g.awayTeamName === 'KT')
+    .map(g => ({ date: g.gameDate, away: g.awayTeamName, home: g.homeTeamName, stadium: g.stadium, time: (g.gameDateTime || '').slice(11, 16) }))
+    .sort((a, b) => a.date < b.date ? -1 : 1);
+
   return {
-    date: today, v: 4, sampleGames: sampleTotal, makeups,
+    date: today, v: 5, sampleGames: sampleTotal, makeups, mine,
     teams: KBO_TEAMS.map(name => {
       const a = acc[name] || { n: 0, sum: 0 };
       const remaining = Math.max(0, SEASON_GAMES - (playedMap[name] || 0));
@@ -399,7 +405,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 4 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 5 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
     if (yt2.length) prev.youtube = yt2;
@@ -707,7 +713,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const expectedFuture = stForSched.length >= 10
     ? Math.round(stForSched.reduce((s, t) => s + Math.max(0, 144 - (t.w + t.l + t.d)), 0) / 2) : 0;
   const schedStamp = today + '-' + String(now.getUTCHours()).padStart(2, '0'); // now는 KST 기준
-  const prevSched = (prev && prev.sched && prev.sched.v === 4 && prev.sched.date === today) ? prev.sched : null;
+  const prevSched = (prev && prev.sched && prev.sched.v === 5 && prev.sched.date === today) ? prev.sched : null;
   const schedUsable = prevSched && (
     expectedFuture === 0 ||
     prevSched.sampleGames >= expectedFuture * 0.9 || // 표본이 잔여 일정 대부분을 덮음 → 완전한 것으로 간주
