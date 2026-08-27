@@ -1,8 +1,12 @@
 name: live-data
 
+# GitHub의 예약 실행(cron)은 공개 저장소에서 best-effort라 "*/5"를 걸어도 실제로는
+# 20~60분(때로 수 시간)까지 지연된다. 그래서 cron은 "진입점"으로만 쓰고,
+# 실제 갱신 주기는 잡 안에서 루프를 돌며 스크립트가 알려주는 SLEEP 값으로 유지한다.
+# (공개 저장소는 Actions 실행 시간이 무료라 장시간 잡을 돌려도 비용이 없다)
 on:
   schedule:
-    - cron: "*/5 * * * *"   # 5분마다 짧게 1회 실행 (스크립트가 모드별로 수집 범위를 스스로 결정)
+    - cron: "*/10 * * * *"   # 루프가 죽었을 때 다시 띄우는 워치독 겸 진입점
   workflow_dispatch:
 
 permissions:
@@ -10,37 +14,80 @@ permissions:
 
 concurrency:
   group: live-data
-  cancel-in-progress: true
+  cancel-in-progress: true   # 새 실행(수동 포함)이 즉시 이어받도록 — 재시작 비용은 10초 수준
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 320     # 잡 상한 6시간 대비 여유 (루프는 5시간에 스스로 종료)
     steps:
       - uses: actions/checkout@v4
-      - name: "Fetch once (짧은 실행 — 러너 점유 최소화)"
+
+      - name: "Fetch loop (스크립트가 알려주는 주기로 반복 수집)"
         run: |
           git config user.name "live-bot"
           git config user.email "actions@github.com"
-          # 직전 수집본을 data 브랜치에서 복원 (일일 캐시·모드 판단용)
+
+          # 직전 수집본을 data 브랜치에서 복원 (일일 캐시·모드 판단용) — 루프 시작 시 1회
           git fetch -q origin data || true
           mkdir -p data
           git show origin/data:data/live.json > data/live.json 2>/dev/null || true
           git show origin/data:data/standings-history.json > data/standings-history.json 2>/dev/null || true
-          node scripts/fetch-live.js || true
-          # giants(롯데) 보드 데이터 — 같은 주기로 수집, data 브랜치의 giants/data 경로 사용
           if [ -f giants/scripts/fetch-live.js ]; then
             mkdir -p giants/data
             git show origin/data:giants/data/live.json > giants/data/live.json 2>/dev/null || true
             git show origin/data:giants/data/standings-history.json > giants/data/standings-history.json 2>/dev/null || true
-            node giants/scripts/fetch-live.js || true
           fi
-          if [ -f data/live.json ]; then
-            git add data/live.json data/standings-history.json 2>/dev/null || git add data/live.json
-            git add giants/data 2>/dev/null || true
-            if ! git diff --cached --quiet; then
-              git commit -q -m "live data"
-              # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시
-              git push -f -q origin HEAD:data
+
+          END=$(( $(date -u +%s) + 300 * 60 ))   # 5시간 루프
+          FAILS=0
+          COMMITTED=0
+          N=0
+
+          while : ; do
+            N=$((N + 1))
+            SLEEP=300
+            echo "──── #$N  $(TZ=Asia/Seoul date '+%m-%d %H:%M:%S') KST ────"
+
+            if OUT=$(node scripts/fetch-live.js 2>&1); then
+              echo "$OUT"
+              S=$(printf '%s\n' "$OUT" | grep -o 'SLEEP=[0-9]\+' | tail -1 | cut -d= -f2)
+              if [ -n "$S" ]; then SLEEP=$S; fi
+              FAILS=0
+            else
+              FAILS=$((FAILS + 1))
+              echo "::warning title=수집 실패::fetch-live.js 실패 (연속 ${FAILS}회)"
+              printf '%s\n' "$OUT" | tail -25
+              # 일시적 장애(네트워크·상대 API)는 다음 주기에 회복되지만, 계속 실패하면 실행을 붉게 남겨 드러낸다
+              if [ "$FAILS" -ge 5 ]; then
+                echo "::error title=수집 연속 실패::5회 연속 실패하여 루프를 종료합니다"
+                exit 1
+              fi
             fi
-          fi
+
+            # giants(롯데) 보드 — 실패해도 KT 수집 결과는 그대로 커밋한다
+            if [ -f giants/scripts/fetch-live.js ]; then
+              node giants/scripts/fetch-live.js || echo "::warning title=giants 수집 실패::giants/scripts/fetch-live.js 실패"
+            fi
+
+            if [ -f data/live.json ]; then
+              git add -A data 2>/dev/null || true
+              [ -d giants/data ] && git add -A giants/data 2>/dev/null || true
+              if ! git diff --cached --quiet; then
+                # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시.
+                # 루프가 도는 동안에는 커밋을 새로 쌓지 않고 amend해 브랜치를 가볍게 유지한다.
+                if [ "$COMMITTED" = "1" ]; then
+                  git commit -q --amend -m "live data" || true
+                else
+                  if git commit -q -m "live data"; then COMMITTED=1; fi
+                fi
+                git push -f -q origin HEAD:data || echo "::warning title=푸시 실패::다음 주기에 재시도합니다"
+              fi
+            fi
+
+            if [ "$(date -u +%s)" -ge "$END" ]; then
+              echo "루프 시간(5시간) 종료 — 다음 예약 실행이 이어받습니다"
+              break
+            fi
+            sleep "$SLEEP"
+          done
