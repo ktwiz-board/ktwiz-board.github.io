@@ -1174,7 +1174,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260825-073817';
+  const BUILD = '20260827-145928';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2978,6 +2978,7 @@ gtag('config', 'G-8MC9LN4N1R');
         const j = await r.json();
         if(!j || !j.games) continue;
         updatedKST = j.updatedKST || '';
+        dataMode = j.mode || 'pre'; // 폴링 주기 조절용 (수집기와 같은 모드 기준)
         updatedISO = j.updated || null;
         ktWeekCache = (j.kt && j.kt.week) || null;
         ktLastCache = (j.kt && j.kt.lastGame) || null;
@@ -3012,11 +3013,31 @@ gtag('config', 'G-8MC9LN4N1R');
     render(SEED, false);
   }
   render(SEED, false);
-  loadData().then(fetchWeather);
-  setInterval(loadData, 75000);
-  setInterval(fetchWeather, 60000);
+
+  /* ---------- 폴링 주기 ----------
+     1순위 데이터 소스인 GitHub API는 비인증 시 IP당 시간 60회 제한이라,
+     고정 75초(=시간 48회) 폴링은 탭을 오래 열어두거나 두 개만 열어도 한도를 넘겨
+     5분 캐시 CDN으로 밀린다. 수집 주기도 모드별로 다르므로(경기 중 5분·경기 전 10분·
+     종료 30분) 화면 폴링도 같은 기준으로 맞추고, 배경 탭에서는 아예 쉬게 한다. */
+  let dataMode = 'pre';
+  const POLL = { live: 60000, pre: 180000, post: 300000 };
+  let pollTimer = null;
+  function schedulePoll(){
+    clearTimeout(pollTimer);
+    pollTimer = setTimeout(tick, POLL[dataMode] || POLL.pre);
+  }
+  function tick(){
+    if(document.hidden){ schedulePoll(); return; } // 안 보는 화면은 요청하지 않음
+    loadData().finally(schedulePoll);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden){ tick(); } // 다시 보면 즉시 최신화
+  });
+
+  loadData().finally(() => { fetchWeather(); schedulePoll(); });
+  setInterval(() => { if(!document.hidden) fetchWeather(); }, 60000);
   loadRankHistory();
-  setInterval(loadRankHistory, 1200000);
+  setInterval(() => { if(!document.hidden) loadRankHistory(); }, 1200000);
 })();
 </script>
 
