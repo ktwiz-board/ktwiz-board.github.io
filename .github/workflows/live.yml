@@ -85,8 +85,11 @@ jobs:
               fi
             fi
 
-            if [ "$(date -u +%s)" -ge "$END" ]; then
-              echo "루프 시간(5시간) 종료 — 다음 예약 실행이 이어받습니다"
+            # 남은 시간보다 대기가 길면 지금 끝낸다 — 안 그러면 post 모드(30분 대기)에서
+            # 루프가 잡 타임아웃을 넘겨 실패로 붉게 남는다
+            NOW=$(date -u +%s)
+            if [ $(( NOW + SLEEP )) -ge "$END" ]; then
+              echo "루프 시간 종료 — 다음 예약 실행이 이어받습니다"
               break
             fi
             sleep "$SLEEP"
