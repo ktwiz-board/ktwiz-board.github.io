@@ -1174,7 +1174,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260827-145928';
+  const BUILD = '20260827-150641';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1915,10 +1915,15 @@ gtag('config', 'G-8MC9LN4N1R');
   /* 시즌 취소 경기 (KT) — KBO 공식 일정 기준, 사유·잔여 경기 포함 */
   /* ---------- 잔여 경기 일정 (시즌 끝까지) ---------- */
   let ktRestOpen = false;
-  function renderRest(sched){
+  function renderRest(sched, games){
     const box = document.getElementById('ktRestBox');
-    const list = sched && sched.mine;
-    if(!box || !list || !list.length) return;
+    /* 잔여 일정은 하루 1회 계산이라 오늘 끝난 경기가 남아 있을 수 있다 → 종료된 경기는 뺀다 */
+    const done = {};
+    (games || []).forEach(g => {
+      if(g.code === 'RESULT' || g.code === 'ENDED') done[g.date + '|' + g.away + '|' + g.home] = 1;
+    });
+    const list = ((sched && sched.mine) || []).filter(g => !done[g.date + '|' + g.away + '|' + g.home]);
+    if(!box || !list.length) return;
     box.style.display = '';
     const DOW = ['일','월','화','수','목','금','토'];
     /* 재편성 경기 표시: makeups의 값(재편성 날짜)+대진으로 역인덱스를 만든다 */
@@ -1945,7 +1950,7 @@ gtag('config', 'G-8MC9LN4N1R');
     const tgl = document.getElementById('ktRestTgl');
     tgl.textContent = ktRestOpen ? '접기 ▴' : ('전체 ' + list.length + '경기 보기 ▾');
     tgl.setAttribute('aria-expanded', String(ktRestOpen));
-    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched); };
+    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched, games); };
     const home = list.filter(g => g.home === 'KT').length;
     document.getElementById('ktRestNote').innerHTML =
       'KBO 공개 잔여 일정 기준 — 홈 <b>' + home + '</b> · 원정 <b>' + (list.length - home) + '</b>경기. ' +
@@ -2987,7 +2992,7 @@ gtag('config', 'G-8MC9LN4N1R');
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
-        renderRest(j.sched);
+        renderRest(j.sched, j.games);
         renderCancelled(j.cancelled, j.standings, j.sched);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
