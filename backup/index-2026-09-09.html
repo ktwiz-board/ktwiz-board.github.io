@@ -85,6 +85,8 @@ gtag('config', 'G-8MC9LN4N1R');
   }
   /* ---------- 가을 낙엽: 히어로 안에서만 흩날린다 (히어로 밖으로는 안 넘어감) ---------- */
   .leaves{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+  /* 스크롤 내내 보이는 배경 낙엽 — 트레일과 같은 z-index 0층이라 카드 뒤 여백에만 비친다 */
+  .leaves.bg{position:fixed;inset:0;z-index:0}
   .leaf{position:absolute;top:0;will-change:transform}
   .leaf .sway,.leaf .spin{display:block;width:100%;height:100%}
   .leaf svg{display:block;width:100%;height:100%;overflow:visible}
@@ -795,6 +797,8 @@ gtag('config', 'G-8MC9LN4N1R');
 </div>
 
 <!-- ================= HERO ================= -->
+<div class="leaves bg" id="leavesBg" aria-hidden="true"></div>
+
 <div class="hero">
   <svg class="castle" id="castle" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
   <div class="leaves" id="leaves" aria-hidden="true"></div>
@@ -1213,7 +1217,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260909-160636';
+  const BUILD = '20260909-161414';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1275,8 +1279,6 @@ gtag('config', 'G-8MC9LN4N1R');
 
   /* ---------- 가을 낙엽 ---------- */
   (function leaves(){
-    const box = document.getElementById('leaves');
-    if(!box) return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     // 단풍·은행·참나무 세 종류. viewBox 0 0 24 24 기준, 잎자루가 아래를 향한다.
@@ -1290,39 +1292,56 @@ gtag('config', 'G-8MC9LN4N1R');
     ];
     const COLOR = ['#c8873c','#a8552a','#d9a94c','#8e3a1e','#b9762e','#e0b45c'];
     const rnd = (a, b) => a + Math.random() * (b - a);
+    const mob = window.innerWidth < 700;
 
-    const n = window.innerWidth < 700 ? 8 : 15;
-    const frag = document.createDocumentFragment();
-    for(let i = 0; i < n; i++){
-      const k = KIND[i % KIND.length];
-      const size = rnd(13, 26);
-      const el = document.createElement('span');
-      el.className = 'leaf';
-      // 좌우로 고르게 흩되 완전 균등하진 않게 — 줄 맞춰 떨어지는 티가 나지 않도록
-      el.style.left = (i / n * 100 + rnd(-4, 6)).toFixed(1) + '%';
-      el.style.width = size + 'px';
-      el.style.height = size + 'px';
-      el.style.setProperty('--lf', COLOR[Math.floor(rnd(0, COLOR.length))]);
-      el.style.setProperty('--dur', rnd(11, 21).toFixed(1) + 's');
-      el.style.setProperty('--delay', (-rnd(0, 20)).toFixed(1) + 's');   // 음수 지연 = 처음부터 흩날리는 중
-      el.style.setProperty('--sw', rnd(14, 52).toFixed(0) + 'px');
-      el.style.setProperty('--swd', rnd(2.6, 5.4).toFixed(1) + 's');
-      el.style.setProperty('--spd', rnd(4, 11).toFixed(1) + 's');
-      el.style.setProperty('--rx', rnd(0.2, 1).toFixed(2));
-      el.style.setProperty('--rz', rnd(-1, 1).toFixed(2));
-      el.style.opacity = rnd(0.45, 1).toFixed(2);
-      el.innerHTML = '<span class="sway"><span class="spin">' +
-        '<svg viewBox="0 0 24 24"><path class="blade" d="' + k.blade + '"/>' +
-        '<path class="vein" d="' + k.vein + '"/></svg></span></span>';
-      frag.appendChild(el);
+    function sow(box, o){
+      const frag = document.createDocumentFragment();
+      for(let i = 0; i < o.n; i++){
+        const k = KIND[i % KIND.length];
+        const size = rnd(o.size[0], o.size[1]);
+        const el = document.createElement('span');
+        el.className = 'leaf';
+        // 좌우로 고르게 흩되 완전 균등하진 않게 — 줄 맞춰 떨어지는 티가 나지 않도록
+        el.style.left = (i / o.n * 100 + rnd(-4, 6)).toFixed(1) + '%';
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.setProperty('--lf', COLOR[Math.floor(rnd(0, COLOR.length))]);
+        el.style.setProperty('--dur', rnd(o.dur[0], o.dur[1]).toFixed(1) + 's');
+        el.style.setProperty('--delay', (-rnd(0, o.dur[1])).toFixed(1) + 's');  // 음수 지연 = 처음부터 흩날리는 중
+        el.style.setProperty('--sw', rnd(14, 52).toFixed(0) + 'px');
+        el.style.setProperty('--swd', rnd(2.6, 5.4).toFixed(1) + 's');
+        el.style.setProperty('--spd', rnd(o.spin[0], o.spin[1]).toFixed(1) + 's');
+        el.style.setProperty('--rx', rnd(0.2, 1).toFixed(2));
+        el.style.setProperty('--rz', rnd(-1, 1).toFixed(2));
+        el.style.opacity = rnd(o.op[0], o.op[1]).toFixed(2);
+        el.innerHTML = '<span class="sway"><span class="spin">' +
+          '<svg viewBox="0 0 24 24"><path class="blade" d="' + k.blade + '"/>' +
+          '<path class="vein" d="' + k.vein + '"/></svg></span></span>';
+        frag.appendChild(el);
+      }
+      box.appendChild(frag);
     }
-    box.appendChild(frag);
 
-    // 낙하 거리는 히어로 높이에 맞춘다 (모바일에서 히어로가 접히면 짧아지므로 리사이즈 때 재계산)
-    const fit = () => box.style.setProperty('--fall', (box.clientHeight + 40) + 'px');
-    fit();
+    // translateY의 %는 "요소 자기 크기" 기준이라 낙하 거리로 못 쓴다 — 컨테이너 높이를 넘겨준다
+    const fits = [];
+    function bind(box, h){ const f = () => box.style.setProperty('--fall', (h() + 40) + 'px'); f(); fits.push(f); }
+
+    // 히어로: 가깝고 또렷하게
+    const hero = document.getElementById('leaves');
+    if(hero){
+      sow(hero, { n: mob ? 8 : 15, size:[13,26], dur:[11,21], spin:[4,11], op:[.45,1] });
+      bind(hero, () => hero.clientHeight);
+    }
+
+    // 배경(고정): 스크롤 내내 보이는 층. 읽기를 방해하지 않도록 더 작고·느리고·옅게.
+    const bg = document.getElementById('leavesBg');
+    if(bg){
+      sow(bg, { n: mob ? 6 : 12, size:[10,19], dur:[26,46], spin:[9,20], op:[.22,.5] });
+      bind(bg, () => window.innerHeight);
+    }
+
     let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 200); });
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => fits.forEach(f => f()), 200); });
   })();
 
   /* ---------- 라인아트 성 (호그와트 · 수원 화성 모티브) ---------- */
