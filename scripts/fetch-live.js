@@ -16,6 +16,25 @@ function addDays(d, n) {
   return new Date(d.getTime() + n * 86400000);
 }
 
+// 2026 정규시즌 개막일 = 3/28 (KBO 공식 팀순위 경기수와 전 구단 대조로 확정, 그 이전은 시범경기)
+const SEASON_START = '2026-03-28';
+const SEASON_END = '2026-10-31';
+
+// [from,to] 구간을 chunkDays 단위로 잘라 반환.
+// 일정 조회 범위를 날짜 상수로 박아두면 시즌이 진행되며 from > to 로 역전돼 API가 400을 내고
+// (2026-09-01 이후 실제로 발생) 계산 전체가 실패하므로, 항상 오늘 기준으로 구간을 만든다.
+function dateRanges(from, to, chunkDays) {
+  const out = [];
+  const end = new Date(to + 'T00:00:00Z').getTime();
+  let s = new Date(from + 'T00:00:00Z').getTime();
+  while (s <= end) {
+    const e = Math.min(s + (chunkDays - 1) * 86400000, end);
+    out.push([ymd(new Date(s)), ymd(new Date(e))]);
+    s = e + 86400000;
+  }
+  return out;
+}
+
 async function j(url) {
   const r = await fetch(url, { headers: UA, signal: AbortSignal.timeout(15000) });
   if (!r.ok) throw new Error(`${r.status} ${url}`);
@@ -227,8 +246,7 @@ function stadiumKey(name) {
 }
 
 async function pythagorean(today) {
-  // 2026 정규시즌 개막일 = 3/28 (KBO 공식 팀순위 경기수와 전 구단 대조로 확정, 그 이전은 시범경기)
-  const ranges = [['2026-03-28', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
+  const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {}; // name -> {rs, ra, w, l, d}
   const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
   const seq = {}; // name -> [{date, st}] 경기 구장 시퀀스 (이동거리용)
@@ -294,7 +312,7 @@ async function pythagorean(today) {
 
 // 자체 순위 계산: 시즌 전 경기 결과를 직접 집계 (네이버 순위표 반영 지연과 무관하게 경기 종료 즉시 갱신)
 async function selfStandings(today) {
-  const ranges = [['2026-03-28', '2026-04-30'], ['2026-05-01', '2026-06-30'], ['2026-07-01', today]];
+  const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {};
   for (const [f, t] of ranges) {
     if (f > today) break;
@@ -325,10 +343,9 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SEASON_GAMES = 144;
   const wraMap = {}, playedMap = {};
   for (const t of standings) { wraMap[t.name] = parseFloat(t.wra) || 0.5; playedMap[t.name] = t.w + t.l + t.d; }
-  const future = [
-    ...(await games(today, '2026-08-31', 500)),
-    ...(await games('2026-09-01', '2026-10-31', 500))
-  ].filter(g => g.statusCode === 'BEFORE' && !g.cancel
+  const futureRaw = [];
+  for (const [f, t] of dateRanges(today, SEASON_END, 60)) futureRaw.push(...(await games(f, t, 500)));
+  const future = futureRaw.filter(g => g.statusCode === 'BEFORE' && !g.cancel
     && KBO_TEAMS.includes(g.homeTeamName) && KBO_TEAMS.includes(g.awayTeamName));
   const acc = {};
   for (const g of future) {

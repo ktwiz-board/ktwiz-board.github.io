@@ -125,7 +125,23 @@ gtag('config', 'G-8MC9LN4N1R');
   .teamnav a.on{color:var(--ink);background:rgba(208,15,49,.16);border-color:rgba(208,15,49,.4)}
   @media (max-width:520px){.teamnav{padding:8px 14px;gap:6px}.teamnav .tn-label{display:none}}
 
-  .sec-head{margin-bottom:34px}
+  /* ---------- 접이식 섹션 (시즌 막바지 — 참고용 섹션은 기본 접힘) ---------- */
+  .sec-head{margin-bottom:34px;position:relative;padding-right:96px}
+  .sec-toggle{position:absolute;right:0;top:2px;background:none;border:1px solid var(--line);color:var(--muted);
+    font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;
+    transition:color .2s,border-color .2s}
+  .sec-toggle:hover{color:var(--ink);border-color:rgba(255,255,255,.3)}
+  .foldline{display:flex;align-items:center;gap:16px;margin:8px 0 34px;color:var(--muted);font-size:11.5px;
+    font-weight:700;letter-spacing:.14em;white-space:nowrap}
+  .foldline::before,.foldline::after{content:"";height:1px;background:var(--line);flex:1}
+  section.sec-collapsed > *:not(.sec-head){display:none !important}
+  section.sec-collapsed .sec-head{margin-bottom:0}
+  section.sec-collapsed .sec-head .sub,
+  section.sec-collapsed .sec-head .live-head{display:none}
+  @media (max-width:560px){
+    .sec-head{padding-right:0}
+    .sec-toggle{position:static;display:block;margin-top:12px}
+  }
   .sec-head .kicker{font-size:13px;letter-spacing:.22em;color:var(--red-soft);font-weight:700;text-transform:uppercase}
   h2{font-size:clamp(30px,4.6vw,46px);margin:8px 0 0;font-weight:800;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
   .sec-head .sub{font-size:15px;color:var(--muted);margin:10px 0 0;font-weight:500}
@@ -867,33 +883,6 @@ gtag('config', 'G-8MC9LN4N1R');
     </div>
   </section>
 
-  <!-- ================= 전국 구장 날씨 지도 ================= -->
-  <section id="wxMapSec">
-    <div class="sec-head reveal">
-      <p class="kicker">Weather map</p>
-      <h2>전국 구장 날씨</h2>
-      <p class="sub">구장별 현재 기온과 18시(경기 시간대) 예상 기온 · 체감온도</p>
-      <div class="live-head"><span class="dot pulse" id="wxDot"></span><span class="tag" id="wxStamp">날씨 불러오는 중…</span></div>
-    </div>
-    <div class="wxmap reveal d1">
-      <svg id="wxMapSvg" viewBox="0 0 320 400" role="img" aria-label="전국 야구장 날씨 지도">
-        <path class="land" d="M68 79 L119 35 L212 9 L230 26 L272 88 L297 158 L306 229 L281 290 L264 321 L221 339 L153 356 L85 374 L34 352 L51 299 L51 238 L26 176 L68 141 L60 97 Z"/>
-        <g id="wxMk"></g>
-      </svg>
-      <div>
-        <ul class="wxlist" id="wxList"><li class="d">날씨 불러오는 중…</li></ul>
-        <div class="wxlegend">
-          <span><i style="background:#30d158"></i>31° 미만</span>
-          <span><i style="background:#ffd60a"></i>31°+</span>
-          <span><i style="background:#ff9f0a"></i>33°+ 폭염 주의</span>
-          <span><i style="background:#ff453a"></i>35°+ 취소 검토권</span>
-          <span><i style="background:#6fb7ff"></i>강수확률 50%+</span>
-        </div>
-      </div>
-    </div>
-    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시되며, 고척은 돔구장이라 날씨 표시에서 제외됩니다.</p>
-  </section>
-
   <!-- ================= KT 캘린더 · 폼 ================= -->
   <section>
     <div class="sec-head reveal">
@@ -953,31 +942,81 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
   </section>
 
-  <!-- ================= 개인 타이틀 레이스 ================= -->
-  <section id="titleSec" style="display:none">
+  <!-- ================= 한국시리즈 진출 예측 ================= -->
+  <section id="ksSec" style="display:none">
     <div class="sec-head reveal">
-      <p class="kicker">Title Race</p>
-      <h2>개인 타이틀 레이스</h2>
-      <p class="sub">부문별 리그 TOP3 — KBO 공식 기록, 우리 팀 선수 강조</p>
+      <p class="kicker">KS Forecast</p>
+      <h2>한국시리즈 진출 예측</h2>
+      <p class="sub" id="ksSub">정규시즌 잔여 성적을 반영한 PS 대진 몬테카를로 시뮬레이션</p>
     </div>
-    <div class="titlegrid reveal d1" id="titleGrid"></div>
+    <div class="ksgrid reveal d1">
+      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
+      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
+    </div>
+    <div class="tablebox reveal d2">
+      <table>
+        <thead><tr><th>예상 KS 상대</th><th>확률</th></tr></thead>
+        <tbody id="ksOppBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="ksNote"></p>
   </section>
 
-  <!-- ================= 시즌 순위 변동 ================= -->
-  <section id="rankChartSec" style="display:none">
+  <!-- ================= 참고 섹션 구분선 ================= -->
+  <div class="foldline reveal" aria-hidden="true"><span>기록 · 분석 · 콘텐츠 — 필요할 때 펼쳐 보기</span></div>
+
+  <!-- ================= 지난 경기 ================= -->
+  <section id="lastGameSec">
     <div class="sec-head reveal">
-      <p class="kicker">Rank History</p>
-      <h2>시즌 순위 변동</h2>
+      <p class="kicker" id="lgKicker">Last game</p>
+      <h2>지난 경기</h2>
     </div>
-    <div class="chartbox reveal d1">
-      <div class="rank-controls">
-        <button id="rankPlay" type="button" aria-label="재생">▶ 재생</button>
-        <input id="rankSlider" type="range" min="1" value="1" step="1" aria-label="날짜 이동">
-        <span id="rankDate"></span>
+    <div class="lastgame reveal d1" id="lastGameBox">
+      <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
+    </div>
+  </section>
+
+  <!-- ================= 전국 구장 날씨 지도 ================= -->
+  <section id="wxMapSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Weather map</p>
+      <h2>전국 구장 날씨</h2>
+      <p class="sub">구장별 현재 기온과 18시(경기 시간대) 예상 기온 · 체감온도</p>
+      <div class="live-head"><span class="dot pulse" id="wxDot"></span><span class="tag" id="wxStamp">날씨 불러오는 중…</span></div>
+    </div>
+    <div class="wxmap reveal d1">
+      <svg id="wxMapSvg" viewBox="0 0 320 400" role="img" aria-label="전국 야구장 날씨 지도">
+        <path class="land" d="M68 79 L119 35 L212 9 L230 26 L272 88 L297 158 L306 229 L281 290 L264 321 L221 339 L153 356 L85 374 L34 352 L51 299 L51 238 L26 176 L68 141 L60 97 Z"/>
+        <g id="wxMk"></g>
+      </svg>
+      <div>
+        <ul class="wxlist" id="wxList"><li class="d">날씨 불러오는 중…</li></ul>
+        <div class="wxlegend">
+          <span><i style="background:#30d158"></i>31° 미만</span>
+          <span><i style="background:#ffd60a"></i>31°+</span>
+          <span><i style="background:#ff9f0a"></i>33°+ 폭염 주의</span>
+          <span><i style="background:#ff453a"></i>35°+ 취소 검토권</span>
+          <span><i style="background:#6fb7ff"></i>강수확률 50%+</span>
+        </div>
       </div>
-      <canvas id="rankCanvas"></canvas>
-      <div class="chart-legend" id="rankLegend"></div>
     </div>
+    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시되며, 고척은 돔구장이라 날씨 표시에서 제외됩니다.</p>
+  </section>
+
+  <!-- ================= 잔여 일정 난이도 ================= -->
+  <section id="schedSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Remaining Schedule</p>
+      <h2>잔여 일정 난이도</h2>
+      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 남은 일정이 쉽습니다</p>
+    </div>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>쉬운 순</th><th>팀</th><th>현재 순위</th><th>잔여 경기</th><th>남은 상대 평균 승률</th></tr></thead>
+        <tbody id="schedBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="schedNote"></p>
   </section>
 
   <!-- ================= 팀간 상대전적 ================= -->
@@ -1013,40 +1052,31 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="py-note reveal d2" id="pyNote"></p>
   </section>
 
-  <!-- ================= 잔여 일정 난이도 ================= -->
-  <section id="schedSec" style="display:none">
+  <!-- ================= 시즌 순위 변동 ================= -->
+  <section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
-      <p class="kicker">Remaining Schedule</p>
-      <h2>잔여 일정 난이도</h2>
-      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 남은 일정이 쉽습니다</p>
+      <p class="kicker">Rank History</p>
+      <h2>시즌 순위 변동</h2>
     </div>
-    <div class="tablebox reveal d1">
-      <table>
-        <thead><tr><th>쉬운 순</th><th>팀</th><th>현재 순위</th><th>잔여 경기</th><th>남은 상대 평균 승률</th></tr></thead>
-        <tbody id="schedBody"></tbody>
-      </table>
+    <div class="chartbox reveal d1">
+      <div class="rank-controls">
+        <button id="rankPlay" type="button" aria-label="재생">▶ 재생</button>
+        <input id="rankSlider" type="range" min="1" value="1" step="1" aria-label="날짜 이동">
+        <span id="rankDate"></span>
+      </div>
+      <canvas id="rankCanvas"></canvas>
+      <div class="chart-legend" id="rankLegend"></div>
     </div>
-    <p class="py-note reveal d2" id="schedNote"></p>
   </section>
 
-  <!-- ================= 한국시리즈 진출 예측 ================= -->
-  <section id="ksSec" style="display:none">
+  <!-- ================= 개인 타이틀 레이스 ================= -->
+  <section id="titleSec" style="display:none">
     <div class="sec-head reveal">
-      <p class="kicker">KS Forecast</p>
-      <h2>한국시리즈 진출 예측</h2>
-      <p class="sub" id="ksSub">정규시즌 잔여 성적을 반영한 PS 대진 몬테카를로 시뮬레이션</p>
+      <p class="kicker">Title Race</p>
+      <h2>개인 타이틀 레이스</h2>
+      <p class="sub">부문별 리그 TOP3 — KBO 공식 기록, 우리 팀 선수 강조</p>
     </div>
-    <div class="ksgrid reveal d1">
-      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
-      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
-    </div>
-    <div class="tablebox reveal d2">
-      <table>
-        <thead><tr><th>예상 KS 상대</th><th>확률</th></tr></thead>
-        <tbody id="ksOppBody"></tbody>
-      </table>
-    </div>
-    <p class="py-note reveal d2" id="ksNote"></p>
+    <div class="titlegrid reveal d1" id="titleGrid"></div>
   </section>
 
   <!-- ================= 구단 이동거리 ================= -->
@@ -1066,17 +1096,6 @@ gtag('config', 'G-8MC9LN4N1R');
     <p class="travel-note reveal d2" id="travelNote"></p>
   </section>
 
-  <!-- ================= 지난 경기 ================= -->
-  <section id="lastGameSec">
-    <div class="sec-head reveal">
-      <p class="kicker" id="lgKicker">Last game</p>
-      <h2>지난 경기</h2>
-    </div>
-    <div class="lastgame reveal d1" id="lastGameBox">
-      <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
-    </div>
-  </section>
-
   <!-- ================= 비디오 판독 ================= -->
   <section id="vrSec" style="display:none">
     <div class="sec-head reveal">
@@ -1089,7 +1108,7 @@ gtag('config', 'G-8MC9LN4N1R');
   </section>
 
   <!-- ================= 스포트라이트 ================= -->
-  <section>
+  <section id="spotSec">
     <div class="sec-head reveal">
       <p class="kicker">Spotlight</p>
       <h2>이 주의 거인</h2>
@@ -1117,7 +1136,7 @@ gtag('config', 'G-8MC9LN4N1R');
   </section>
 
   <!-- ================= 인스타그램 ================= -->
-  <section>
+  <section id="instaSec">
     <div class="sec-head reveal">
       <p class="kicker">Instagram</p>
       <h2>선수단 인스타그램</h2>
@@ -1140,7 +1159,7 @@ gtag('config', 'G-8MC9LN4N1R');
   </section>
 
   <!-- ================= 소식 ================= -->
-  <section>
+  <section id="newsSec">
     <div class="sec-head reveal">
       <p class="kicker">News</p>
       <h2>자이언츠 최근 소식</h2>
@@ -1181,7 +1200,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260827-150641';
+  const BUILD = '20260909-152724';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1498,6 +1517,9 @@ gtag('config', 'G-8MC9LN4N1R');
 
     function rebuild(){
       const W = document.documentElement.clientWidth;
+      // 트레일 자신이 절대 위치로 문서 높이를 차지하므로, 자기 높이를 0으로 되돌린 뒤 재야
+      // 콘텐츠가 줄었을 때(섹션 접기 등) 문서 높이도 따라 줄어든다
+      box.style.height = '0px';
       const H = document.documentElement.scrollHeight;
       const mobile = isMobile();
       box.style.height = H + 'px';
@@ -2000,7 +2022,7 @@ gtag('config', 'G-8MC9LN4N1R');
   /* 시즌 취소 경기 (KT) — KBO 공식 일정 기준, 사유·잔여 경기 포함 */
   /* ---------- 잔여 경기 일정 (시즌 끝까지) ---------- */
   let ktRestOpen = false;
-  function renderRest(sched, games){
+  function renderRest(sched, games, standings){
     const box = document.getElementById('ktRestBox');
     /* 잔여 일정은 하루 1회 계산이라 오늘 끝난 경기가 남아 있을 수 있다 → 종료된 경기는 뺀다 */
     const done = {};
@@ -2035,10 +2057,15 @@ gtag('config', 'G-8MC9LN4N1R');
     const tgl = document.getElementById('ktRestTgl');
     tgl.textContent = ktRestOpen ? '접기 ▴' : ('전체 ' + list.length + '경기 보기 ▾');
     tgl.setAttribute('aria-expanded', String(ktRestOpen));
-    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched, games); };
+    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched, games, standings); };
     const home = list.filter(g => g.home === '롯데').length;
+    /* 144경기 기준 잔여보다 편성된 경기가 적으면 = 아직 날짜가 안 잡힌 취소분이 남아 있다는 뜻 */
+    const me = (standings || []).find(t => t.name === '롯데');
+    const totalLeft = me ? 144 - (me.w + me.l + me.d) : null;
+    const unset = totalLeft != null ? totalLeft - list.length : 0;
     document.getElementById('ktRestNote').innerHTML =
       'KBO 공개 잔여 일정 기준 — 홈 <b>' + home + '</b> · 원정 <b>' + (list.length - home) + '</b>경기. ' +
+      (unset > 0 ? '이와 별개로 <b>' + unset + '경기</b>는 취소 후 아직 날짜가 잡히지 않았습니다(144경기 기준 잔여 ' + totalLeft + '). ' : '') +
       '<span class="mk" style="margin:0">재편성</span> 표시는 취소 경기가 다시 편성된 경기입니다.';
   }
 
@@ -3077,7 +3104,7 @@ gtag('config', 'G-8MC9LN4N1R');
         render(j.games, true);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
-        renderRest(j.sched, j.games);
+        renderRest(j.sched, j.games, j.standings);
         renderCancelled(j.cancelled, j.standings, j.sched);
         renderLineup(j.kt, j.games);
         renderBox(j.kt, j.games);
@@ -3102,6 +3129,44 @@ gtag('config', 'G-8MC9LN4N1R');
     }
     render(SEED, false);
   }
+  /* ---------- 접이식 섹션 ----------
+     시즌이 진행될수록 참고용 섹션이 쌓여 페이지가 매우 길어진다.
+     경기·순위 등 자주 보는 것만 펼쳐 두고 나머지는 접어 첫 화면 길이를 줄인다.
+     사용자가 펼친 섹션은 localStorage에 기억해 다음 방문에도 유지한다. */
+  const FOLDED = ['wxMapSec','titleSec','rankChartSec','h2hSec','pySec','schedSec',
+                  'travelSec','lastGameSec','vrSec','spotSec','ytSec','instaSec','newsSec'];
+  const SEC_KEY = 'wizSecOpen';
+  const secLoad = () => { try{ return JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); }catch(e){ return {}; } };
+  const secSave = o => { try{ localStorage.setItem(SEC_KEY, JSON.stringify(o)); }catch(e){} };
+  (function initFold(){
+    const saved = secLoad();
+    FOLDED.forEach(id => {
+      const sec = document.getElementById(id);
+      const head = sec && sec.querySelector('.sec-head');
+      if(!head || head.querySelector('.sec-toggle')) return;
+      let open = saved[id] === true;   // 저장값이 없으면 접힌 상태로 시작
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sec-toggle';
+      const apply = () => {
+        sec.classList.toggle('sec-collapsed', !open);
+        btn.textContent = open ? '접기 ▴' : '펼치기 ▾';
+        btn.setAttribute('aria-expanded', String(open));
+        // 접힌 동안엔 스크롤 관찰자가 못 보므로, 펼칠 때 등장 애니메이션을 확정 적용
+        if(open) sec.querySelectorAll('.reveal:not(.on)').forEach(el => el.classList.add('on'));
+        // 접고 펴면 문서 높이가 바뀌므로 배경 트레일을 다시 그리게 한다
+        dispatchEvent(new Event('resize'));
+      };
+      apply();
+      btn.addEventListener('click', () => {
+        open = !open;
+        apply();
+        const s = secLoad(); s[id] = open; secSave(s);
+      });
+      head.appendChild(btn);
+    });
+  })();
+
   render(SEED, false);
 
   /* ---------- 폴링 주기 ----------
