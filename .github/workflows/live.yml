@@ -33,11 +33,6 @@ jobs:
           mkdir -p data
           git show origin/data:data/live.json > data/live.json 2>/dev/null || true
           git show origin/data:data/standings-history.json > data/standings-history.json 2>/dev/null || true
-          if [ -f giants/scripts/fetch-live.js ]; then
-            mkdir -p giants/data
-            git show origin/data:giants/data/live.json > giants/data/live.json 2>/dev/null || true
-            git show origin/data:giants/data/standings-history.json > giants/data/standings-history.json 2>/dev/null || true
-          fi
 
           END=$(( $(date -u +%s) + 300 * 60 ))   # 5시간 루프
           FAILS=0
@@ -65,14 +60,8 @@ jobs:
               fi
             fi
 
-            # giants(롯데) 보드 — 실패해도 KT 수집 결과는 그대로 커밋한다
-            if [ -f giants/scripts/fetch-live.js ]; then
-              node giants/scripts/fetch-live.js || echo "::warning title=giants 수집 실패::giants/scripts/fetch-live.js 실패"
-            fi
-
             if [ -f data/live.json ]; then
               git add -A data 2>/dev/null || true
-              [ -d giants/data ] && git add -A giants/data 2>/dev/null || true
               if ! git diff --cached --quiet; then
                 # main 히스토리를 더럽히지 않도록 data 브랜치에만 강제 푸시.
                 # 루프가 도는 동안에는 커밋을 새로 쌓지 않고 amend해 브랜치를 가볍게 유지한다.

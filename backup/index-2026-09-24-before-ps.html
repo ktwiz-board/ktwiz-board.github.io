@@ -139,6 +139,12 @@ gtag('config', 'G-8MC9LN4N1R');
   /* ---------- sections ---------- */
   section{padding:110px 0 0}
   /* ---------- 구단 보드 내비게이션 ---------- */
+  .teamnav{position:relative;z-index:6;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px max(20px,4vw);background:rgba(8,8,10,.85);border-bottom:1px solid var(--line)}
+  .teamnav .tn-label{font-size:10.5px;letter-spacing:.24em;color:var(--muted);font-weight:700;margin-right:6px}
+  .teamnav a{font-size:12.5px;font-weight:700;color:var(--muted);text-decoration:none;padding:5px 13px;border-radius:99px;border:1px solid transparent;transition:color .2s,border-color .2s}
+  .teamnav a:hover{color:var(--ink)}
+  .teamnav a.on{color:var(--ink);background:rgba(232,16,47,.16);border-color:rgba(232,16,47,.4)}
+  @media (max-width:520px){.teamnav{padding:8px 14px;gap:6px}.teamnav .tn-label{display:none}}
 
   /* ---------- 접이식 섹션 (시즌 막바지 — 참고용 섹션은 기본 접힘) ---------- */
   .sec-head{margin-bottom:34px;position:relative;padding-right:96px}
@@ -230,6 +236,38 @@ gtag('config', 'G-8MC9LN4N1R');
   .tcard .tm{color:var(--muted);font-size:11px;flex:none}
   .tcard .vl{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
   .tcard li.mine .nm,.tcard li.mine .vl{color:var(--red-soft)}
+
+  /* ---------- 전국 구장 날씨 지도 ---------- */
+  .wxmap{background:var(--panel);border-radius:22px;padding:26px;display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:28px;align-items:center}
+  @media (max-width:680px){.wxmap{grid-template-columns:1fr}}
+  .wxmap svg{width:100%;height:auto;display:block;max-width:300px;margin:0 auto}
+  .wxmap .land{fill:rgba(255,255,255,.045);stroke:rgba(255,255,255,.15);stroke-width:1.2;stroke-linejoin:round}
+  .wxmap .mk circle{stroke:rgba(0,0,0,.55);stroke-width:1.4}
+  .wxmap .mk text{font-size:11px;font-weight:700;fill:#eaeaea}
+  .wxmap .mk .tt{font-weight:800}
+  .wxmap>div{min-width:0}
+  .wxlist{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13.5px;align-content:center;min-width:0}
+  .wxlist li{min-width:0}
+  .wxlist .wxrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;border-radius:10px;padding:4px 6px;margin:-4px -6px}
+  .wxlist .wxrow:hover{background:rgba(255,255,255,.05)}
+  .wxlist .caret{color:var(--muted);font-size:11px;margin-left:auto}
+  .wxmap .mk{cursor:pointer}
+  .wxhours{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:10px 2px 4px;-webkit-overflow-scrolling:touch}
+  .wxhours .hc{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.045);font-size:11.5px}
+  .wxhours .hc.game{background:rgba(232,16,47,.14);outline:1px solid rgba(232,16,47,.35)}
+  .wxhours .hh{color:var(--muted);font-weight:700;font-size:10.5px}
+  .wxhours .hi{font-size:15px}
+  .wxhours .ht{font-weight:800;font-size:13px}
+  .wxhours .ht.hot{color:#ff9f0a}
+  .wxhours .ha2{color:var(--muted);font-size:10px;white-space:nowrap}
+  .wxhours .hp{color:#6fb7ff;font-size:10.5px}
+  .wxhours .hp.rainy{color:var(--red-soft);font-weight:700}
+  .wxlist .st{font-weight:700;min-width:40px}
+  .wxlist .chip{width:10px;height:10px;border-radius:50%;flex:none}
+  .wxlist .d{color:var(--muted);font-weight:500}
+  .wxlist .hot{color:#ff9f0a;font-weight:700}
+  .wxlegend{display:flex;gap:14px;margin-top:16px;font-size:11.5px;color:var(--muted);flex-wrap:wrap;font-weight:500}
+  .wxlegend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
 
   /* ---------- 박스스코어 ---------- */
   #boxSec{display:none}
@@ -477,6 +515,19 @@ gtag('config', 'G-8MC9LN4N1R');
   .h2h th{text-align:center;padding:12px 8px}
   .h2h td:first-child{text-align:left;font-weight:700;color:var(--ink)}
 
+  /* ---------- 비디오 판독 ---------- */
+  .vr-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .vr-list li{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:14px;background:var(--panel);border-radius:14px;padding:14px 18px}
+  .vr-list .vr-inn{font-size:12px;font-weight:800;color:var(--muted);text-align:center}
+  .vr-list .vr-mid{min-width:0}
+  .vr-list .vr-teams{font-size:13px;color:var(--muted);font-weight:600}
+  .vr-list .vr-desc{font-size:14.5px;font-weight:700;margin-top:2px}
+  .vr-list .vr-meta{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+  .vr-badge{font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:99px;white-space:nowrap}
+  .vr-badge.turn{background:rgba(232,16,47,.14);color:var(--red-soft)}
+  .vr-badge.stay{background:rgba(48,209,88,.14);color:var(--ok)}
+  .vr-list li.kt-req{box-shadow:inset 3px 0 0 var(--red-soft)}
+
   /* ---------- 선발 구종 맞대결 ---------- */
   .duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   @media (max-width:660px){.duel{grid-template-columns:1fr}}
@@ -491,12 +542,45 @@ gtag('config', 'G-8MC9LN4N1R');
   .duel .dcard.kt .pt .pbar i{background:linear-gradient(90deg,rgba(232,16,47,.55),var(--red-soft))}
   .duel .pt .pv{color:#dddde2;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
 
+  /* ---------- 구단 이동거리 (자작 한반도 잉크 지도) ---------- */
+  .travel{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:20px;align-items:start}
+  @media (max-width:760px){.travel{grid-template-columns:1fr}}
+  .krwrap{background:var(--panel);border-radius:22px;padding:18px;perspective:1000px}
+  .krwrap svg{display:block;width:100%;height:auto;transform:rotateX(16deg);transform-origin:50% 78%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.5))}
+  .kr-out{fill:rgba(217,169,76,.04);stroke:rgba(217,169,76,.5);stroke-width:2;stroke-linejoin:round}
+  .kr-dot{fill:rgba(233,200,119,.85)}
+  .kr-dot.kt{fill:var(--red-soft);filter:drop-shadow(0 0 6px rgba(232,16,47,.8))}
+  .kr-lbl{fill:rgba(233,200,119,.55);font-size:10px;font-weight:700;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+  .kr-route{fill:none;stroke:rgba(255,77,99,.55);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round}
+  .kr-route.other{stroke:rgba(233,200,119,.16);stroke-width:1.1;stroke-dasharray:2 6}
+  .kr-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--muted);font-weight:600}
+  .kr-legend span{display:inline-flex;align-items:center;gap:6px}
+  .kr-legend i{width:14px;height:2px;border-radius:2px;display:inline-block}
+  .kr-bus{font-size:17px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+  .tv-list{background:var(--panel);border-radius:22px;padding:12px 24px}
+  .tv-list ol{list-style:none;margin:0;padding:0;counter-reset:tv}
+  .tv-list li{display:grid;grid-template-columns:26px 52px 1fr 92px;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:14px}
+  .tv-list li:last-child{border-bottom:none}
+  .tv-list li::before{counter-increment:tv;content:counter(tv);font-size:11px;font-weight:800;color:var(--muted);width:22px;height:22px;display:grid;place-items:center;background:var(--card);border-radius:6px}
+  .tv-list li.kt{background:linear-gradient(90deg,rgba(232,16,47,.12),transparent 75%);border-radius:10px}
+  .tv-list .tn{font-weight:700}
+  .tv-list .tbar{position:relative;height:7px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+  .tv-list .tbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,rgba(233,200,119,.45),#e9c877)}
+  .tv-list li.kt .tbar i{background:linear-gradient(90deg,rgba(232,16,47,.55),var(--red-soft))}
+  .tv-list .tkm{font-size:12.5px;color:#dddde2;font-variant-numeric:tabular-nums;text-align:right;font-weight:700}
+  .tv-list .tkm small{color:var(--muted);font-weight:500}
+  .travel-note{font-size:12px;color:var(--muted);margin-top:12px;font-weight:500}
+
   /* ---------- 피타고리안 기대승률 ---------- */
   .py-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;font-weight:500;line-height:1.8}
   .py-note b{color:var(--ink)}
   .pybar{position:relative;display:inline-block;width:74px;height:6px;border-radius:3px;background:rgba(255,255,255,.08);vertical-align:1px;margin-right:9px;overflow:hidden}
   .pybar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,rgba(217,169,76,.55),#e9c877)}
   tr.kt .pybar i{background:linear-gradient(90deg,rgba(232,16,47,.6),var(--red-soft))}
+  .pydiff{font-weight:700}
+  .pydiff.plus{color:var(--ok)}
+  .pydiff.minus{color:var(--red-soft)}
+  .pydiff.zero{color:var(--muted)}
 
   /* ---------- spotlight ---------- */
   .spot{position:relative;background:var(--panel);border-radius:22px;padding:44px 40px;overflow:hidden}
@@ -652,6 +736,12 @@ gtag('config', 'G-8MC9LN4N1R');
 </style>
 </head>
 <body>
+<!-- ================= 구단 보드 내비게이션 ================= -->
+<nav class="teamnav" aria-label="KBO 팬보드 선택">
+  <span class="tn-label">KBO FAN BOARDS</span>
+  <a class="on" href="/">🪄 wiz board</a>
+  <a href="/giants/">⚓ giants board</a>
+</nav>
 
 
 <!-- ================= 마법 인트로: 지도 펼침 ================= -->
@@ -902,7 +992,48 @@ gtag('config', 'G-8MC9LN4N1R');
     </div>
   </section>
 
+  <!-- ================= 전국 구장 날씨 지도 ================= -->
+  <section id="wxMapSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Weather map</p>
+      <h2>전국 구장 날씨</h2>
+      <p class="sub">구장별 현재 기온과 18시(경기 시간대) 예상 기온 · 체감온도</p>
+      <div class="live-head"><span class="dot pulse" id="wxDot"></span><span class="tag" id="wxStamp">날씨 불러오는 중…</span></div>
+    </div>
+    <div class="wxmap reveal d1">
+      <svg id="wxMapSvg" viewBox="0 0 320 400" role="img" aria-label="전국 야구장 날씨 지도">
+        <path class="land" d="M68 79 L119 35 L212 9 L230 26 L272 88 L297 158 L306 229 L281 290 L264 321 L221 339 L153 356 L85 374 L34 352 L51 299 L51 238 L26 176 L68 141 L60 97 Z"/>
+        <g id="wxMk"></g>
+      </svg>
+      <div>
+        <ul class="wxlist" id="wxList"><li class="d">날씨 불러오는 중…</li></ul>
+        <div class="wxlegend">
+          <span><i style="background:#30d158"></i>31° 미만</span>
+          <span><i style="background:#ffd60a"></i>31°+</span>
+          <span><i style="background:#ff9f0a"></i>33°+ 폭염 주의</span>
+          <span><i style="background:#ff453a"></i>35°+ 취소 검토권</span>
+          <span><i style="background:#6fb7ff"></i>강수확률 50%+</span>
+        </div>
+      </div>
+    </div>
+    <p class="board-note reveal d2">기온은 구장 좌표 기준 Open-Meteo 예보(경기일 기준 18시). KBO는 기상청 폭염경보 수준의 혹서 시 경기 취소를 검토합니다. 경기가 없는 날에는 홈구장 기준으로 표시되며, 고척은 돔구장이라 날씨 표시에서 제외됩니다.</p>
+  </section>
 
+  <!-- ================= 잔여 일정 난이도 ================= -->
+  <section id="schedSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Remaining Schedule</p>
+      <h2>잔여 일정 난이도</h2>
+      <p class="sub">남은 상대들의 현재 승률 평균 — 낮을수록 남은 일정이 쉽습니다</p>
+    </div>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>쉬운 순</th><th>팀</th><th>현재 순위</th><th>잔여 경기</th><th>남은 상대 평균 승률</th></tr></thead>
+        <tbody id="schedBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="schedNote"></p>
+  </section>
 
   <!-- ================= 팀간 상대전적 ================= -->
   <section id="h2hSec" style="display:none">
@@ -921,6 +1052,21 @@ gtag('config', 'G-8MC9LN4N1R');
     </div>
   </section>
 
+  <!-- ================= 피타고리안 기대승률 ================= -->
+  <section id="pySec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Pythagorean</p>
+      <h2>피타고리안 기대승률</h2>
+      <p class="sub">득점·실점으로 계산한 "실력 기반" 승률 — 실제 승률과의 격차는 운(접전 승부)의 몫</p>
+    </div>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>순위</th><th>팀</th><th>득점</th><th>실점</th><th>기대승률</th><th>실제승률</th><th>격차(운)</th></tr></thead>
+        <tbody id="pyBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="pyNote"></p>
+  </section>
 
   <!-- ================= 시즌 순위 변동 ================= -->
   <section id="rankChartSec" style="display:none">
@@ -949,7 +1095,33 @@ gtag('config', 'G-8MC9LN4N1R');
     <div class="titlegrid reveal d1" id="titleGrid"></div>
   </section>
 
+  <!-- ================= 구단 이동거리 ================= -->
+  <section id="travelSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Road Trip</p>
+      <h2>구단 누적 이동거리</h2>
+      <p class="sub">홈구장 기준 시리즈 이동 직선거리 누적 — 일정 데이터로 자체 계산</p>
+    </div>
+    <div class="travel reveal d1">
+      <div class="krwrap">
+        <svg id="krMap" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="kr-legend"><span><i style="background:#ff4d63"></i>kt wiz 최근 동선</span><span><i style="background:rgba(233,200,119,.35)"></i>다른 9개 구단</span></div>
+      </div>
+      <div class="tv-list"><ol id="travelList"></ol></div>
+    </div>
+    <p class="travel-note reveal d2" id="travelNote"></p>
+  </section>
 
+  <!-- ================= 비디오 판독 ================= -->
+  <section id="vrSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Video Review</p>
+      <h2>비디오 판독</h2>
+      <p class="sub">KBO 공식 비디오판독센터 기록 — 이닝·요청팀·소요시간·유형·결과만 표시 (영상 미포함) · 판독이 신청된 경기만 기록됩니다</p>
+    </div>
+    <p class="board-note reveal" id="vrNote" style="display:none;margin:0 0 14px"></p>
+    <ul class="vr-list reveal d1" id="vrList"></ul>
+  </section>
 
   <!-- ================= 스포트라이트 ================= -->
   <section id="spotSec">
@@ -1045,7 +1217,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260924-145425';
+  const BUILD = '20260909-161414';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1626,8 +1798,93 @@ gtag('config', 'G-8MC9LN4N1R');
     }catch(e){ /* 날씨 없이 표시 */ }
   }
 
-  /* ---------- 구장 날씨 (현황판 오늘 경기 표시용) ---------- */
+  /* ---------- 전국 구장 날씨 지도 ---------- */
   let wxUpdated = null;
+  const WXLBL = { /* 라벨 위치 [dx, dy, anchor] — 수도권 4개 구장 겹침 방지 */
+    '수원':[8,13,'start'], '잠실':[8,-4,'start'], '고척':[-8,-4,'end'], '문학':[-9,10,'end'],
+    '대전':[9,4,'start'], '청주':[-9,4,'end'], '대구':[-9,-5,'end'], '포항':[7,-6,'start'],
+    '울산':[9,6,'start'], '사직':[7,14,'start'], '창원':[-7,15,'end'], '광주':[-9,4,'end']
+  };
+  function wxHeatColor(w){
+    if(w.pp != null && w.pp >= 50) return '#6fb7ff';
+    const t = Math.max(w.t18 != null ? w.t18 : -99, w.t);
+    if(t >= 35) return '#ff453a';
+    if(t >= 33) return '#ff9f0a';
+    if(t >= 31) return '#ffd60a';
+    return '#30d158';
+  }
+  function renderWxMap(){
+    const mk = document.getElementById('wxMk'), list = document.getElementById('wxList');
+    if(!mk) return;
+    const stampEl = document.getElementById('wxStamp'), wxDot = document.getElementById('wxDot');
+    if(stampEl && wxUpdated){
+      const DOW = ['일','월','화','수','목','금','토'];
+      stampEl.textContent = (wxUpdated.getMonth()+1) + '/' + wxUpdated.getDate() + ' (' + DOW[wxUpdated.getDay()] + ') ' +
+        wxUpdated.getHours() + ':' + String(wxUpdated.getMinutes()).padStart(2,'0') + ' 업데이트 · 1분 주기 자동 갱신';
+      if(wxDot) wxDot.style.background = 'var(--ok)';
+    }
+    const names = Object.keys(WX);
+    if(!names.length) return;
+    mk.innerHTML = names.map(n => {
+      const c = COORD[n], w = WX[n];
+      const x = +((c[1] - 125.9) * 85).toFixed(1), y = +((38.7 - c[0]) * 88).toFixed(1);
+      const o = WXLBL[n] || [8,4,'start'];
+      const tv = w.t18 != null ? w.t18 : w.t;
+      return '<g class="mk" data-n="' + esc(n) + '"><circle cx="' + x + '" cy="' + y + '" r="5.5" fill="' + wxHeatColor(w) + '"/>' +
+        '<text x="' + (x + o[0]) + '" y="' + (y + o[1]) + '" text-anchor="' + o[2] + '">' + esc(n) + ' <tspan class="tt">' + tv + '°</tspan></text></g>';
+    }).join('');
+    list.innerHTML = names.map(n => {
+      const w = WX[n];
+      const g = lastGames.find(g => (g.stadium || '').indexOf(n) === 0);
+      const match = g ? '<span class="d">' + esc(g.away) + ' vs ' + esc(g.home) +
+        (g.code === 'CANCEL' ? ' · <b>' + esc(cancelLabel(g, w)) + '</b>' : '') + '</span>' : '';
+      const hot = w.at18 != null && w.at18 >= 33;
+      const open = !!wxOpen[n];
+      const hourly = open && w.hours && w.hours.length
+        ? '<div class="wxhours">' + w.hours.map(hh =>
+            '<span class="hc' + (hh.h === 18 ? ' game' : '') + '"><span class="hh">' + hh.h + '시</span>' +
+            '<span class="hi">' + (hh.code != null ? wmoIcon(hh.code) : '') + '</span>' +
+            '<span class="ht' + (hh.t >= 33 ? ' hot' : '') + '">' + hh.t + '°</span>' +
+            (hh.at != null ? '<span class="ha2">체감 ' + hh.at + '°</span>' : '') +
+            (hh.pp != null ? '<span class="hp' + (hh.pp >= 50 ? ' rainy' : '') + '">☂' + hh.pp + '%</span>' : '') +
+            '</span>').join('') + '</div>'
+        : '';
+      return '<li class="wxitem' + (open ? ' open' : '') + '" data-n="' + esc(n) + '">' +
+        '<div class="wxrow" role="button" tabindex="0" aria-expanded="' + open + '">' +
+        '<span class="chip" style="background:' + wxHeatColor(w) + '"></span><span class="st">' + esc(n) + '</span>' +
+        '<span>' + w.icon + ' ' + w.t + '°</span>' +
+        (w.t18 != null ? '<span class="d">18시 ' + w.t18 + '°' + (w.at18 != null ? ' · <span class="' + (hot ? 'hot' : '') + '">체감 ' + w.at18 + '°</span>' : '') + '</span>' : '') +
+        (w.pp != null ? '<span class="d">☂' + w.pp + '%</span>' : '') + match +
+        '<span class="caret">' + (open ? '▴' : '▾') + '</span></div>' + hourly + '</li>';
+    }).join('');
+  }
+  /* 구장 행 클릭 → 시간별 예보 펼침 (재렌더에도 열림 상태 유지) */
+  const wxOpen = {};
+  (function(){
+    const list = document.getElementById('wxList');
+    if(!list) return;
+    const toggle = e => {
+      const li = e.target.closest('.wxitem');
+      if(!li) return;
+      if(e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+      if(e.type === 'keydown') e.preventDefault();
+      const n = li.getAttribute('data-n');
+      wxOpen[n] = !wxOpen[n];
+      renderWxMap();
+    };
+    list.addEventListener('click', toggle);
+    list.addEventListener('keydown', toggle);
+    const mk = document.getElementById('wxMk');
+    if(mk) mk.addEventListener('click', e => {
+      const g = e.target.closest('.mk');
+      if(!g) return;
+      const n = g.getAttribute('data-n');
+      wxOpen[n] = !wxOpen[n];
+      renderWxMap();
+      const li = list.querySelector('.wxitem[data-n="' + n + '"]');
+      if(li && wxOpen[n]) li.scrollIntoView({block:'nearest', behavior:'smooth'});
+    });
+  })();
 
   /* KT 타이포 배너 갱신 */
   let ktWeekCache = null; // 다음 경기 안내용 (loadData에서 갱신)
@@ -1697,6 +1954,7 @@ gtag('config', 'G-8MC9LN4N1R');
       board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>';
       stamp.textContent = '자동 수집 · ' + updatedKST + ' KST';
       dot.style.background = '#86868b';
+      renderWxMap();
       return;
     }
     games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
@@ -1738,6 +1996,7 @@ gtag('config', 'G-8MC9LN4N1R');
       ? (stale ? '⚠️ 갱신 지연 · ' : '자동 수집 · ') + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST' + (ageMin != null ? ' (' + ageMin + '분 전)' : '')
       : '기본 데이터 · ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
     dot.style.background = !live ? '#86868b' : (stale ? 'var(--gold)' : 'var(--ok)');
+    renderWxMap();
   }
 
   /* ---------- 자동 수집 JSON (GitHub Actions, 5분 주기) ---------- */
@@ -2510,6 +2769,30 @@ gtag('config', 'G-8MC9LN4N1R');
     return { s: 'ok', t: '정상 개최 예상', d: '강수확률 ' + pp + '% — 날씨 양호' };
   }
 
+  /* ---------- 피타고리안 기대승률 ---------- */
+  function renderPythag(py){
+    if(!py || !py.teams || py.teams.length < 8) return;
+    document.getElementById('pySec').style.display = 'block';
+    const fmt = v => ('' + v.toFixed(3)).replace(/^0\./, '.');
+    document.getElementById('pyBody').innerHTML = py.teams.map((t, i) => {
+      const isKT = t.name === 'KT';
+      const dCls = t.diff > 0.005 ? 'plus' : (t.diff < -0.005 ? 'minus' : 'zero');
+      const dTxt = (t.diff > 0 ? '+' : '') + fmt2(t.diff);
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + (i + 1) + '</span></td>' +
+        '<td>' + esc(t.name) + '</td>' +
+        '<td>' + t.rs + '</td><td>' + t.ra + '</td>' +
+        '<td><span class="pybar"><i style="width:' + Math.round(t.exp * 100) + '%"></i></span>' + fmt(t.exp) + '</td>' +
+        '<td>' + fmt(t.act) + '</td>' +
+        '<td><span class="pydiff ' + dCls + '">' + dTxt + '</span></td></tr>';
+    }).join('');
+    function fmt2(v){ return ('' + Math.abs(v).toFixed(3)).replace(/^0\./, '.') ; }
+    const kt = py.teams.find(t => t.name === 'KT');
+    if(kt){
+      const luck = kt.diff > 0.01 ? '기대치보다 잘 이기고 있습니다 (접전에 강함)' : kt.diff < -0.01 ? '기대치보다 덜 이기고 있습니다 — 득실점 대비 순위 상승 여력이 있다는 뜻' : '실력 그대로의 승률입니다';
+      document.getElementById('pyNote').innerHTML = '<b>kt wiz</b>: 득점 ' + kt.rs + ' · 실점 ' + kt.ra + ' → 기대승률 <b>' + fmt(kt.exp) + '</b> (실제 ' + fmt(kt.act) + '). ' + luck + '. · 공식: 득점¹·⁸³ ÷ (득점¹·⁸³ + 실점¹·⁸³), ' + esc(py.date) + ' 기준';
+    }
+  }
+
   /* ---------- 개인 타이틀 레이스 ---------- */
   function renderTitleRace(tr){
     if(!tr || !tr.list || tr.list.length < 6) return;
@@ -2524,6 +2807,40 @@ gtag('config', 'G-8MC9LN4N1R');
         '<span class="vl">' + esc(p.val) + '</span></li>'
       ).join('') + '</ol></div>'
     ).join('');
+  }
+
+  /* ---------- 잔여 일정 난이도 ---------- */
+  function renderSched(sc, standings){
+    if(!sc || !sc.teams || sc.teams.length < 10 || !sc.teams.some(t => t.sampleN > 0)) return;
+    document.getElementById('schedSec').style.display = 'block';
+    const rankOf = {}; (standings || []).forEach(t => rankOf[t.name] = t.rank);
+    const fmt = v => ('' + v.toFixed(3)).replace(/^0\./, '.');
+    const bar = w => Math.max(4, Math.min(100, Math.round((w - 0.35) * 400))); // .35~.60 → 4~100%
+    document.getElementById('schedBody').innerHTML = sc.teams.map((t, i) => {
+      const isKT = t.name === 'KT';
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + (i + 1) + '</span></td>' +
+        '<td>' + esc(t.name) + '</td>' +
+        '<td>' + (rankOf[t.name] ? rankOf[t.name] + '위' : '—') + '</td>' +
+        '<td>' + t.remaining + '</td>' +
+        '<td><span class="pybar"><i style="width:' + bar(t.oppWra) + '%"></i></span>' + fmt(t.oppWra) + '</td></tr>';
+    }).join('');
+    const kt = sc.teams.find(t => t.name === 'KT'), ktIdx = sc.teams.indexOf(kt);
+    const ss = sc.teams.find(t => t.name === '삼성');
+    let note = '';
+    if(kt && ss){
+      const diff = kt.oppWra - ss.oppWra;
+      const cmp = Math.abs(diff) < 0.005 ? '2위 삼성과 비슷한 난이도입니다'
+        : (diff > 0 ? '2위 삼성(' + fmt(ss.oppWra) + ')보다 어려운 일정입니다' : '2위 삼성(' + fmt(ss.oppWra) + ')보다 쉬운 일정입니다');
+      note = '<b>kt wiz</b>: 잔여 ' + kt.remaining + '경기, 남은 상대 평균 승률 <b>' + fmt(kt.oppWra) + '</b> (쉬운 순 ' + (ktIdx + 1) + '위) — ' + cmp + '. ';
+    }
+    /* 표본이 리그 잔여 경기 전체를 덮으면 '추정'이 아니라 확정 일정 기준이 된다 */
+    const totalRemain = Math.round(sc.teams.reduce((s, t) => s + t.remaining, 0) / 2);
+    const full = totalRemain > 0 && sc.sampleGames >= totalRemain * 0.9;
+    document.getElementById('schedNote').innerHTML = note +
+      (full
+        ? 'KBO 공개 <b>잔여 일정 전체</b>(' + sc.sampleGames + '경기) 기준 자체 계산입니다. 취소 경기 재편성분도 포함됩니다.'
+        : '공개된 향후 일정 표본 ' + sc.sampleGames + '경기 기준 자체 계산이며, 잔여 경기 수는 정규시즌 144경기 기준입니다. 남은 일정이 추가 공개되면 자동 반영됩니다.') +
+      ' · ' + esc(sc.date) + ' 기준';
   }
 
   /* ---------- 팀간 상대전적 (KT 중심) ---------- */
@@ -2614,6 +2931,89 @@ gtag('config', 'G-8MC9LN4N1R');
     box.innerHTML = card(st.kt, 'kt', 'kt wiz') + card(st.opp, '', st.oppName || '상대');
   }
 
+  /* ---------- 구단 누적 이동거리 (자작 한반도 지도 + 버스) ---------- */
+  function renderTravel(py){
+    const tv = py && py.travel;
+    if(!tv || !tv.teams || tv.teams.length < 10) return;
+    document.getElementById('travelSec').style.display = 'block';
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('krMap');
+    svg.innerHTML = '';
+    // 위경도 → SVG 좌표 (지리적 사실 기반 자체 투영)
+    const px = lon => (lon - 124.6) / 5.2 * 360;
+    const py2 = lat => (38.9 - lat) / 5.9 * 470;
+    const XY = {};
+    for(const k in COORD) XY[k] = [px(COORD[k][1]), py2(COORD[k][0])];
+    // 스타일화 한반도 아웃라인 (직접 그림 — 마법지도 잉크 스타일)
+    const outline = 'M105 95 C118 78, 135 70, 152 68 C175 62, 195 58, 212 62 C232 66, 245 70, 252 76 C270 88, 288 102, 300 122 C312 145, 322 168, 330 192 C338 214, 344 228, 346 238 C348 258, 344 270, 338 278 C330 295, 324 303, 318 309 C305 318, 292 321, 282 320 C265 317, 252 313, 240 313 C222 318, 208 324, 196 324 C180 322, 168 320, 158 318 C142 313, 130 306, 120 298 C110 286, 105 272, 104 262 C110 248, 116 240, 118 232 C112 220, 106 208, 106 196 C114 184, 122 176, 127 169 C120 158, 113 149, 111 141 C106 126, 104 110, 105 95 Z';
+    const el2 = (tag, attrs, txt) => { const e = document.createElementNS(NS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(txt != null) e.textContent = txt; return e; };
+    svg.appendChild(el2('path', { d: outline, class: 'kr-out' }));
+    svg.appendChild(el2('ellipse', { cx: 132, cy: 428, rx: 26, ry: 12, class: 'kr-out' })); // 제주
+
+    function buildRouteD(stops){
+      const seq = (stops || []).filter(s => XY[s]);
+      if(seq.length < 2) return null;
+      let d = 'M' + XY[seq[0]][0].toFixed(1) + ' ' + XY[seq[0]][1].toFixed(1);
+      for(let i = 1; i < seq.length; i++){
+        const a = XY[seq[i-1]], b = XY[seq[i]];
+        const mx = (a[0] + b[0]) / 2, myy = (a[1] + b[1]) / 2 - 14;
+        d += ' Q' + mx.toFixed(1) + ' ' + myy.toFixed(1) + ', ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      }
+      return d;
+    }
+
+    // 다른 9개 구단의 최근 동선 — 옅은 라인으로 배경에 (KT 아래 깔림)
+    const seqByTeam = tv.seqByTeam || {};
+    for(const nm in seqByTeam){
+      if(nm === 'KT') continue;
+      const d = buildRouteD(seqByTeam[nm]);
+      if(d) svg.appendChild(el2('path', { d, class: 'kr-route other' }));
+    }
+
+    // 구장 점 + 라벨
+    const HOME = { '수원':'KT', '잠실':'LG·두산', '대구':'삼성', '광주':'KIA', '사직':'롯데', '문학':'SSG', '창원':'NC', '고척':'키움', '대전':'한화' };
+    for(const st in HOME){
+      const [x, y] = XY[st];
+      svg.appendChild(el2('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: st === '수원' ? 5 : 3.4, class: 'kr-dot' + (st === '수원' ? ' kt' : '') }));
+      svg.appendChild(el2('text', { x: (x + 7).toFixed(1), y: (y + 3).toFixed(1), class: 'kr-lbl' }, st));
+    }
+    // KT 최근 동선 + 버스 왕복 애니메이션 (다른 팀 라인 위에 강조)
+    const ktD = buildRouteD(tv.ktSeq);
+    if(ktD){
+      const route = el2('path', { d: ktD, class: 'kr-route', id: 'ktRoutePath' });
+      svg.appendChild(route);
+      const bus = el2('text', { class: 'kr-bus', 'text-anchor': 'middle' }, '🚌');
+      svg.appendChild(bus);
+      const L = route.getTotalLength();
+      if(reduce){
+        const p = route.getPointAtLength(L);
+        bus.setAttribute('x', p.x); bus.setAttribute('y', p.y - 6);
+      } else {
+        const t0 = performance.now();
+        (function drive(t){
+          if(!bus.isConnected) return;
+          const cyc = ((t - t0) / 7000) % 2;           // 7초 편도, 왕복
+          const p01 = cyc < 1 ? cyc : 2 - cyc;
+          const pt = route.getPointAtLength(L * p01);
+          bus.setAttribute('x', pt.x.toFixed(1)); bus.setAttribute('y', (pt.y - 6).toFixed(1));
+          requestAnimationFrame(drive);
+        })(t0);
+      }
+    }
+    // 랭킹 리스트
+    const max = Math.max(...tv.teams.map(t => t.km));
+    document.getElementById('travelList').innerHTML = tv.teams.map(t =>
+      '<li' + (t.name === 'KT' ? ' class="kt"' : '') + '>' +
+      '<span class="tn">' + esc(t.name) + '</span>' +
+      '<span class="tbar"><i style="width:' + Math.round(t.km / max * 100) + '%"></i></span>' +
+      '<span class="tkm">' + t.km.toLocaleString() + 'km <small>· ' + t.moves + '회</small></span></li>'
+    ).join('');
+    const kt = tv.teams.find(t => t.name === 'KT');
+    const rank = tv.teams.findIndex(t => t.name === 'KT') + 1;
+    if(kt) document.getElementById('travelNote').textContent =
+      '🚌 kt wiz는 시즌 누적 약 ' + kt.km.toLocaleString() + 'km 이동 (시리즈 이동 ' + kt.moves + '회) — 리그 ' + rank + '위. 구장 간 직선거리 기준 자체 계산이며 실제 버스 주행거리와는 다를 수 있습니다.';
+  }
+
   /* ---------- 뉴스 (구글 뉴스 수집) ---------- */
   function renderNews(news){
     if(!news || !news.length) return; // 수집 전엔 안내 카드 유지
@@ -2623,6 +3023,45 @@ gtag('config', 'G-8MC9LN4N1R');
       '<span class="chip">기사</span>' +
       '<h3>' + esc(n.title) + '</h3></a>'
     ).join('');
+  }
+
+  /* ---------- 비디오 판독 (텍스트 전용, KBO 공식 판독센터 기록 기반) ---------- */
+  function renderVideoReview(list){
+    if(!list || !list.length) return; // 데이터 전엔 섹션 숨김 유지
+    const sec = document.getElementById('vrSec');
+    sec.style.display = 'block';
+    /* 어느 경기의 판독인지 명시 — 마지막 경기에 판독이 없으면 그 사실을 안내 */
+    const vn = document.getElementById('vrNote');
+    if(vn && list[0] && list[0].date){
+      const latestMd = list[0].date;
+      if(ktLastCache && ktLastCache.date){
+        const lastMd = ktLastCache.date.slice(5).replace('-', '.');
+        const now2 = new Date();
+        const todayMd = String(now2.getMonth() + 1).padStart(2, '0') + '.' + String(now2.getDate()).padStart(2, '0');
+        vn.style.display = '';
+        vn.innerHTML = latestMd === todayMd
+          ? '아래는 <b>오늘 경기(' + esc(latestMd) + ')</b>의 판독 기록입니다.'
+          : (latestMd === lastMd
+            ? '아래는 마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)의 판독 기록입니다.'
+            : '마지막 경기(<b>' + esc(lastMd) + ' vs ' + esc(ktLastCache.opp) + '</b>)에는 판독 신청이 없었습니다 — 아래는 판독이 있었던 가장 최근 경기(<b>' + esc(latestMd) + '</b>) 기록입니다.');
+      }
+    }
+    document.getElementById('vrList').innerHTML = list.map(v => {
+      const turned = /번복/.test(v.result);
+      const kept = /원심/.test(v.result);
+      const badgeCls = turned ? 'turn' : (kept ? 'stay' : '');
+      const badgeTxt = turned ? '🔄 번복' : (kept ? '✅ 원심' : esc(v.result || '결과 대기'));
+      const isKtReq = v.reqTeam === 'KT';
+      return '<li' + (isKtReq ? ' class="kt-req"' : '') + '>' +
+        '<span class="vr-inn">' + esc(v.inning || '') + '</span>' +
+        '<span class="vr-mid">' +
+          '<span class="vr-teams">' + esc((v.teams || []).join(' : ')) + ' · ' + esc(v.stadium || '') + '</span>' +
+          '<div class="vr-desc">' + esc(v.reqTeam || '') + ' 요청 · ' + esc(v.type || '판정') + '</div>' +
+          '<div class="vr-meta">' + esc(v.date || '') + (v.duration ? ' · 소요 ' + esc(v.duration) : '') + (v.broadcast ? ' · ' + esc(v.broadcast) : '') + '</div>' +
+        '</span>' +
+        '<span class="vr-badge ' + badgeCls + '">' + badgeTxt + '</span>' +
+      '</li>';
+    }).join('');
   }
 
   /* ---------- 스포트라이트 (오늘의 키플레이어 자동) ---------- */
@@ -2678,11 +3117,15 @@ gtag('config', 'G-8MC9LN4N1R');
         renderScoreLog(j.kt, j.games);
         renderLastGame(j.kt && j.kt.lastGame);
         renderNews(j.news);
+        renderVideoReview(j.videoReview);
         renderSpot(j.kt && j.kt.top);
         renderH2H(j.pythag, j.standings, j.games);
+        renderTravel(j.pythag);
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
         renderMagicBanner(j.standings);
+        renderPythag(j.pythag);
+        renderSched(j.sched, j.standings);
         renderKsForecast(j.standings, j.pythag, j.sched);
         renderTitleRace(j.titleRace);
         renderYT(j.youtube);
@@ -2696,7 +3139,8 @@ gtag('config', 'G-8MC9LN4N1R');
      시즌이 진행될수록 참고용 섹션이 쌓여 페이지가 매우 길어진다.
      경기·순위 등 자주 보는 것만 펼쳐 두고 나머지는 접어 첫 화면 길이를 줄인다.
      사용자가 펼친 섹션은 localStorage에 기억해 다음 방문에도 유지한다. */
-  const FOLDED = ['titleSec','rankChartSec','h2hSec','lastGameSec','spotSec','ytSec','instaSec','newsSec'];
+  const FOLDED = ['wxMapSec','titleSec','rankChartSec','h2hSec','pySec','schedSec',
+                  'travelSec','lastGameSec','vrSec','spotSec','ytSec','instaSec','newsSec'];
   const SEC_KEY = 'wizSecOpen';
   const secLoad = () => { try{ return JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); }catch(e){ return {}; } };
   const secSave = o => { try{ localStorage.setItem(SEC_KEY, JSON.stringify(o)); }catch(e){} };

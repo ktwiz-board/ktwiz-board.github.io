@@ -147,32 +147,6 @@ async function fetchTitleRace() {
   } catch (e) { console.error('title race fail', e.message); return null; }
 }
 
-// KBO 공식 비디오판독센터 — 텍스트(이닝·요청팀·소요시간·유형·결과)만 사용, 영상은 절대 가져오지 않음
-async function fetchVideoReview() {
-  try {
-    const r = await fetch('https://kborc.com/main.do', { headers: UA, signal: AbortSignal.timeout(15000) });
-    const html = await r.text();
-    const blocks = [...html.matchAll(/openLayerRVod\((\d+)\);"[\s\S]*?<\/a>/g)];
-    const out = [];
-    for (const b of blocks) {
-      const block = b[0];
-      const date = (block.match(/<strong><span>([^<]+)<\/span><\/strong>/) || [])[1];
-      const stadium = (block.match(/<em>\(([^)]+)\)<\/em>/) || [])[1];
-      const broadcast = (block.match(/<\/em>\s*([^<]+)<\/p>/) || [])[1];
-      const result = (block.match(/<span class="referee">([^<]+)<\/span>/) || [])[1];
-      const teams = [...block.matchAll(/<span class="emblem[^"]*">([^<]+)<\/span>/g)].map(m => m[1].trim());
-      const lis = [...block.matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].trim()).filter(Boolean);
-      if (!teams.includes('KT') || teams.length < 2) continue;
-      out.push({
-        seq: b[1], date, stadium, broadcast: broadcast || '', result: result || '',
-        teams, inning: lis[0] || '', reqTeam: (lis[1] || '').replace('요청', '').trim(),
-        duration: lis[2] || '', type: lis[3] || ''
-      });
-    }
-    return out.slice(0, 8);
-  } catch (e) { console.error('video review fail', e.message); return []; }
-}
-
 async function fetchYoutube() {
   try {
     const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
@@ -228,28 +202,10 @@ async function fetchNews() {
 // 피타고리안 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
-// 구장 좌표 (이동거리 계산용 — 위경도는 지리적 사실)
-const STADIUM_LL = {
-  '수원': [37.2997, 127.0097], '잠실': [37.512, 127.072], '대구': [35.841, 128.6819],
-  '대전': [36.3173, 127.4290], '사직': [35.1941, 129.0615], '고척': [37.498, 126.867],
-  '창원': [35.2225, 128.5822], '광주': [35.1683, 126.8889], '문학': [37.437, 126.6933],
-  '포항': [36.008, 129.359], '울산': [35.532, 129.265], '청주': [36.639, 127.470]
-};
-function haversineKm(a, b) {
-  const R = 6371, d = Math.PI / 180;
-  const dLat = (b[0] - a[0]) * d, dLon = (b[1] - a[1]) * d;
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * d) * Math.cos(b[0] * d) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(s));
-}
-function stadiumKey(name) {
-  return Object.keys(STADIUM_LL).find(k => (name || '').indexOf(k) === 0) || null;
-}
-
 async function pythagorean(today) {
   const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {}; // name -> {rs, ra, w, l, d}
   const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
-  const seq = {}; // name -> [{date, st}] 경기 구장 시퀀스 (이동거리용)
   for (const [f, t] of ranges) {
     if (f > today) break;
     const gs = await games(f, t, 500);
@@ -257,14 +213,6 @@ async function pythagorean(today) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
       // 올스타전(나눔·드림)·시범경기 등 정규 10개 구단 매치가 아닌 경기 제외
       if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
-      const sk = stadiumKey(g.stadium);
-      if (sk) {
-        for (const nm of [g.homeTeamName, g.awayTeamName]) {
-          if (!seq[nm]) seq[nm] = [];
-          const last = seq[nm][seq[nm].length - 1];
-          if (!last || last.st !== sk) seq[nm].push({ date: g.gameDate, st: sk }); // 같은 구장 연속(시리즈/DH)은 1회
-        }
-      }
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
@@ -276,32 +224,11 @@ async function pythagorean(today) {
       }
     }
   }
-  // 누적 이동거리: 홈구장 출발 → 경기 구장 시퀀스 직선거리 합 (자체 산식)
-  const HOME_ST = { 'KT': '수원', 'LG': '잠실', '두산': '잠실', '삼성': '대구', 'KIA': '광주', '롯데': '사직', 'SSG': '문학', 'NC': '창원', '키움': '고척', '한화': '대전' };
-  const travelTeams = [];
-  for (const nm of KBO_TEAMS) {
-    const s = seq[nm] || [];
-    let km = 0, prevSt = HOME_ST[nm], moves = 0;
-    for (const e of s) {
-      if (e.st !== prevSt) {
-        km += haversineKm(STADIUM_LL[prevSt], STADIUM_LL[e.st]);
-        moves++;
-        prevSt = e.st;
-      }
-    }
-    travelTeams.push({ name: nm, km: Math.round(km), moves, last: prevSt });
-  }
-  travelTeams.sort((a, b) => b.km - a.km);
-  const ktSeq = (seq['KT'] || []).slice(-8).map(e => e.st);
-  const seqByTeam = {};
-  for (const nm of KBO_TEAMS) seqByTeam[nm] = (seq[nm] || []).slice(-6).map(e => e.st);
-
   const E = 1.83;
   return {
     date: today,
     v: 6,
     h2h,
-    travel: { teams: travelTeams, ktSeq, seqByTeam },
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
@@ -424,11 +351,9 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
   const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 5 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
-    const [yt2, nw2, vr2] = await Promise.all([fetchYoutube(), fetchNews(), fetchVideoReview()]);
+    const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     if (yt2.length) prev.youtube = yt2;
-    prev.shorts = []; // 쇼츠 섹션 제거됨
     if (nw2.length) prev.news = nw2;
-    prev.videoReview = vr2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
     try {
       const self = await selfStandings(today);
@@ -448,7 +373,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     prev.updated = new Date().toISOString();
     prev.updatedKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
     fs.writeFileSync(file, JSON.stringify(prev, null, 1));
-    console.log(`ok(post-partial): yt=${yt2.length} news=${nw2.length} review=${vr2.length}`);
+    console.log(`ok(post-partial): yt=${yt2.length} news=${nw2.length}`);
     console.log(`SLEEP=${SLEEP.post}`);
     return;
   }
@@ -699,17 +624,8 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // 4.7) 관련 뉴스
   const news = await fetchNews();
 
-  // 4.8) KBO 공식 비디오판독센터 — KT 경기 판독 이력 (텍스트만, 영상 미포함)
-  const videoReview = await fetchVideoReview();
-
   // 5) kt wiz 공식 유튜브 최신 영상 (RSS)
   const youtube = await fetchYoutube();
-
-  // 5.5) kt위즈/케이티위즈 유튜브 쇼츠 검색
-  const shorts = []; // 쇼츠 섹션 제거됨 (스키마 호환용 빈 배열)
-
-  // 6) 갤러리 섹션 제거됨 (스키마 호환용 빈 배열)
-  const gall = [];
 
   // 7) 피타고리안 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
@@ -776,8 +692,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    videoReview: videoReview.length ? videoReview : ((prev && prev.videoReview) || []),
-    youtube, shorts, gall, pythag, sched
+    youtube, pythag, sched
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });

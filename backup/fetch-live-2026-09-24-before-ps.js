@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const UA = { 'User-Agent': 'Mozilla/5.0 (giants-board live fetcher)' };
+const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board live fetcher)' };
 const API = 'https://api-gw.sports.naver.com';
 
 function kstNow() {
@@ -162,7 +162,7 @@ async function fetchVideoReview() {
       const result = (block.match(/<span class="referee">([^<]+)<\/span>/) || [])[1];
       const teams = [...block.matchAll(/<span class="emblem[^"]*">([^<]+)<\/span>/g)].map(m => m[1].trim());
       const lis = [...block.matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].trim()).filter(Boolean);
-      if (!teams.includes('롯데') || teams.length < 2) continue;
+      if (!teams.includes('KT') || teams.length < 2) continue;
       out.push({
         seq: b[1], date, stadium, broadcast: broadcast || '', result: result || '',
         teams, inning: lis[0] || '', reqTeam: (lis[1] || '').replace('요청', '').trim(),
@@ -175,7 +175,7 @@ async function fetchVideoReview() {
 
 async function fetchYoutube() {
   try {
-    const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCAZQZdSY5_YrziMPqXi-Zfw', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const r = await fetch('https://www.youtube.com/feeds/videos.xml?channel_id=UCvScyjGkBUx2CJDMNAi9Twg', { headers: UA, signal: AbortSignal.timeout(15000) });
     const xml = await r.text();
     const vids = xml.split('<entry>').slice(1, 9).map(e => {
       const id = (e.match(/<yt:videoId>([^<]+)</) || [])[1];
@@ -202,10 +202,10 @@ async function filterAliveVideos(list) {
   } catch (e) { return list; }
 }
 
-// 롯데 자이언츠 관련 뉴스 (구글 뉴스 RSS — 제목·링크·출처만 사용)
+// kt wiz 관련 뉴스 (구글 뉴스 RSS — 제목·링크·출처만 사용)
 async function fetchNews() {
   try {
-    const r = await fetch('https://news.google.com/rss/search?q=%22%EB%A1%AF%EB%8D%B0%20%EC%9E%90%EC%9D%B4%EC%96%B8%EC%B8%A0%22%20OR%20%22lotte%20giants%22&hl=ko&gl=KR&ceid=KR:ko', { headers: UA, signal: AbortSignal.timeout(15000) });
+    const r = await fetch('https://news.google.com/rss/search?q=%22kt%20%EC%9C%84%EC%A6%88%22%20OR%20%22kt%20wiz%22&hl=ko&gl=KR&ceid=KR:ko', { headers: UA, signal: AbortSignal.timeout(15000) });
     const xml = await r.text();
     const items = [...xml.matchAll(/<item><title>([^<]+)<\/title><link>([^<]+)<\/link><guid[^>]*>[^<]*<\/guid><pubDate>([^<]+)<\/pubDate>[\s\S]*?<source url="[^"]*">([^<]+)<\/source>/g)];
     const seen = new Set();
@@ -292,7 +292,7 @@ async function pythagorean(today) {
     travelTeams.push({ name: nm, km: Math.round(km), moves, last: prevSt });
   }
   travelTeams.sort((a, b) => b.km - a.km);
-  const ktSeq = (seq['롯데'] || []).slice(-8).map(e => e.st);
+  const ktSeq = (seq['KT'] || []).slice(-8).map(e => e.st);
   const seqByTeam = {};
   for (const nm of KBO_TEAMS) seqByTeam[nm] = (seq[nm] || []).slice(-6).map(e => e.st);
 
@@ -382,7 +382,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
 
   // 우리 팀 잔여 경기 전체 (화면에서 "이번 주" 대신 시즌 끝까지 보여주기 위함)
   const mine = future
-    .filter(g => g.homeTeamName === '롯데' || g.awayTeamName === '롯데')
+    .filter(g => g.homeTeamName === 'KT' || g.awayTeamName === 'KT')
     .map(g => ({ date: g.gameDate, away: g.awayTeamName, home: g.homeTeamName, stadium: g.stadium, time: (g.gameDateTime || '').slice(11, 16) }))
     .sort((a, b) => a.date < b.date ? -1 : 1);
 
@@ -457,7 +457,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const standings = {};
   let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null, ktStarters = null;
   // 더블헤더 대비: KT 경기가 2개면 진행 중 > 예정 > 마지막(종료·취소) 순으로 대표 경기 선택
-  const ktTodayGames = todayGames.filter(g => g.home === '롯데' || g.away === '롯데');
+  const ktTodayGames = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
   const ktActive = ktTodayGames.find(g => g.code === 'STARTED' || g.code === 'LIVE')
     || ktTodayGames.find(g => !['RESULT', 'ENDED', 'CANCEL'].includes(g.code))
     || ktTodayGames[ktTodayGames.length - 1] || null;
@@ -475,8 +475,8 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       // KT 라인업 (발표 시 fullLineUp에 타자 9명 포함) — 더블헤더면 대표 경기만
       if (ktActive && g.id === ktActive.id) {
         ktGameId = g.id;
-        const ktSide = g.home === '롯데' ? 'homeTeamLineUp' : 'awayTeamLineUp';
-        const opSide = g.home === '롯데' ? 'awayTeamLineUp' : 'homeTeamLineUp';
+        const ktSide = g.home === 'KT' ? 'homeTeamLineUp' : 'awayTeamLineUp';
+        const opSide = g.home === 'KT' ? 'awayTeamLineUp' : 'homeTeamLineUp';
         ktLineup = mapLineup(pd[ktSide]);
         oppLineup = mapLineup(pd[opSide]);
         // 오늘 선발 맞대결: 구종 구성·구속 (통계 수치만 사용)
@@ -487,18 +487,18 @@ async function scheduleDifficulty(today, standings, cancelledList) {
           pitches: (s.currentPitKindStats || []).map(p => ({ type: p.type, rt: p.pit_rt, spd: p.speed }))
         } : null;
         ktStarters = {
-          kt: mapStarter(g.home === '롯데' ? pd.homeStarter : pd.awayStarter),
-          opp: mapStarter(g.home === '롯데' ? pd.awayStarter : pd.homeStarter),
-          oppName: g.home === '롯데' ? g.away : g.home
+          kt: mapStarter(g.home === 'KT' ? pd.homeStarter : pd.awayStarter),
+          opp: mapStarter(g.home === 'KT' ? pd.awayStarter : pd.homeStarter),
+          oppName: g.home === 'KT' ? g.away : g.home
         };
         // 오늘의 키플레이어 (네이버 프리뷰 선정) — 스포트라이트 자동 교체용
-        const tp = g.home === '롯데' ? pd.homeTopPlayer : pd.awayTopPlayer;
+        const tp = g.home === 'KT' ? pd.homeTopPlayer : pd.awayTopPlayer;
         if (tp && tp.playerInfo) {
           const st = tp.currentSeasonStats || {};
           const r5 = tp.recentFiveGamesStats || {};
           ktTop = {
             name: tp.playerInfo.name, backnum: tp.playerInfo.backnum, hitType: tp.playerInfo.hitType,
-            opp: g.home === '롯데' ? g.away : g.home,
+            opp: g.home === 'KT' ? g.away : g.home,
             hra: st.hra, hr: st.hr, rbi: st.rbi, obp: st.obp, games: st.gameCount,
             r5hra: r5.hra, r5hit: r5.hit, r5ab: r5.ab
           };
@@ -515,7 +515,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       const rd = rec.result && rec.result.recordData;
       const g = todayGames.find(x => x.id === ktGameId);
       if (rd && rd.battersBoxscore && g) {
-        const side = g.home === '롯데' ? 'home' : 'away';
+        const side = g.home === 'KT' ? 'home' : 'away';
         const opSide = side === 'home' ? 'away' : 'home';
         const mapBat = b => ({ o: b.batOrder, name: b.name, pos: b.pos, ab: b.ab, h: b.hit, rbi: b.rbi, r: b.run, hr: b.hr, bb: b.bb, kk: b.kk, avg: b.hra });
         const mapPit = p => ({ name: p.name, pcode: p.pcode, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, era: p.era, wls: p.wls || '' });
@@ -617,7 +617,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // 3) KT 주간 일정 (오늘 ~ +7일)
   const week = (await games(today, ymd(addDays(now, 7))))
     .map(mapGame)
-    .filter(g => g.home === '롯데' || g.away === '롯데');
+    .filter(g => g.home === 'KT' || g.away === 'KT');
 
   // 3.5) 시즌 취소 경기 목록 (KBO 공식 일정, 하루 1회 캐시) + 오늘·주간 취소 경기 사유 부착
   const seasonMonths = [];
@@ -649,10 +649,10 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // 4) KT 최근 결과 (지난 12일, 종료 경기 최근 5)
   const recent = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
     .map(mapGame)
-    .filter(g => (g.home === '롯데' || g.away === '롯데') && (g.code === 'RESULT' || g.code === 'ENDED'))
+    .filter(g => (g.home === 'KT' || g.away === 'KT') && (g.code === 'RESULT' || g.code === 'ENDED'))
     .slice(-5)
     .map(g => {
-      const ktHome = g.home === '롯데';
+      const ktHome = g.home === 'KT';
       const my = ktHome ? g.hs : g.as, op = ktHome ? g.as : g.hs;
       return { ...g, opp: ktHome ? g.away : g.home, my, op, r: my > op ? 'W' : (my < op ? 'L' : 'D') };
     });
@@ -661,10 +661,10 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   let lastGame = null;
   const prevDone = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
     .map(mapGame)
-    .filter(g => (g.home === '롯데' || g.away === '롯데') && (g.code === 'RESULT' || g.code === 'ENDED'));
+    .filter(g => (g.home === 'KT' || g.away === 'KT') && (g.code === 'RESULT' || g.code === 'ENDED'));
   const lg = prevDone[prevDone.length - 1];
   if (lg) {
-    const ktHome = lg.home === '롯데';
+    const ktHome = lg.home === 'KT';
     lastGame = {
       date: lg.date, stadium: lg.stadium, opp: ktHome ? lg.away : lg.home, ktHome,
       my: ktHome ? lg.hs : lg.as, op: ktHome ? lg.as : lg.hs,
