@@ -19,6 +19,11 @@ function addDays(d, n) {
 // 2026 정규시즌 개막일 = 3/28 (KBO 공식 팀순위 경기수와 전 구단 대조로 확정, 그 이전은 시범경기)
 const SEASON_START = '2026-03-28';
 const SEASON_END = '2026-10-31';
+// 포스트시즌 — 네이버 gameId 앞 4자리가 라운드 코드 (2025 시즌 실데이터로 확인)
+const PS_FROM = '2026-09-20';
+const PS_END = '2026-11-20';
+const PS_ROUND = { '4444': 'WC', '3333': 'SPO', '5555': 'PO', '7777': 'KS' };
+const isPs = id => !!PS_ROUND[String(id || '').slice(0, 4)];
 
 // [from,to] 구간을 chunkDays 단위로 잘라 반환.
 // 일정 조회 범위를 날짜 상수로 박아두면 시즌이 진행되며 from > to 로 역전돼 API가 400을 내고
@@ -202,6 +207,30 @@ async function fetchNews() {
 // 피타고리안 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
+// 포스트시즌 라운드별 경기·시리즈 전적. 대진·확률 계산은 화면 쪽에서(정규시즌 최종 순위와 결합)
+async function postseason() {
+  const raw = [];
+  for (const [f, t] of dateRanges(PS_FROM, PS_END, 60)) raw.push(...(await games(f, t, 500)));
+  const rounds = {};
+  for (const g of raw) {
+    const code = PS_ROUND[String(g.gameId).slice(0, 4)];
+    if (!code) continue;
+    const r = rounds[code] || (rounds[code] = { code, teams: [], wins: {}, games: [] });
+    for (const nm of [g.awayTeamName, g.homeTeamName]) {
+      if (!r.teams.includes(nm)) { r.teams.push(nm); r.wins[nm] = 0; }
+    }
+    const m = mapGame(g);
+    if (!g.cancel && g.statusCode === 'RESULT') {
+      if (g.awayTeamScore > g.homeTeamScore) r.wins[g.awayTeamName]++;
+      else if (g.homeTeamScore > g.awayTeamScore) r.wins[g.homeTeamName]++;
+      else m.tie = true;
+    }
+    r.games.push(m);
+  }
+  for (const r of Object.values(rounds)) r.games.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  return { v: 1, rounds };
+}
+
 async function pythagorean(today) {
   const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {}; // name -> {rs, ra, w, l, d}
@@ -213,6 +242,7 @@ async function pythagorean(today) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
       // 올스타전(나눔·드림)·시범경기 등 정규 10개 구단 매치가 아닌 경기 제외
       if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
+      if (isPs(g.gameId)) continue; // 포스트시즌은 정규시즌 집계에서 제외
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
@@ -247,6 +277,7 @@ async function selfStandings(today) {
     for (const g of gs) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
       if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
+      if (isPs(g.gameId)) continue; // 포스트시즌은 정규시즌 집계에서 제외
       for (const [me, my, opsc] of [[g.homeTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { w: 0, l: 0, d: 0 };
         if (my > opsc) agg[me].w++; else if (my < opsc) agg[me].l++; else agg[me].d++;
@@ -273,7 +304,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const futureRaw = [];
   for (const [f, t] of dateRanges(today, SEASON_END, 60)) futureRaw.push(...(await games(f, t, 500)));
   const future = futureRaw.filter(g => g.statusCode === 'BEFORE' && !g.cancel
-    && KBO_TEAMS.includes(g.homeTeamName) && KBO_TEAMS.includes(g.awayTeamName));
+    && KBO_TEAMS.includes(g.homeTeamName) && KBO_TEAMS.includes(g.awayTeamName) && !isPs(g.gameId));
   const acc = {};
   for (const g of future) {
     for (const [me, op] of [[g.homeTeamName, g.awayTeamName], [g.awayTeamName, g.homeTeamName]]) {
@@ -352,6 +383,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 5 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
+    try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
     if (yt2.length) prev.youtube = yt2;
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
@@ -675,6 +707,10 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank));
   }
 
+  // 포스트시즌 대진·시리즈 전적 (실패 시 직전 값 유지)
+  let ps = (prev && prev.ps) || null;
+  try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+
   const out = {
     updated: new Date().toISOString(),
     updatedKST: `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`,
@@ -692,7 +728,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched
+    youtube, pythag, sched, ps
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
