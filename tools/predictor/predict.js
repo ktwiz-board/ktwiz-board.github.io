@@ -1,0 +1,245 @@
+#!/usr/bin/env node
+// KBO 정규시즌 예측 모델링 도구 (외부 패키지 없음, Node 18+)
+//
+//   node tools/predictor/predict.js backtest            최근 N경기 창 크기·가중치별 적중도 비교 (올 시즌 실경기로 채점)
+//   node tools/predictor/predict.js sim                 잔여 시즌 몬테카를로 — 최종 순위 확률, 1위 경쟁 경기차 전망
+//   node tools/predictor/predict.js sim --window 60 --form 0.5 --n 50000 --rival 삼성
+//   node tools/predictor/predict.js form                팀별 최근 폼 요약
+//
+// 공통 옵션: --refresh (경기 데이터 캐시 무시하고 다시 받기)
+// 데이터: 네이버 스포츠 일정 API (보드 수집기와 같은 출처). 하루 1회 캐시(tools/predictor/cache/).
+
+const fs = require('fs');
+const path = require('path');
+
+const API = 'https://api-gw.sports.naver.com';
+const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board predictor)' };
+const TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
+const SEASON_START = '2026-03-28';
+const SEASON_END = '2026-10-31';
+const SEASON_GAMES = 144;
+const E = 1.83;           // 피타고리안 지수 (보드와 동일)
+const HOME_ADV = 0.02;    // 홈팀 승률 가산 (백테스트로 조정 가능: --home)
+const isPs = id => /^(4444|3333|5555|7777)/.test(String(id)); // 포스트시즌 gameId 접두어
+
+// ---------- 인자 ----------
+const argv = process.argv.slice(2);
+const cmd = argv[0] || 'sim';
+const opt = (name, def) => {
+  const i = argv.indexOf('--' + name);
+  if (i < 0) return def;
+  const v = argv[i + 1];
+  return (v === undefined || v.startsWith('--')) ? true : v;
+};
+
+// ---------- 날짜 ----------
+const kstToday = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86400e3).toISOString().slice(0, 10);
+function ranges(from, to, step) {
+  const out = [];
+  for (let f = from; f <= to; f = addDays(f, step)) { const t = addDays(f, step - 1); out.push([f, t < to ? t : to]); }
+  return out;
+}
+
+// ---------- 데이터 ----------
+async function fetchGames(from, to) {
+  const u = `${API}/schedule/games?fields=basic,stadium&upperCategoryId=kbaseball&categoryId=kbo&fromDate=${from}&toDate=${to}&size=500`;
+  const r = await fetch(u, { headers: UA, signal: AbortSignal.timeout(20000) });
+  if (!r.ok) throw new Error(`${r.status} ${u}`);
+  const d = await r.json();
+  return (d.result && d.result.games) || [];
+}
+async function loadSeason() {
+  const today = kstToday();
+  const dir = path.join(__dirname, 'cache');
+  const file = path.join(dir, `games-${today}.json`);
+  if (!opt('refresh', false) && fs.existsSync(file)) return { today, ...JSON.parse(fs.readFileSync(file, 'utf8')) };
+  const raw = [];
+  for (const [f, t] of ranges(SEASON_START, SEASON_END, 60)) raw.push(...await fetchGames(f, t));
+  const reg = raw.filter(g => TEAMS.includes(g.homeTeamName) && TEAMS.includes(g.awayTeamName) && !isPs(g.gameId));
+  const played = reg.filter(g => g.statusCode === 'RESULT' && !g.cancel)
+    .map(g => ({ t: g.gameDateTime || g.gameDate, d: g.gameDate, h: g.homeTeamName, a: g.awayTeamName, hs: g.homeTeamScore, as: g.awayTeamScore }))
+    .sort((x, y) => x.t < y.t ? -1 : 1);
+  const future = reg.filter(g => g.statusCode === 'BEFORE' && !g.cancel && g.gameDate >= today)
+    .map(g => ({ t: g.gameDateTime || g.gameDate, d: g.gameDate, h: g.homeTeamName, a: g.awayTeamName }))
+    .sort((x, y) => x.t < y.t ? -1 : 1);
+  fs.mkdirSync(dir, { recursive: true });
+  for (const f of fs.readdirSync(dir)) if (f.startsWith('games-') && f !== path.basename(file)) fs.unlinkSync(path.join(dir, f));
+  fs.writeFileSync(file, JSON.stringify({ played, future }));
+  return { today, played, future };
+}
+
+// ---------- 모델 ----------
+// 팀 전력 = form(최근 window경기: 승률·피타고리안 반반) × formWeight + season(피타고리안 70%·승률 30%) × (1-formWeight),
+// 그 다음 리그 평균(.5)으로 regress만큼 회귀. 경기 승률 = log5(홈, 원정) + 홈 어드밴티지.
+const pyth = (rs, ra) => (rs + ra) ? Math.pow(rs, E) / (Math.pow(rs, E) + Math.pow(ra, E)) : 0.5;
+const log5 = (a, b) => { const v = (a - a * b) / (a + b - 2 * a * b); return isFinite(v) ? v : 0.5; };
+function logs(played) {
+  const L = {}; for (const t of TEAMS) L[t] = [];
+  for (const g of played) {
+    L[g.h].push({ d: g.d, rs: g.hs, ra: g.as });
+    L[g.a].push({ d: g.d, rs: g.as, ra: g.hs });
+  }
+  return L;
+}
+function agg(arr) {
+  const s = { n: arr.length, w: 0, l: 0, d: 0, rs: 0, ra: 0 };
+  for (const x of arr) { s.rs += x.rs; s.ra += x.ra; s[x.rs > x.ra ? 'w' : x.rs < x.ra ? 'l' : 'd']++; }
+  return s;
+}
+function strength(hist, cfg) {
+  if (hist.length < 5) return 0.5;
+  const sea = agg(hist);
+  const seaStr = 0.7 * pyth(sea.rs, sea.ra) + 0.3 * sea.w / Math.max(1, sea.w + sea.l);
+  let s = seaStr;
+  if (cfg.window !== 'season' && cfg.formWeight > 0) {
+    const f = agg(hist.slice(-cfg.window));
+    const formStr = 0.5 * f.w / Math.max(1, f.w + f.l) + 0.5 * pyth(f.rs, f.ra);
+    s = cfg.formWeight * formStr + (1 - cfg.formWeight) * seaStr;
+  }
+  return s * (1 - cfg.regress) + 0.5 * cfg.regress;
+}
+const DEFAULT = { window: 30, formWeight: 0.7, regress: 0.15, home: HOME_ADV };
+
+// ---------- backtest ----------
+// 올 시즌 각 경기를 "그 경기 이전 데이터만으로" 예측해 채점한다 (미래 정보 누설 없음).
+//  - logloss/Brier: 경기 단위 승패 예측 정확도 (낮을수록 좋음)
+//  - next20 MAE: 그 시점 전력으로 예측한 향후 20경기 승률 vs 실제 (경기차 전망에 더 가까운 지표)
+function backtest(played, cfg, from) {
+  const L = {}; for (const t of TEAMS) L[t] = [];
+  let ll = 0, br = 0, n = 0, hit = 0;
+  const snaps = []; // {team, idx, pred}
+  for (const g of played) {
+    if (g.d >= from && g.hs !== g.as) {
+      const p = Math.min(0.99, Math.max(0.01, log5(strength(L[g.h], cfg), strength(L[g.a], cfg)) + cfg.home));
+      const y = g.hs > g.as ? 1 : 0;
+      ll += -(y * Math.log(p) + (1 - y) * Math.log(1 - p));
+      br += (p - y) ** 2; n++; if ((p >= 0.5) === (y === 1)) hit++;
+    }
+    for (const [tm, rs, ra] of [[g.h, g.hs, g.as], [g.a, g.as, g.hs]]) {
+      if (g.d >= from && L[tm].length % 10 === 0) snaps.push({ tm, idx: L[tm].length, pred: strength(L[tm], cfg) });
+      L[tm].push({ d: g.d, rs, ra });
+    }
+  }
+  let mae = 0, m = 0;
+  for (const s of snaps) {
+    const next = L[s.tm].slice(s.idx, s.idx + 20);
+    if (next.length < 20) continue;
+    const a = agg(next);
+    mae += Math.abs(s.pred - a.w / Math.max(1, a.w + a.l)); m++;
+  }
+  return { logloss: ll / n, brier: br / n, acc: hit / n, n, mae20: m ? mae / m : NaN, m };
+}
+
+// ---------- 시뮬레이션 ----------
+function simulate(played, future, cfg, N, rival) {
+  const L = logs(played);
+  const S = {}; for (const t of TEAMS) S[t] = strength(L[t], cfg);
+  const base = {}; for (const t of TEAMS) base[t] = agg(L[t]);
+  const unset = {}; for (const t of TEAMS) unset[t] = Math.max(0, SEASON_GAMES - base[t].n - future.filter(g => g.h === t || g.a === t).length);
+  const dates = [...new Set(future.filter(g => g.h === 'KT' || g.a === 'KT' || g.h === rival || g.a === rival).map(g => g.d))];
+  const gbBuf = dates.map(() => []), gbFinal = [];
+  const rankCnt = {}; for (const t of TEAMS) rankCnt[t] = new Array(10).fill(0);
+  const winsBuf = {}; for (const t of TEAMS) winsBuf[t] = [];
+  for (let i = 0; i < N; i++) {
+    const W = {}, Lo = {}; for (const t of TEAMS) { W[t] = base[t].w; Lo[t] = base[t].l; }
+    let di = 0;
+    for (let k = 0; k < future.length; k++) {
+      const g = future[k];
+      if (Math.random() < log5(S[g.h], S[g.a]) + cfg.home) { W[g.h]++; Lo[g.a]++; } else { W[g.a]++; Lo[g.h]++; }
+      const nd = future[k + 1] ? future[k + 1].d : null;
+      if (di < dates.length && g.d === dates[di] && nd !== g.d) { gbBuf[di].push(((W.KT - W[rival]) + (Lo[rival] - Lo.KT)) / 2); di++; }
+    }
+    for (const t of TEAMS) for (let u = 0; u < unset[t]; u++) { if (Math.random() < log5(S[t], 0.5)) W[t]++; else Lo[t]++; }
+    gbFinal.push(((W.KT - W[rival]) + (Lo[rival] - Lo.KT)) / 2);
+    // 승률 순위 (동률은 무작위 — 실제로는 1위 결정전·상대전적 등 KBO 규정)
+    const order = TEAMS.map(t => ({ t, p: W[t] / Math.max(1, W[t] + Lo[t]) + Math.random() * 1e-9 })).sort((a, b) => b.p - a.p);
+    order.forEach((o, r) => rankCnt[o.t][r]++);
+    for (const t of TEAMS) winsBuf[t].push(W[t]);
+  }
+  return { S, base, unset, dates, gbBuf, gbFinal, rankCnt, winsBuf };
+}
+
+// ---------- 출력 ----------
+const pct = v => (100 * v).toFixed(1).padStart(5) + '%';
+const q = (arr, p) => { const s = arr.slice().sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(p * s.length))]; };
+const pad = (s, n) => { s = String(s); const w = [...s].reduce((a, c) => a + (c.charCodeAt(0) > 255 ? 2 : 1), 0); return s + ' '.repeat(Math.max(0, n - w)); };
+const signed = v => (v > 0 ? '+' : '') + v.toFixed(1);
+
+async function main() {
+  const { today, played, future } = await loadSeason();
+  console.log(`데이터: ${today} 기준 · 소화 ${played.length}경기 · 잔여 편성 ${future.length}경기\n`);
+
+  if (cmd === 'form') {
+    const L = logs(played);
+    const w = +opt('window', 30);
+    console.log(pad('팀', 6) + pad(`최근${w}경기`, 14) + pad('득/실', 10) + pad('피타고리안', 11) + '시즌');
+    for (const t of TEAMS) {
+      const f = agg(L[t].slice(-w)), s = agg(L[t]);
+      console.log(pad(t, 6) + pad(`${f.w}승${f.l}패${f.d}무`, 14) + pad(`${f.rs}/${f.ra}`, 10) + pad(pyth(f.rs, f.ra).toFixed(3), 11) + `${s.w}-${s.l}-${s.d}`);
+    }
+    return;
+  }
+
+  if (cmd === 'backtest') {
+    const from = opt('from', '2026-05-15'); // 초반엔 표본이 적어 모든 모델이 불안정 → 5월 중순부터 채점
+    const windows = String(opt('windows', '10,20,30,45,60')).split(',').map(Number);
+    const weights = String(opt('weights', '0.3,0.5,0.7,1')).split(',').map(Number);
+    const base = { ...DEFAULT, regress: +opt('regress', DEFAULT.regress), home: +opt('home', DEFAULT.home) };
+    const rows = [];
+    rows.push({ name: '동전 던지기(50%)', r: backtest(played, { window: 'season', formWeight: 0, regress: 1, home: 0 }, from) });
+    rows.push({ name: '시즌 전체만', r: backtest(played, { ...base, window: 'season', formWeight: 0 }, from) });
+    for (const w of windows) for (const fw of weights)
+      rows.push({ name: `최근 ${w}경기 × ${Math.round(fw * 100)}%`, r: backtest(played, { ...base, window: w, formWeight: fw }, from) });
+    rows.sort((a, b) => a.r.logloss - b.r.logloss);
+    console.log(`회귀 ${base.regress} · 홈 +${base.home}`);
+    console.log(`백테스트: ${from} 이후 ${rows[0].r.n}경기를 "그 전날까지 데이터"로만 예측해 채점 (무승부 제외)`);
+    console.log('logloss·Brier·20경기MAE는 낮을수록, 적중률은 높을수록 좋음. logloss 순 정렬.\n');
+    console.log(pad('모델', 22) + pad('logloss', 10) + pad('Brier', 9) + pad('적중률', 9) + '향후20경기 승률오차');
+    for (const { name, r } of rows)
+      console.log(pad(name, 22) + pad(r.logloss.toFixed(4), 10) + pad(r.brier.toFixed(4), 9) + pad(pct(r.acc), 9) + (isNaN(r.mae20) ? '-' : (r.mae20 * 1000).toFixed(1) + ' 리(.001)'));
+    const coin = rows.find(x => x.name.startsWith('동전')).r.logloss;
+    const best = rows[0];
+    console.log(`\n최선: ${best.name} — 동전 대비 logloss ${((1 - best.r.logloss / coin) * 100).toFixed(2)}% 개선`);
+    console.log('참고: 야구는 한 경기 승패의 운 비중이 커서 어떤 모델도 적중률 55~60% 근처가 한계다. 차이는 작아도 누적되면 의미가 있다.');
+    return;
+  }
+
+  if (cmd === 'sim') {
+    const cfg = { ...DEFAULT };
+    if (opt('window', null)) cfg.window = opt('window') === 'season' ? 'season' : +opt('window');
+    if (opt('form', null)) cfg.formWeight = +opt('form');
+    if (opt('regress', null)) cfg.regress = +opt('regress');
+    if (opt('home', null)) cfg.home = +opt('home');
+    const N = +opt('n', 20000);
+    const L = logs(played);
+    const seaOrder = TEAMS.slice().sort((a, b) => { const x = agg(L[a]), y = agg(L[b]); return y.w / (y.w + y.l) - x.w / (x.w + x.l); });
+    const rival = opt('rival', seaOrder.find(t => t !== 'KT'));
+    console.log(`모델: 최근 ${cfg.window}경기 폼 ${Math.round(cfg.formWeight * 100)}% + 시즌 ${Math.round((1 - cfg.formWeight) * 100)}%, 회귀 ${cfg.regress}, 홈 +${cfg.home} · ${N.toLocaleString()}회\n`);
+    const r = simulate(played, future, cfg, N, rival);
+
+    console.log('■ 최종 순위 확률');
+    console.log(pad('팀', 6) + pad('현재', 12) + pad('전력', 7) + pad('예상 최종승', 12) + pad('1위', 8) + pad('2위', 8) + pad('5위 이내', 9) + '미편성');
+    for (const t of seaOrder) {
+      const b = r.base[t], rc = r.rankCnt[t];
+      console.log(pad(t, 6) + pad(`${b.w}-${b.l}-${b.d}`, 12) + pad(r.S[t].toFixed(3), 7) + pad(`${q(r.winsBuf[t], .5)} (${q(r.winsBuf[t], .1)}~${q(r.winsBuf[t], .9)})`, 12) +
+        pad(pct(rc[0] / N), 8) + pad(pct(rc[1] / N), 8) + pad(pct(rc.slice(0, 5).reduce((a, c) => a + c, 0) / N), 9) + r.unset[t]);
+    }
+
+    const now = ((r.base.KT.w - r.base[rival].w) + (r.base[rival].l - r.base.KT.l)) / 2;
+    console.log(`\n■ KT vs ${rival} 경기차 전망 (+ = KT 우위, 현재 ${signed(now)})`);
+    console.log(pad('날짜', 8) + pad('중앙값', 8) + pad('50% 범위', 14) + '80% 범위');
+    r.dates.forEach((d, i) => {
+      const b = r.gbBuf[i];
+      console.log(pad(d.slice(5), 8) + pad(signed(q(b, .5)), 8) + pad(`${signed(q(b, .25))}~${signed(q(b, .75))}`, 14) + `${signed(q(b, .1))}~${signed(q(b, .9))}`);
+    });
+    const f = r.gbFinal;
+    console.log(pad('최종', 8) + pad(signed(q(f, .5)), 8) + pad(`${signed(q(f, .25))}~${signed(q(f, .75))}`, 14) + `${signed(q(f, .1))}~${signed(q(f, .9))}   (미편성 경기 포함)`);
+    console.log(`\n※ 동률 순위는 무작위 처리(실제는 1위 결정전·상대전적 등). 미편성 경기는 리그 평균 상대로 가정.`);
+    return;
+  }
+
+  console.log('사용법: node tools/predictor/predict.js [sim|backtest|form] [옵션]');
+}
+
+main().catch(e => { console.error(e.message); process.exit(1); });
