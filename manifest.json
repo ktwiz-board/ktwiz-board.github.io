@@ -1,15 +1,27 @@
 {
+  "id": "/",
   "name": "wiz board — kt wiz 실시간 스코어·라인업·KBO 순위",
   "short_name": "wiz board",
-  "description": "kt wiz 팬을 위한 KBO 실시간 대시보드",
-  "start_url": "/",
+  "description": "kt wiz 팬을 위한 KBO 실시간 대시보드 (비공식 팬 페이지)",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
   "lang": "ko",
+  "dir": "ltr",
+  "categories": ["sports", "news"],
   "icons": [
-    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "img/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/app/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "img/app/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "img/app/screenshot-1-today.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "오늘의 경기와 매직넘버" },
+    { "src": "img/app/screenshot-2-postseason.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "가을야구 대진과 확률" },
+    { "src": "img/app/screenshot-3-scoreboard.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "전 구장 현황판" },
+    { "src": "img/app/screenshot-5-standings.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "팀 순위" }
   ]
 }

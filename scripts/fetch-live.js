@@ -235,6 +235,7 @@ async function pythagorean(today) {
   const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {}; // name -> {rs, ra, w, l, d}
   const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
+  const log = {}; // name -> [{t, my, op}] 최근 폼(최근 30경기) 계산용
   for (const [f, t] of ranges) {
     if (f > today) break;
     const gs = await games(f, t, 500);
@@ -246,6 +247,7 @@ async function pythagorean(today) {
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
+        (log[me] = log[me] || []).push({ t: g.gameDateTime || g.gameDate, my, op: opsc });
         if (!h2h[me]) h2h[me] = {};
         if (!h2h[me][op]) h2h[me][op] = { w: 0, l: 0, d: 0 };
         if (my > opsc) { agg[me].w++; h2h[me][op].w++; }
@@ -257,12 +259,16 @@ async function pythagorean(today) {
   const E = 1.83;
   return {
     date: today,
-    v: 6,
+    v: 7,
     h2h,
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
-      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3) };
+      // 최근 30경기 폼 (경기차 전망 시뮬레이션용)
+      const last = (log[name] || []).sort((x, y) => x.t < y.t ? -1 : x.t > y.t ? 1 : 0).slice(-30);
+      const f30 = { n: last.length, w: 0, l: 0, d: 0, rs: 0, ra: 0 };
+      for (const x of last) { f30.rs += x.my; f30.ra += x.op; f30[x.my > x.op ? 'w' : x.my < x.op ? 'l' : 'd']++; }
+      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3), f30 };
     }).sort((x, y) => y.exp - x.exp)
   };
 }
@@ -345,7 +351,9 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     .sort((a, b) => a.date < b.date ? -1 : 1);
 
   return {
-    date: today, v: 5, sampleGames: sampleTotal, makeups, mine,
+    date: today, v: 6, sampleGames: sampleTotal, makeups, mine,
+    // 리그 전체 잔여 경기 [날짜, 원정, 홈] — 화면의 경기차 전망 시뮬레이션용
+    league: future.map(g => [g.gameDate, g.awayTeamName, g.homeTeamName]).sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0),
     teams: KBO_TEAMS.map(name => {
       const a = acc[name] || { n: 0, sum: 0 };
       const remaining = Math.max(0, SEASON_GAMES - (playedMap[name] || 0));
@@ -380,7 +388,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 6 && prev.sched && prev.sched.v === 5 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 7 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
@@ -661,7 +669,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
 
   // 7) 피타고리안 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 6
+    && prev.pythag.v === 7
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;
@@ -678,7 +686,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const expectedFuture = stForSched.length >= 10
     ? Math.round(stForSched.reduce((s, t) => s + Math.max(0, 144 - (t.w + t.l + t.d)), 0) / 2) : 0;
   const schedStamp = today + '-' + String(now.getUTCHours()).padStart(2, '0'); // now는 KST 기준
-  const prevSched = (prev && prev.sched && prev.sched.v === 5 && prev.sched.date === today) ? prev.sched : null;
+  const prevSched = (prev && prev.sched && prev.sched.v === 6 && prev.sched.date === today) ? prev.sched : null;
   const schedUsable = prevSched && (
     expectedFuture === 0 ||
     prevSched.sampleGames >= expectedFuture * 0.9 || // 표본이 잔여 일정 대부분을 덮음 → 완전한 것으로 간주

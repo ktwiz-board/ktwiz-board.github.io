@@ -256,13 +256,32 @@ gtag('config', 'G-8MC9LN4N1R');
   .psgames .gs{font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
   .psgames .gs.w{color:var(--gold)}
   .psgames .gs.l{color:var(--red-soft)}
+  /* 경우의 수 + 경기차 전망 2단 */
+  .odds-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;margin-bottom:26px}
+  .odds-row .board-note{margin:8px 0 0}
+  @media (max-width:860px){.odds-row{grid-template-columns:1fr}}
+  .odds-sum.two{grid-template-columns:repeat(2,1fr)}
+  .gb-wrap{position:relative;background:var(--panel);border-radius:14px;padding:10px 8px 4px}
+  .gb{display:block;width:100%;height:auto;touch-action:pan-y}
+  .gb .grid{stroke:rgba(255,255,255,.06);stroke-width:1}
+  .gb .zero{stroke:rgba(255,255,255,.35);stroke-width:1;stroke-dasharray:4 4}
+  .gb .ytk{fill:var(--muted);font-size:10px;font-weight:700;text-anchor:end}
+  .gb .xtk{fill:var(--muted);font-size:10px;font-weight:600;text-anchor:middle}
+  .gb .zl{fill:var(--muted);font-size:10px;font-weight:700;text-anchor:end}
+  .gb .b80{fill:rgba(212,162,74,.16)}
+  .gb .b50{fill:rgba(212,162,74,.32)}
+  .gb .med{fill:none;stroke:#d4a24a;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .gb .now{fill:#d4a24a;stroke:var(--panel);stroke-width:2}
+  .gb .hov{stroke:rgba(255,255,255,.4);stroke-width:1}
+  .gb-form{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.8;font-weight:500}
+  .gb-form b{color:var(--ink)}
   /* 1위 경우의 수 */
   .odds-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
   .odds-sum div{background:var(--panel);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
   .odds-sum b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
   .odds-sum div:first-child b{color:var(--gold)}
   .odds-sum span{font-size:11.5px;color:var(--muted);font-weight:600}
-  .odds-wrap{position:relative;max-width:480px}
+  .odds-wrap{position:relative}
   .odds{display:grid;gap:2px;background:var(--panel);border-radius:14px;padding:12px 12px 10px 6px}
   .odds .ox,.odds .oy{font-size:10px;color:var(--muted);font-weight:700;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
   .odds .ox{padding-bottom:3px}
@@ -276,7 +295,7 @@ gtag('config', 'G-8MC9LN4N1R');
   .odds .oc.na,.odds-legend i.na{background:repeating-linear-gradient(45deg,transparent 0 3px,rgba(255,255,255,.08) 3px 5px)}
   .odds-tip{position:absolute;z-index:5;pointer-events:none;background:#232327;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:12px;line-height:1.55;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
   .odds-tip small{color:var(--muted)}
-  .odds-axis{display:flex;gap:4px 16px;flex-wrap:wrap;max-width:480px;margin-top:6px;font-size:11px;color:var(--muted);font-weight:600}
+  .odds-axis{display:flex;gap:4px 16px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:var(--muted);font-weight:600}
   .odds-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--muted);font-weight:600}
   .odds-legend span{display:inline-flex;align-items:center;gap:6px}
   .odds-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
@@ -821,16 +840,28 @@ gtag('config', 'G-8MC9LN4N1R');
       <p class="sub" id="psSub">포스트시즌 대진과 한국시리즈 확률</p>
     </div>
     <div class="pshero reveal d1" id="psHero"></div>
-    <div id="psOdds" hidden>
-      <p class="pshead">정규시즌 1위 경우의 수</p>
-      <div class="odds-sum" id="oddsSum"></div>
-      <div class="odds-wrap">
-        <div class="odds" id="oddsGrid" role="img" aria-label="KT와 경쟁팀의 남은 경기 승수 조합별 1위 결과"></div>
-        <div class="odds-tip" id="oddsTip" hidden></div>
+    <div id="psOdds" class="odds-row" hidden>
+      <div class="odds-col">
+        <p class="pshead">정규시즌 1위 경우의 수</p>
+        <div class="odds-sum" id="oddsSum"></div>
+        <div class="odds-wrap">
+          <div class="odds" id="oddsGrid" role="img" aria-label="KT와 경쟁팀의 남은 경기 승수 조합별 1위 결과"></div>
+          <div class="odds-tip" id="oddsTip" hidden></div>
+        </div>
+        <div class="odds-axis" id="oddsAxis"></div>
+        <div class="odds-legend" id="oddsLegend"></div>
+        <p class="board-note" id="oddsNote"></p>
       </div>
-      <div class="odds-axis" id="oddsAxis"></div>
-      <div class="odds-legend" id="oddsLegend"></div>
-      <p class="board-note" id="oddsNote" style="margin:8px 0 26px"></p>
+      <div class="odds-col" id="gbFan" hidden>
+        <p class="pshead">경기차 전망 · 최근 30경기 폼</p>
+        <div class="odds-sum two" id="gbSum"></div>
+        <div class="gb-wrap">
+          <svg id="gbSvg" class="gb" role="img" aria-label="날짜별 KT와 경쟁팀 경기차 예측 분포"></svg>
+          <div class="odds-tip" id="gbTip" hidden></div>
+        </div>
+        <p class="gb-form" id="gbForm"></p>
+        <p class="board-note" id="gbNote"></p>
+      </div>
     </div>
     <p class="pshead reveal d1">포스트시즌 대진표</p>
     <div class="psbracket reveal d1" id="psBracket"></div>
@@ -1128,7 +1159,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-060554';
+  const BUILD = '20260925-073140';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2369,6 +2400,109 @@ gtag('config', 'G-8MC9LN4N1R');
     }catch(e){ return null; }
   }
 
+  /* ---------- 경기차 전망 (최근 30경기 폼 기반 몬테카를로) ----------
+     팀 전력 = 최근 30경기(승률·피타고리안 반반) 70% + 시즌(피타고리안 70%·승률 30%) 30%, 리그평균으로 15% 회귀.
+     리그 잔여 일정(sched.league)을 날짜순으로 굴려 날짜별 KT–경쟁팀 경기차 분포를 모으고,
+     아직 편성되지 않은 경기는 리그 평균 상대와 치르는 것으로 마지막에 더한다. 홈팀 +2%p. */
+  function gbForecast(st, py, sc, rivName){
+    const league = sc && sc.league;
+    const teams = (py && py.teams) || [];
+    if(!league || !teams.length) return null;
+    const E = 1.83, pyth = (rs, ra) => (rs + ra) ? Math.pow(rs, E) / (Math.pow(rs, E) + Math.pow(ra, E)) : 0.5;
+    const S = {};
+    teams.forEach(t => {
+      const f = t.f30;
+      const sea = 0.7 * t.exp + 0.3 * t.act;
+      const form = f && f.n >= 10 ? 0.5 * (f.w / Math.max(1, f.w + f.l)) + 0.5 * pyth(f.rs, f.ra) : sea;
+      S[t.name] = (0.7 * form + 0.3 * sea) * 0.85 + 0.5 * 0.15;
+    });
+    const me = st.find(t => t.name === 'KT'), rv = st.find(t => t.name === rivName);
+    if(!me || !rv || S.KT == null || S[rivName] == null) return null;
+    const games = league.filter(g => g[1] === 'KT' || g[2] === 'KT' || g[1] === rivName || g[2] === rivName);
+    const dates = [...new Set(games.map(g => g[0]))];
+    const cnt = n => games.filter(g => g[1] === n || g[2] === n).length;
+    const unsetK = Math.max(0, 144 - (me.w + me.l + me.d) - cnt('KT'));
+    const unsetR = Math.max(0, 144 - (rv.w + rv.l + rv.d) - cnt(rivName));
+    const N = 4000, cols = dates.length + 1; // 마지막 칸 = 미편성분까지 포함한 최종
+    const buf = []; for(let c = 0; c < cols; c++) buf.push(new Float32Array(N));
+    let first = 0, tie = 0;
+    for(let i = 0; i < N; i++){
+      let kw = me.w, kl = me.l, rw = rv.w, rl = rv.l, di = 0;
+      for(let gi = 0; gi < games.length; gi++){
+        const [d, a, h] = games[gi];
+        const pH = log5(S[h] != null ? S[h] : .5, S[a] != null ? S[a] : .5) + 0.02;
+        const hw = Math.random() < pH;
+        if(h === 'KT'){ if(hw) kw++; else kl++; } else if(a === 'KT'){ if(hw) kl++; else kw++; }
+        if(h === rivName){ if(hw) rw++; else rl++; } else if(a === rivName){ if(hw) rl++; else rw++; }
+        if(gi === games.length - 1 || games[gi + 1][0] !== d){ buf[di][i] = ((kw - rw) + (rl - kl)) / 2; di++; }
+      }
+      for(let g = 0; g < unsetK; g++){ if(Math.random() < log5(S.KT, .5)) kw++; else kl++; }
+      for(let g = 0; g < unsetR; g++){ if(Math.random() < log5(S[rivName], .5)) rw++; else rl++; }
+      buf[cols - 1][i] = ((kw - rw) + (rl - kl)) / 2;
+      const a = kw / (kw + kl), b = rw / (rw + rl);
+      if(Math.abs(a - b) < 1e-9) tie++; else if(a > b) first++;
+    }
+    const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
+    const pts = buf.map(col => { const s = Array.from(col).sort((x, y) => x - y); return { p10: q(s, .1), p25: q(s, .25), p50: q(s, .5), p75: q(s, .75), p90: q(s, .9) }; });
+    const f30 = n => (teams.find(t => t.name === n) || {}).f30;
+    return { dates, pts, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / N, tie: 100 * tie / N,
+             unsetK, unsetR, fK: f30('KT'), fR: f30(rivName), sK: S.KT, sR: S[rivName], n: N };
+  }
+  function renderGbFan(st, py, sc, rivName){
+    const box = document.getElementById('gbFan');
+    const r = gbForecast(st, py, sc, rivName);
+    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; return; }
+    const W = 460, H = 330, L = 34, R = 12, T = 14, B = 30; // 옆 격자와 높이를 맞춘 비율
+    const xs = ['오늘'].concat(r.dates.map(d => psMd(d)), ['최종']);
+    const series = [{ p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now }].concat(r.pts); // 첫 점 = 현재
+    const lo = Math.min(0, ...series.map(p => p.p10)) - 0.5, hi = Math.max(0, ...series.map(p => p.p90)) + 0.5;
+    const X = i => L + (W - L - R) * i / (series.length - 1);
+    const Y = v => T + (H - T - B) * (hi - v) / (hi - lo);
+    const band = (a, b) => series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[a]).toFixed(1)).join('') +
+      series.slice().reverse().map((p, j) => 'L' + X(series.length - 1 - j).toFixed(1) + ' ' + Y(p[b]).toFixed(1)).join('') + 'Z';
+    let g = '';
+    for(let v = Math.ceil(lo); v <= Math.floor(hi); v++){
+      g += '<line class="' + (v === 0 ? 'zero' : 'grid') + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '"/>' +
+           '<text class="ytk" x="' + (L - 6) + '" y="' + (Y(v) + 3.5).toFixed(1) + '">' + (v > 0 ? '+' + v : v) + '</text>';
+    }
+    const step = Math.max(1, Math.ceil(xs.length / 6));
+    xs.forEach((t, i) => { if(i % step === 0 || i === xs.length - 1) g += '<text class="xtk" x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '">' + t + '</text>'; });
+    g += '<path class="b80" d="' + band('p10', 'p90') + '"/><path class="b50" d="' + band('p25', 'p75') + '"/>';
+    g += '<path class="med" d="' + series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.p50).toFixed(1)).join('') + '"/>';
+    g += '<circle class="now" cx="' + X(0) + '" cy="' + Y(r.now).toFixed(1) + '" r="4.5"/>';
+    g += '<text class="zl" x="' + (W - R) + '" y="' + (Y(0) - 5).toFixed(1) + '">동률</text>';
+    g += '<line class="hov" id="gbHov" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" visibility="hidden"/>';
+    const svg = document.getElementById('gbSvg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = g;
+    const last = r.pts[r.pts.length - 1];
+    const fmt = v => (v > 0 ? 'KT +' : v < 0 ? esc(rivName) + ' +' : '') + Math.abs(v).toFixed(1);
+    document.getElementById('gbSum').innerHTML =
+      '<div><b>' + fmt(last.p50) + '</b><span>최종 경기차 (중앙값)</span></div>' +
+      '<div><b>' + probFmt(r.first) + '</b><span>KT 1위 (폼 기준)</span></div>';
+    const fl = (n, f) => f ? esc(n) + ' <b>' + f.w + '승 ' + f.l + '패' + (f.d ? ' ' + f.d + '무' : '') + '</b> · 득 ' + f.rs + ' 실 ' + f.ra : '';
+    document.getElementById('gbForm').innerHTML = '최근 30경기 — ' + fl('KT', r.fK) + '<br>' + '최근 30경기 — ' + fl(rivName, r.fR);
+    document.getElementById('gbNote').textContent =
+      '진한 띠 50%, 옅은 띠 80% 범위, 선은 중앙값 (+는 KT 우위). 최근 30경기 폼 70%·시즌 30%로 전력을 잡고 리그 잔여 일정 전체를 ' +
+      r.n.toLocaleString() + '회 굴렸습니다.' + (r.unsetK || r.unsetR ? ' 미편성 경기(KT ' + r.unsetK + ' · ' + rivName + ' ' + r.unsetR + ')는 "최종"에 평균 상대로 포함.' : '');
+    // 호버: 날짜별 분포
+    const tip = document.getElementById('gbTip'), hov = document.getElementById('gbHov');
+    svg.onmousemove = svg.onclick = e => {
+      const pt = svg.getBoundingClientRect(), sx = (e.clientX - pt.left) * W / pt.width;
+      const i = Math.max(0, Math.min(series.length - 1, Math.round((sx - L) / (W - L - R) * (series.length - 1))));
+      const p = series[i];
+      hov.setAttribute('x1', X(i)); hov.setAttribute('x2', X(i)); hov.setAttribute('visibility', 'visible');
+      tip.innerHTML = '<b>' + (i === 0 ? '현재' : xs[i] === '최종' ? '시즌 최종' : xs[i] + ' 경기 후') + '</b><br>' +
+        (i === 0 ? fmt(p.p50) : '중앙값 ' + fmt(p.p50) + '<br><small>50% ' + fmt(p.p25) + ' ~ ' + fmt(p.p75) + '<br>80% ' + fmt(p.p10) + ' ~ ' + fmt(p.p90) + '</small>');
+      tip.hidden = false;
+      const px = X(i) / W * pt.width;
+      tip.style.left = Math.min(Math.max(0, px - tip.offsetWidth / 2), pt.width - tip.offsetWidth) + 'px';
+      tip.style.top = '0px';
+    };
+    svg.onmouseleave = () => { tip.hidden = true; hov.setAttribute('visibility', 'hidden'); };
+    box.hidden = false;
+  }
+
   /* ---------- 정규시즌 1위 경우의 수 ----------
      가로 = KT 남은 경기 승수, 세로 = 경쟁팀 남은 경기 승수. 칸마다 최종 승률을 비교해 KT 1위 / 1위 결정전 / 경쟁팀 1위.
      두 팀 맞대결이 남아 있으면 그 경기는 한쪽만 이기므로 나올 수 없는 조합이 생긴다 → 맞대결 h승을 따로 펼쳐 정확히 계산.
@@ -2472,6 +2606,7 @@ gtag('config', 'G-8MC9LN4N1R');
     grid.onclick = show;
     grid.onmouseleave = () => { tip.hidden = true; };
     box.hidden = false;
+    renderGbFan(st, py, sc, riv.name);
   }
 
   /* ---------- 가을야구 (카운트다운 · 대진표 · 시리즈 · KS 예측) ---------- */
@@ -3175,6 +3310,12 @@ gtag('config', 'G-8MC9LN4N1R');
     }
   }, true);
 })();
+</script>
+<script>
+// 설치형 앱(PWA·Play 스토어 TWA)용 서비스워커 — 실시간 데이터는 캐시하지 않음 (sw.js 참고)
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 </script>
 </body>
 </html>
