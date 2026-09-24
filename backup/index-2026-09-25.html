@@ -260,6 +260,7 @@ gtag('config', 'G-8MC9LN4N1R');
   .odds-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;margin-bottom:26px}
   .odds-row .board-note{margin:8px 0 0}
   @media (max-width:860px){.odds-row{grid-template-columns:1fr}}
+  .odds-row.solo{grid-template-columns:1fr} /* 전망 차트가 없으면(데이터 전) 격자가 전체 폭 사용 */
   .odds-sum.two{grid-template-columns:repeat(2,1fr)}
   .gb-wrap{position:relative;background:var(--panel);border-radius:14px;padding:10px 8px 4px}
   .gb{display:block;width:100%;height:auto;touch-action:pan-y}
@@ -285,7 +286,8 @@ gtag('config', 'G-8MC9LN4N1R');
   .odds{display:grid;gap:2px;background:var(--panel);border-radius:14px;padding:12px 12px 10px 6px}
   .odds .ox,.odds .oy{font-size:10px;color:var(--muted);font-weight:700;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
   .odds .ox{padding-bottom:3px}
-  .odds .oc{aspect-ratio:1;border-radius:3px;cursor:pointer}
+  .odds .oc{height:22px;border-radius:3px;cursor:pointer} /* 정사각형 고정 대신 폭은 늘고 높이는 고정 → 가로로 납작한 격자 */
+  @media (max-width:560px){.odds .oc{height:18px}}
   .odds .oc:hover{outline:2px solid var(--ink);outline-offset:-1px}
   /* 발산형 3단계: KT(금) · 중립 회색(결정전) · 경쟁팀(파랑) — 대비·색각 구분 검증 통과 */
   .odds .oc.w,.odds-legend i.w{background:#d4a24a}
@@ -1159,7 +1161,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-073140';
+  const BUILD = '20260925-074039';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2451,7 +2453,9 @@ gtag('config', 'G-8MC9LN4N1R');
   function renderGbFan(st, py, sc, rivName){
     const box = document.getElementById('gbFan');
     const r = gbForecast(st, py, sc, rivName);
-    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; return; }
+    const row = document.getElementById('psOdds');
+    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; row.classList.add('solo'); return; }
+    row.classList.remove('solo');
     const W = 460, H = 330, L = 34, R = 12, T = 14, B = 30; // 옆 격자와 높이를 맞춘 비율
     const xs = ['오늘'].concat(r.dates.map(d => psMd(d)), ['최종']);
     const series = [{ p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now }].concat(r.pts); // 첫 점 = 현재
