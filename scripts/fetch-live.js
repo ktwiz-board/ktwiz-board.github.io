@@ -207,6 +207,23 @@ async function fetchNews() {
 // 피타고리안 기대승률: 시즌 전 경기 스코어 집계 (지수 1.83)
 const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC', '키움', '한화'];
 
+// 아시안게임 야구 (네이버 categoryId=agbaseball) — 대회 기간에만 수집. 한국 경기만 추린다.
+const AG_FROM = '2026-09-20', AG_TO = '2026-09-27';
+async function asianGames(today) {
+  if (today < AG_FROM || today > AG_TO) return null;
+  const u = `${API}/schedule/games?fields=basic,stadium,statusNum,homeStarterName,awayStarterName,winPitcherName,losePitcherName&upperCategoryId=kbaseball&categoryId=agbaseball&fromDate=${AG_FROM}&toDate=${AG_TO}&size=100`;
+  const d = await j(u);
+  const games = ((d.result && d.result.games) || [])
+    .filter(g => g.homeTeamName === '대한민국' || g.awayTeamName === '대한민국')
+    .map(g => { // gameId 예: 88880925S2S402026 — 9~10번째 글자 S?=슈퍼라운드, F1·F3=금·동메달 결정전
+      const id = String(g.gameId), c = id.slice(8, 10);
+      const round = c[0] === 'S' ? '슈퍼라운드' : c === 'F1' ? '금메달 결정전' : c === 'F3' ? '동메달 결정전' : '오프닝 라운드'; // 오프닝 라운드는 팀코드(예: TWKR)
+      return Object.assign(mapGame(g), { round });
+    })
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  return { date: today, games };
+}
+
 // 포스트시즌 라운드별 경기·시리즈 전적. 대진·확률 계산은 화면 쪽에서(정규시즌 최종 순위와 결합)
 async function postseason() {
   const raw = [];
@@ -381,9 +398,13 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // live: 진행 중 경기 있음 → 5분 주기 풀 수집
   // pre : 경기 전         → 10분 주기 풀 수집 (라인업 발표 감지)
   // post: 전 경기 종료 또는 경기 없는 날 → 하루 첫 스냅샷 후 유튜브·쇼츠만, 30분 주기
-  const anyLive = todayGames.some(g => g.code === 'STARTED' || g.code === 'LIVE');
-  const allDone = todayGames.length > 0 && todayGames.every(g => ['RESULT', 'ENDED', 'CANCEL'].includes(g.code));
-  const noGames = todayGames.length === 0;
+  // 아시안게임 한국 경기도 '오늘 경기'로 취급해 수집 주기를 맞춘다 (경기 중 5분 주기)
+  let agToday = [];
+  try { const a = await asianGames(today); agToday = a ? a.games.filter(g => g.date === today) : []; } catch (e) {}
+  const watch = todayGames.concat(agToday);
+  const anyLive = watch.some(g => g.code === 'STARTED' || g.code === 'LIVE');
+  const allDone = watch.length > 0 && watch.every(g => ['RESULT', 'ENDED', 'CANCEL'].includes(g.code));
+  const noGames = watch.length === 0;
   const mode = anyLive ? 'live' : ((allDone || noGames) ? 'post' : 'pre');
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
@@ -392,6 +413,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+    try { prev.ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); }
     if (yt2.length) prev.youtube = yt2;
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
@@ -718,6 +740,8 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // 포스트시즌 대진·시리즈 전적 (실패 시 직전 값 유지)
   let ps = (prev && prev.ps) || null;
   try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+  let ag = null;
+  try { ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); ag = (prev && prev.ag) || null; }
 
   const out = {
     updated: new Date().toISOString(),
@@ -736,7 +760,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched, ps
+    youtube, pythag, sched, ps, ag
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });

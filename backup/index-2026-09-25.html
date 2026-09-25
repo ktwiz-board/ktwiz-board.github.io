@@ -128,6 +128,11 @@ gtag('config', 'G-8MC9LN4N1R');
   .ktbanner .match .live-score{color:var(--red-soft);font-variant-numeric:tabular-nums}
   .ktbanner .detail{font-size:15px;color:var(--muted);font-weight:500}
   .ktbanner .detail b{color:var(--ink);font-weight:700}
+  /* 아시안게임 배너 — KT 배너와 같은 틀, 대표팀 파랑 포인트 */
+  .agbanner{background:radial-gradient(ellipse at 50% 45%,rgba(46,96,210,.20),#000 68%);border-bottom:1px solid var(--line)}
+  .agbanner .today{color:#7fb0ff}
+  .agbanner .match .live-score{color:#7fb0ff}
+  .agbanner .ag-sub{font-size:13px;margin-top:6px}
   .quicklinks{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
   .quicklinks a{font-size:12.5px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.06);border-radius:99px;padding:8px 16px;text-decoration:none;transition:background .25s,transform .25s}
   .quicklinks a:hover,.quicklinks a:focus-visible{background:rgba(232,16,47,.18);transform:translateY(-2px);outline:none}
@@ -803,6 +808,21 @@ gtag('config', 'G-8MC9LN4N1R');
   </div>
 </div>
 
+<!-- ================= 아시안게임 한국 경기 (지정한 날에만 KT 배너 위에 표시) ================= -->
+<div class="ktbanner agbanner" id="agBanner" hidden>
+  <div class="ghost" aria-hidden="true">TEAM KOREA</div>
+  <div class="wrap">
+    <p class="today" id="agKicker">Asian Games · Team Korea</p>
+    <div class="match" id="agMatch"></div>
+    <p class="detail" id="agDetail"></p>
+    <p class="detail ag-sub" id="agSub"></p>
+    <div class="quicklinks">
+      <a id="agRelay" href="https://m.sports.naver.com/kbaseball/index" target="_blank" rel="noopener">📊 문자중계</a>
+      <a href="https://chzzk.naver.com/" target="_blank" rel="noopener">📺 치지직 중계</a>
+    </div>
+  </div>
+</div>
+
 <!-- ================= KT TODAY : VICTORY 타이포 ================= -->
 <div class="ktbanner">
   <div class="ghost" id="ghostType" aria-hidden="true">VICTORY</div>
@@ -1161,7 +1181,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-121436';
+  const BUILD = '20260925-122559';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2508,6 +2528,43 @@ gtag('config', 'G-8MC9LN4N1R');
     box.hidden = false;
   }
 
+  /* ---------- 아시안게임 한국 경기 배너 ----------
+     요청에 따라 지정한 날(AG_DAY)에만 KT 배너 자리(바로 위)에 띄운다. 날짜가 지나면 자동으로 사라지고 KT 배너가 원래 자리로.
+     영상은 넣지 않는다(저작권) — 문자중계·중계 페이지 링크만. */
+  const AG_DAY = '2026-09-25';
+  function renderAg(ag, today){
+    const el = document.getElementById('agBanner');
+    if(!el) return;
+    const g = ag && ag.games && ag.games.find(x => x.date === today);
+    if(today !== AG_DAY || !g){ el.hidden = true; return; }
+    const kr = g.home === '대한민국' ? 'h' : 'a';
+    const opp = (n => n === '차이니스 타이베이' ? '대만' : n)(kr === 'h' ? g.away : g.home);
+    const krS = kr === 'h' ? g.hs : g.as, opS = kr === 'h' ? g.as : g.hs;
+    const live = g.code === 'STARTED' || g.code === 'LIVE', done = g.code === 'RESULT', cancel = g.code === 'CANCEL';
+    document.getElementById('agKicker').textContent = 'Asian Games · ' + (g.round || 'Team Korea');
+    document.getElementById('agMatch').innerHTML = (live || done)
+      ? '대한민국 <span class="live-score">' + krS + ' : ' + opS + '</span> ' + esc(opp)
+      : '대한민국 <span class="at">vs</span> ' + esc(opp);
+    const krSp = kr === 'h' ? g.hp : g.ap, opSp = kr === 'h' ? g.ap : g.hp;
+    let d;
+    if(done) d = '<b>' + (krS > opS ? '승리' : krS < opS ? '패배' : '무승부') + '</b>' + (g.wp || g.lp ? ' · 승 ' + esc(g.wp || '-') + ' 패 ' + esc(g.lp || '-') : '');
+    else if(live) d = '<b>' + esc(g.status || '경기 중') + '</b> · ' + esc(g.stadium || '');
+    else if(cancel) d = '경기 취소';
+    else d = '오늘 ' + esc(g.time || '') + ' · ' + esc(g.stadium || '') + ((krSp || opSp) ? ' · 선발 <b>' + esc(krSp || '미정') + '</b> vs ' + esc(opSp || '미정') : '');
+    document.getElementById('agDetail').innerHTML = d;
+    const vs = x => { const n = x.home === '대한민국' ? x.away : x.home; return n === '차이니스 타이베이' ? '대만' : n; };
+    const sc = x => x.home === '대한민국' ? [x.hs, x.as] : [x.as, x.hs];
+    const prev = ag.games.filter(x => x.date < today && x.code === 'RESULT')
+      .map(x => { const [a, b] = sc(x); return esc(vs(x)) + ' ' + a + ':' + b + (a > b ? ' 승' : a < b ? ' 패' : ' 무'); });
+    const next = ag.games.find(x => x.date > today);
+    document.getElementById('agSub').innerHTML =
+      (prev.length ? '지난 경기 ' + prev.join(' · ') : '') +
+      (next ? (prev.length ? '<br>' : '') + '다음 ' + psMd(next.date) + ' ' + esc(next.time || '') + ' ' + (/^S\d$/.test(vs(next)) ? esc(next.round || '') : esc(vs(next)) + '전') : '') +
+      '<br>KT 대표 박영현 · 소형준 · 오원석';
+    document.getElementById('agRelay').href = 'https://m.sports.naver.com/game/' + encodeURIComponent(g.id);
+    el.hidden = false;
+  }
+
   /* ---------- 정규시즌 1위 경우의 수 ----------
      가로 = KT 남은 경기 승수, 세로 = 경쟁팀 남은 경기 승수. 칸마다 최종 승률을 비교해 KT 1위 / 1위 결정전 / 경쟁팀 1위.
      두 팀 맞대결이 남아 있으면 그 경기는 한쪽만 이기므로 나올 수 없는 조합이 생긴다 → 맞대결 h승을 따로 펼쳐 정확히 계산.
@@ -2920,7 +2977,7 @@ gtag('config', 'G-8MC9LN4N1R');
     const ktWin = done && ((g.home === 'KT' && g.hs > g.as) || (g.away === 'KT' && g.as > g.hs));
     if(!ktWin) return;
     celebrated = true;
-    const banner = document.querySelector('.ktbanner');
+    const banner = document.querySelector('.ktbanner:not(.agbanner)');
     const wrap = banner.querySelector('.wrap');
     const badge = document.createElement('div');
     badge.className = 'winbadge'; badge.textContent = '🎉 WIZ WIN!';
@@ -3205,6 +3262,7 @@ gtag('config', 'G-8MC9LN4N1R');
         renderMagic(j.standings);
         renderMagicBanner(j.standings);
         renderPs(j.standings, j.pythag, j.sched, j.ps, j.date);
+        renderAg(j.ag, j.date);
         renderTitleRace(j.titleRace);
         renderYT(j.youtube);
         celebrate(j.games);
@@ -3223,6 +3281,8 @@ gtag('config', 'G-8MC9LN4N1R');
   const secSave = o => { try{ localStorage.setItem(SEC_KEY, JSON.stringify(o)); }catch(e){} };
   (function initFold(){
     const saved = secLoad();
+    // 1회성 초기화(2026-09-25): 유튜브 섹션을 펼쳐 둔 저장값을 지워 다시 접힌 상태로
+    if(!saved._ytReset){ delete saved.ytSec; saved._ytReset = 1; secSave(saved); }
     FOLDED.forEach(id => {
       const sec = document.getElementById(id);
       const head = sec && sec.querySelector('.sec-head');
