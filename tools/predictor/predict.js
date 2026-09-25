@@ -5,7 +5,7 @@
 //   node tools/predictor/predict.js sim                 잔여 시즌 몬테카를로 — 최종 순위 확률, 1위 경쟁 경기차 전망
 //   node tools/predictor/predict.js sim --window 60 --form 0.5 --n 50000 --rival 삼성
 //   node tools/predictor/predict.js form                팀별 최근 폼 요약
-//   node tools/predictor/predict.js ag                  아시안게임 차출 선수별 세부 지표·공백 영향 (sim은 기본 반영, --no-ag로 끔)
+//   node tools/predictor/predict.js ag [--write]        아시안게임 차출 선수별 세부 지표·공백 영향 (--write: 보드용 보정값 파일 저장)
 //
 // 공통 옵션: --refresh (경기 데이터 캐시 무시하고 다시 받기)
 // 데이터: 네이버 스포츠 일정 API (보드 수집기와 같은 출처). 하루 1회 캐시(tools/predictor/cache/).
@@ -332,6 +332,16 @@ async function main() {
       console.log(pad(t, 6) + pad(`${(x.delta * 1000).toFixed(1)}리`, 9) + pad(`득점 ${(-x.dRS).toFixed(2)} · 실점 +${x.dRA.toFixed(2)} /경기`, 32) + x.names.join(', '));
     }
     console.log('\n※ 수비·주루·포지션 가치는 공개 기록만으로 추정이 어려워 제외 — 수비형 선수는 과소평가될 수 있음.');
+    // --write: 보드 수집기가 읽는 보정값 파일로 저장 (tools/predictor/ag-impact.json)
+    if (opt('write', false)) {
+      const out = {
+        generated: today, leave: ag.leave, ret: ag.return,
+        teams: Object.fromEntries(TEAMS.filter(t => imp.team[t].names.length).map(t => [t, { delta: +imp.team[t].delta.toFixed(4), dRS: +imp.team[t].dRS.toFixed(3), dRA: +imp.team[t].dRA.toFixed(3), names: imp.team[t].names }])),
+        players: imp.rows.map(p => ({ name: p.name, team: p.team, pos: p.pos, runs: +p.runs.toFixed(3), line: p.line }))
+      };
+      fs.writeFileSync(path.join(__dirname, 'ag-impact.json'), JSON.stringify(out, null, 1));
+      console.log('\n→ tools/predictor/ag-impact.json 저장 (보드 경기차 전망이 이 값으로 공백을 보정)');
+    }
     return;
   }
 

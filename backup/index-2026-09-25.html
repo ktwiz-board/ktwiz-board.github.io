@@ -261,26 +261,76 @@ gtag('config', 'G-8MC9LN4N1R');
   .psgames .gs{font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
   .psgames .gs.w{color:var(--gold)}
   .psgames .gs.l{color:var(--red-soft)}
-  /* 경우의 수 + 경기차 전망 2단 */
-  .odds-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;margin-bottom:26px}
+  /* 경우의 수 + 경기차 전망 배치 */
+  .odds-row{display:grid;grid-template-columns:minmax(0,1fr);gap:30px;align-items:start;margin-bottom:26px} /* 격자 위, 경기차 전망 아래 (전체 폭) */
   .odds-row .board-note{margin:8px 0 0}
   @media (max-width:860px){.odds-row{grid-template-columns:1fr}}
   .odds-row.solo{grid-template-columns:1fr} /* 전망 차트가 없으면(데이터 전) 격자가 전체 폭 사용 */
-  .odds-sum.two{grid-template-columns:repeat(2,1fr)}
-  .gb-wrap{position:relative;background:var(--panel);border-radius:14px;padding:10px 8px 4px}
+  /* 경기차 전망 — 격자 아래 전체 폭, 16:9 */
+  .gb-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .gb-sum div{background:var(--panel);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px}
+  .gb-sum b{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+  .gb-sum .k b{color:var(--gold)}
+  .gb-sum span{font-size:11.5px;color:var(--muted);font-weight:600}
+  @media (max-width:560px){.gb-sum b{font-size:20px}.gb-sum div{padding:12px}}
+  .gb-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--muted);font-weight:600}
+  .gb-play{background:rgba(212,162,74,.16);color:var(--gold);border:1px solid rgba(212,162,74,.45);border-radius:99px;padding:7px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+  .gb-play:hover{background:rgba(212,162,74,.28)}
+  .gb-wrap{position:relative;background:var(--panel);border-radius:16px;padding:8px}
   .gb{display:block;width:100%;height:auto;touch-action:pan-y}
-  .gb .grid{stroke:rgba(255,255,255,.06);stroke-width:1}
-  .gb .zero{stroke:rgba(255,255,255,.35);stroke-width:1;stroke-dasharray:4 4}
-  .gb .ytk{fill:var(--muted);font-size:10px;font-weight:700;text-anchor:end}
-  .gb .xtk{fill:var(--muted);font-size:10px;font-weight:600;text-anchor:middle}
-  .gb .zl{fill:var(--muted);font-size:10px;font-weight:700;text-anchor:end}
-  .gb .b80{fill:rgba(212,162,74,.16)}
-  .gb .b50{fill:rgba(212,162,74,.32)}
-  .gb .med{fill:none;stroke:#d4a24a;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-  .gb .now{fill:#d4a24a;stroke:var(--panel);stroke-width:2}
-  .gb .hov{stroke:rgba(255,255,255,.4);stroke-width:1}
-  .gb-form{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.8;font-weight:500}
-  .gb-form b{color:var(--ink)}
+  .gb #gbPaths{transition:opacity .8s}
+  .gb #gbPaths.dim{opacity:.3}
+  .gb .zk{fill:rgba(212,162,74,.05)}
+  .gb .zr{fill:rgba(91,143,224,.07)}
+  .gb .zt{font-size:15px;font-weight:800}
+  .gb .zt.k{fill:rgba(212,162,74,.7)}
+  .gb .zt.r{fill:rgba(126,168,235,.8)}
+  .gb .grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+  .gb .zero{stroke:rgba(255,255,255,.55);stroke-width:1.5}
+  .gb .ytk{fill:var(--muted);font-size:14px;font-weight:700;text-anchor:end}
+  .gb .yttl{fill:var(--muted);font-size:13px;font-weight:700;text-anchor:middle}
+  .gb .xtk{fill:var(--muted);font-size:14px;font-weight:600;text-anchor:middle}
+  .gb .xtk.em{fill:var(--ink);font-weight:800}
+  .gb .zl{fill:var(--ink);font-size:14px;font-weight:800}
+  .gb .sep{stroke:rgba(255,255,255,.18);stroke-dasharray:4 5}
+  .gb .sept{fill:var(--muted);font-size:12px;font-weight:600}
+  .gb .fan{transition:opacity .8s}
+  .gb .fan.off{opacity:0}
+  .gb .b80{fill:rgba(212,162,74,.18)}
+  .gb .b50{fill:rgba(212,162,74,.40)}
+  .gb .med{fill:none;stroke:#f0c46a;stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
+  .gb .dot{fill:#f0c46a;stroke:var(--panel);stroke-width:2}
+  .gb .lbl{fill:var(--ink);font-size:17px;font-weight:800}
+  .gb .lbl.end{fill:#f0c46a;font-size:20px}
+  .gb .sp{fill:none;stroke-width:1.6;opacity:.45}
+  .gb .sp.k{stroke:#d4a24a}
+  .gb .sp.r{stroke:#5b8fe0;opacity:.7}
+  .gb .sp.t{stroke:#8a8a94}
+  .gb .hov{stroke:rgba(255,255,255,.45);stroke-width:1}
+  .gb-legend{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 4px;font-size:12px;color:var(--muted);font-weight:600}
+  .gb-legend span{display:inline-flex;align-items:center;gap:7px}
+  .gb-legend i{display:inline-block;width:18px;height:10px;border-radius:3px}
+  .gb-legend i.med{height:3px;background:#f0c46a}
+  .gb-legend i.b50{background:rgba(212,162,74,.40)}
+  .gb-legend i.b80{background:rgba(212,162,74,.18)}
+  .gb-help{margin-top:10px;background:var(--panel);border-radius:14px;padding:12px 16px;font-size:13px;color:var(--muted);line-height:1.8}
+  .gb-help summary{cursor:pointer;font-weight:800;color:var(--ink);font-size:13.5px}
+  .gb-help ul{margin:10px 0 2px;padding-left:18px}
+  .gb-help b{color:var(--ink)}
+  .gb-help .muted{font-size:12px}
+  .rogrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  @media (max-width:640px){.rogrid{grid-template-columns:1fr}}
+  .roc{background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px}
+  .roc p{margin:0 0 6px;font-size:12.5px}
+  .roc ol{margin:0;padding-left:18px;font-size:12.5px}
+  .roc li{margin:3px 0}
+  .roc li span:first-child{color:var(--ink);font-weight:700}
+  .roc li .w{float:right;color:var(--gold);font-weight:800}
+  .roc li .d{display:block;color:var(--muted);font-size:11px}
+  .gbag{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.5px}
+  .gbag th,.gbag td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+  .gbag th{color:var(--muted);font-weight:700}
+  .gbag td:last-child{text-align:right;font-weight:800;color:var(--ink);white-space:nowrap}
   /* 1위 경우의 수 */
   .odds-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
   .odds-sum div{background:var(--panel);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
@@ -875,13 +925,32 @@ gtag('config', 'G-8MC9LN4N1R');
         <p class="board-note" id="oddsNote"></p>
       </div>
       <div class="odds-col" id="gbFan" hidden>
-        <p class="pshead">경기차 전망 · 최근 60경기 폼</p>
-        <div class="odds-sum two" id="gbSum"></div>
+        <p class="pshead">경기차 전망 · 선수별 WAR 기준 · 아시안게임 공백 반영</p>
+        <div class="gb-sum" id="gbSum"></div>
+        <div class="gb-bar"><button type="button" class="gb-play" id="gbPlay">▶ 가상 시즌 재생</button><span id="gbCount">가상 시즌을 한 줄씩 그려 아래 띠가 어떻게 만들어지는지 보여줍니다</span></div>
         <div class="gb-wrap">
           <svg id="gbSvg" class="gb" role="img" aria-label="날짜별 KT와 경쟁팀 경기차 예측 분포"></svg>
           <div class="odds-tip" id="gbTip" hidden></div>
         </div>
-        <p class="gb-form" id="gbForm"></p>
+        <div class="gb-legend" id="gbLegend"></div>
+        <details class="gb-help">
+          <summary>그래프 읽는 법</summary>
+          <ul>
+            <li><b>가로</b>는 날짜(KT·경쟁팀 경기가 있는 날), <b>세로</b>는 KT 기준 경기차입니다. 위쪽 금색 영역이면 KT가 앞선 상태, 아래 파란 영역이면 경쟁팀이 앞선 상태예요.</li>
+            <li>남은 경기를 팀 전력에 맞춰 <b>4,000번 가상으로 치러</b> 봤습니다. 매 경기 승패는 운이지만, 강한 팀이 이길 확률이 조금 더 높게 굴러갑니다.</li>
+            <li><b>선</b>은 4,000번 중 한가운데 결과(중앙값), <b>진한 띠</b>는 10번 중 5번, <b>옅은 띠</b>는 10번 중 8번이 들어오는 범위입니다. 띠가 점점 넓어지는 건 남은 경기가 쌓일수록 결과가 퍼지기 때문이에요.</li>
+            <li>띠가 <b>'동률' 선 아래로 거의 안 내려가면</b> 역전 가능성이 낮다는 뜻입니다. 그래프 위에 마우스를 올리거나 탭하면 날짜별 수치가 나옵니다.</li>
+            <li><b>▶ 가상 시즌 재생</b>을 누르면 가상 시즌 60개를 한 줄씩 그려서, 이 띠가 어떻게 만들어지는지 볼 수 있습니다.</li>
+          </ul>
+        </details>
+        <details class="gb-help" id="gbRoBox" hidden>
+          <summary>전력 계산 근거 · 선수별 WAR</summary>
+          <div id="gbRo"></div>
+        </details>
+        <details class="gb-help" id="gbAgBox" hidden>
+          <summary>아시안게임 공백 보정 자세히</summary>
+          <div id="gbAg"></div>
+        </details>
         <p class="board-note" id="gbNote"></p>
       </div>
     </div>
@@ -1181,7 +1250,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-122559';
+  const BUILD = '20260925-124131';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2367,7 +2436,9 @@ gtag('config', 'G-8MC9LN4N1R');
       const rem = Math.max(0, 144 - played);
       const act = t.w / Math.max(1, t.w + t.l);
       const exp = pyMap[t.name] != null ? pyMap[t.name] : act;
-      const str = (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15; // 전력(리그평균 회귀) — 시리즈 승률 산출에 사용
+      const ro = window.__roster;
+      const str = (ro && ro.full && ro.full[t.name] != null) ? ro.full[t.name] // 선수별 WAR 기반 전력
+        : (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15; // 전력(리그평균 회귀) — 시리즈 승률 산출에 사용
       const e = sc && sc.teams ? sc.teams.find(x => x.name === t.name) : null;
       const opp = e && e.sampleN ? e.oppWra : 0.5;
       const p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp); // 잔여 일정 난이도 반영 — 순위 시뮬레이션용
@@ -2422,39 +2493,52 @@ gtag('config', 'G-8MC9LN4N1R');
     }catch(e){ return null; }
   }
 
-  /* ---------- 경기차 전망 (최근 60경기 폼 기반 몬테카를로) ----------
-     팀 전력 = 최근 60경기(승률·피타고리안 반반) 30% + 시즌(피타고리안 70%·승률 30%) 70%, 리그평균으로 30% 회귀.
-     설정은 tools/predictor 백테스트(올 시즌 455경기 사후 예측 채점)에서 가장 정확했던 조합.
-     리그 잔여 일정(sched.league)을 날짜순으로 굴려 날짜별 KT–경쟁팀 경기차 분포를 모으고,
-     아직 편성되지 않은 경기는 리그 평균 상대와 치르는 것으로 마지막에 더한다. 홈팀 +2%p. */
-  function gbForecast(st, py, sc, rivName){
-    const league = sc && sc.league;
-    const teams = (py && py.teams) || [];
-    if(!league || !teams.length) return null;
-    const E = 1.83, pyth = (rs, ra) => (rs + ra) ? Math.pow(rs, E) / (Math.pow(rs, E) + Math.pow(ra, E)) : 0.5;
-    const S = {};
-    teams.forEach(t => {
-      const f = t.f60;
-      const sea = 0.7 * t.exp + 0.3 * t.act;
-      const form = f && f.n >= 20 ? 0.5 * (f.w / Math.max(1, f.w + f.l)) + 0.5 * pyth(f.rs, f.ra) : sea;
-      S[t.name] = (0.3 * form + 0.7 * sea) * 0.7 + 0.5 * 0.3;
+  /* ---------- 경기차 전망 (시즌 전체 기준 + 아시안게임 공백 보정, 몬테카를로) ----------
+     팀 전력 = 시즌 전체(피타고리안 70%·승률 30%)를 리그평균으로 30% 회귀 — tools/predictor 백테스트(455경기)에서 가장 정확했던 설정.
+     아시안게임 차출(9/14~) 기간 경기가 시즌 성적에 섞여 있으므로 그 몫(agN/경기수 × 공백 영향)을 되돌려 '완전체' 전력을 만들고,
+     복귀일(adj.ret) 전 경기만 공백 전력으로 굴린다. 공백 영향은 선수별 기록으로 추정한 값(agAdj, tools/predictor ag --write). */
+  const GB_REG = 0.3, GB_N = 4000, GB_PATHS = 60;
+  function gbStrengths(st, py, adj){
+    // 선수 단위 전력(roster: 선수별 WAR 합산, scripts/roster.js)이 있으면 그걸 쓴다 — 결장(아시안게임)도 선수 단위로 반영돼 있음.
+    // adj === null 이면 '공백 없음' 비교용(Sa = S).
+    const ro = window.__roster;
+    if(ro && ro.full && ro.full.KT != null){
+      const S = Object.assign({}, ro.full), Sa = adj === null ? Object.assign({}, ro.full) : Object.assign({}, ro.abs);
+      return { S, Sa, ret: ro.ret, roster: true };
+    }
+    const S = {}, Sa = {};
+    ((py && py.teams) || []).forEach(t => {
+      const base = (0.7 * t.exp + 0.3 * t.act) * (1 - GB_REG) + 0.5 * GB_REG;
+      const a = adj && adj.teams && adj.teams[t.name];
+      const row = st.find(x => x.name === t.name), n = row ? row.w + row.l + row.d : 0;
+      if(a && n && t.agN != null){
+        S[t.name] = base - a.delta * (1 - GB_REG) * (t.agN / n); // 공백 중 경기 몫을 되돌린 완전체
+        Sa[t.name] = S[t.name] + a.delta * (1 - GB_REG);           // 공백 중 전력
+      } else { S[t.name] = base; Sa[t.name] = base; }
     });
+    return { S, Sa, ret: adj && adj.ret, roster: false };
+  }
+  function gbForecast(st, py, sc, rivName, adj){
+    const league = sc && sc.league;
+    if(!league || !py || !py.teams || !py.teams.length) return null;
+    const { S, Sa, ret, roster } = gbStrengths(st, py, adj);
     const me = st.find(t => t.name === 'KT'), rv = st.find(t => t.name === rivName);
     if(!me || !rv || S.KT == null || S[rivName] == null) return null;
+    const str = (t, d) => { const m = ret && d < ret ? Sa : S; return m[t] != null ? m[t] : .5; };
     const games = league.filter(g => g[1] === 'KT' || g[2] === 'KT' || g[1] === rivName || g[2] === rivName);
     const dates = [...new Set(games.map(g => g[0]))];
     const cnt = n => games.filter(g => g[1] === n || g[2] === n).length;
     const unsetK = Math.max(0, 144 - (me.w + me.l + me.d) - cnt('KT'));
     const unsetR = Math.max(0, 144 - (rv.w + rv.l + rv.d) - cnt(rivName));
-    const N = 4000, cols = dates.length + 1; // 마지막 칸 = 미편성분까지 포함한 최종
-    const buf = []; for(let c = 0; c < cols; c++) buf.push(new Float32Array(N));
-    let first = 0, tie = 0;
-    for(let i = 0; i < N; i++){
+    const cols = dates.length + 1; // 마지막 칸 = 미편성분까지 포함한 시즌 최종
+    const buf = []; for(let c = 0; c < cols; c++) buf.push(new Float32Array(GB_N));
+    const paths = [];
+    let first = 0;
+    for(let i = 0; i < GB_N; i++){
       let kw = me.w, kl = me.l, rw = rv.w, rl = rv.l, di = 0;
       for(let gi = 0; gi < games.length; gi++){
         const [d, a, h] = games[gi];
-        const pH = log5(S[h] != null ? S[h] : .5, S[a] != null ? S[a] : .5) + 0.02;
-        const hw = Math.random() < pH;
+        const hw = Math.random() < log5(str(h, d), str(a, d)) + 0.02;
         if(h === 'KT'){ if(hw) kw++; else kl++; } else if(a === 'KT'){ if(hw) kl++; else kw++; }
         if(h === rivName){ if(hw) rw++; else rl++; } else if(a === rivName){ if(hw) rl++; else rw++; }
         if(gi === games.length - 1 || games[gi + 1][0] !== d){ buf[di][i] = ((kw - rw) + (rl - kl)) / 2; di++; }
@@ -2462,54 +2546,116 @@ gtag('config', 'G-8MC9LN4N1R');
       for(let g = 0; g < unsetK; g++){ if(Math.random() < log5(S.KT, .5)) kw++; else kl++; }
       for(let g = 0; g < unsetR; g++){ if(Math.random() < log5(S[rivName], .5)) rw++; else rl++; }
       buf[cols - 1][i] = ((kw - rw) + (rl - kl)) / 2;
-      const a = kw / (kw + kl), b = rw / (rw + rl);
-      if(Math.abs(a - b) < 1e-9) tie++; else if(a > b) first++;
+      if(kw / (kw + kl) > rw / (rw + rl)) first++;
+      if(i < GB_PATHS) paths.push(Array.from(buf, col => col[i]));
     }
     const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
     const pts = buf.map(col => { const s = Array.from(col).sort((x, y) => x - y); return { p10: q(s, .1), p25: q(s, .25), p50: q(s, .5), p75: q(s, .75), p90: q(s, .9) }; });
-    const f60 = n => (teams.find(t => t.name === n) || {}).f60;
-    return { dates, pts, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / N, tie: 100 * tie / N,
-             unsetK, unsetR, fK: f60('KT'), fR: f60(rivName), sK: S.KT, sR: S[rivName], n: N };
+    return { dates, pts, paths, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / GB_N, unsetK, unsetR, S, Sa, ret, roster };
   }
   function renderGbFan(st, py, sc, rivName){
     const box = document.getElementById('gbFan');
-    const r = gbForecast(st, py, sc, rivName);
-    const row = document.getElementById('psOdds');
-    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; row.classList.add('solo'); return; }
-    row.classList.remove('solo');
-    const W = 460, H = 330, L = 34, R = 12, T = 14, B = 30; // 옆 격자와 높이를 맞춘 비율
-    const xs = ['오늘'].concat(r.dates.map(d => psMd(d)), ['최종']);
-    const series = [{ p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now }].concat(r.pts); // 첫 점 = 현재
-    const lo = Math.min(0, ...series.map(p => p.p10)) - 0.5, hi = Math.max(0, ...series.map(p => p.p90)) + 0.5;
+    const adj = window.__agAdj || (window.__roster ? {} : null);
+    const r = gbForecast(st, py, sc, rivName, adj);
+    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; return; }
+    const raw = adj ? gbForecast(st, py, sc, rivName, null) : null; // 보정 전 비교용
+    // 넓은 화면은 16:9, 폰(폭 600px 미만)은 5:4로 그려 글자가 너무 작아지지 않게
+    const svg0 = document.getElementById('gbSvg'), narrow = (svg0.parentNode.clientWidth || 960) < 600;
+    const W = narrow ? 600 : 960, H = narrow ? 480 : 540, L = narrow ? 56 : 70, R = narrow ? 64 : 108, T = 34, B = 58;
+    const xs = ['지금'].concat(r.dates.map(d => +d.slice(5, 7) + '/' + +d.slice(8)), ['시즌 끝']);
+    const first = { p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now };
+    const series = [first].concat(r.pts);
+    const lo = Math.min(-1, ...series.map(p => p.p10)) - 0.5, hi = Math.max(1, ...series.map(p => p.p90)) + 0.5;
     const X = i => L + (W - L - R) * i / (series.length - 1);
     const Y = v => T + (H - T - B) * (hi - v) / (hi - lo);
     const band = (a, b) => series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[a]).toFixed(1)).join('') +
       series.slice().reverse().map((p, j) => 'L' + X(series.length - 1 - j).toFixed(1) + ' ' + Y(p[b]).toFixed(1)).join('') + 'Z';
+    const sg = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
     let g = '';
+    // 영역: 위 = KT 앞섬, 아래 = 경쟁팀 앞섬
+    g += '<rect class="zk" x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (Y(0) - T).toFixed(1) + '"/>';
+    g += '<rect class="zr" x="' + L + '" y="' + Y(0).toFixed(1) + '" width="' + (W - L - R) + '" height="' + (H - B - Y(0)).toFixed(1) + '"/>';
+    g += '<text class="zt k" x="' + (L + 12) + '" y="' + (T + 22) + '">▲ KT가 앞섬</text>';
+    g += '<text class="zt r" x="' + (L + 12) + '" y="' + (H - B - 12) + '">▼ ' + esc(rivName) + '이(가) 앞섬</text>';
     for(let v = Math.ceil(lo); v <= Math.floor(hi); v++){
-      g += '<line class="' + (v === 0 ? 'zero' : 'grid') + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '"/>' +
-           '<text class="ytk" x="' + (L - 6) + '" y="' + (Y(v) + 3.5).toFixed(1) + '">' + (v > 0 ? '+' + v : v) + '</text>';
+      if(v !== 0) g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '"/>';
+      g += '<text class="ytk" x="' + (L - 10) + '" y="' + (Y(v) + 5).toFixed(1) + '">' + (v > 0 ? '+' + v : v < 0 ? '−' + (-v) : '0') + '</text>';
     }
-    const step = Math.max(1, Math.ceil(xs.length / 6));
-    xs.forEach((t, i) => { if(i % step === 0 || i === xs.length - 1) g += '<text class="xtk" x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '">' + t + '</text>'; });
-    g += '<path class="b80" d="' + band('p10', 'p90') + '"/><path class="b50" d="' + band('p25', 'p75') + '"/>';
+    g += '<text class="yttl" x="16" y="' + ((T + H - B) / 2) + '" transform="rotate(-90 16 ' + ((T + H - B) / 2) + ')">KT 기준 경기차</text>';
+    g += '<line class="zero" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>';
+    g += '<text class="zl" x="' + (W - R + 10) + '" y="' + (Y(0) + 5).toFixed(1) + '">동률</text>';
+    xs.forEach((t, i) => { if(narrow && i % 2 && i !== xs.length - 1) return; g += '<text class="xtk' + (i === 0 || i === xs.length - 1 ? ' em' : '') + '" x="' + X(i).toFixed(1) + '" y="' + (H - B + 26) + '">' + t + '</text>'; });
+    if(r.unsetK || r.unsetR){
+      const xm = (X(xs.length - 2) + X(xs.length - 1)) / 2;
+      g += '<line class="sep" x1="' + xm.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '"/>';
+      g += '<text class="sept" x="' + (xm + 6).toFixed(1) + '" y="' + (T + 14) + '">미편성 경기 포함</text>';
+    }
+    g += '<g id="gbPaths"></g>';
+    g += '<g id="gbFanG" class="fan"><path class="b80" d="' + band('p10', 'p90') + '"/><path class="b50" d="' + band('p25', 'p75') + '"/>';
     g += '<path class="med" d="' + series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.p50).toFixed(1)).join('') + '"/>';
-    g += '<circle class="now" cx="' + X(0) + '" cy="' + Y(r.now).toFixed(1) + '" r="4.5"/>';
-    g += '<text class="zl" x="' + (W - R) + '" y="' + (Y(0) - 5).toFixed(1) + '">동률</text>';
+    series.forEach((p, i) => { g += '<circle class="dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(p.p50).toFixed(1) + '" r="' + (i === 0 || i === series.length - 1 ? 6 : 3.5) + '"/>'; });
+    const last = r.pts[r.pts.length - 1];
+    g += '<text class="lbl" x="' + (X(0) + 10) + '" y="' + (Y(r.now) - 14).toFixed(1) + '">지금 ' + sg(r.now) + '</text>';
+    g += '<text class="lbl end" x="' + (X(series.length - 1) + 12) + '" y="' + (Y(last.p50) + 5).toFixed(1) + '">' + sg(last.p50) + '</text></g>';
     g += '<line class="hov" id="gbHov" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" visibility="hidden"/>';
     const svg = document.getElementById('gbSvg');
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.innerHTML = g;
-    const last = r.pts[r.pts.length - 1];
-    const fmt = v => (v > 0 ? 'KT +' : v < 0 ? esc(rivName) + ' +' : '') + Math.abs(v).toFixed(1);
+
+    const fmt = v => v > 0 ? 'KT ' + Math.abs(v).toFixed(1) + '경기 앞섬' : v < 0 ? esc(rivName) + ' ' + Math.abs(v).toFixed(1) + '경기 앞섬' : '동률';
     document.getElementById('gbSum').innerHTML =
-      '<div><b>' + fmt(last.p50) + '</b><span>최종 경기차 (중앙값)</span></div>' +
-      '<div><b>' + probFmt(r.first) + '</b><span>KT 1위 (폼 기준)</span></div>';
-    const fl = (n, f) => f ? esc(n) + ' <b>' + f.w + '승 ' + f.l + '패' + (f.d ? ' ' + f.d + '무' : '') + '</b> · 득 ' + f.rs + ' 실 ' + f.ra : '';
-    document.getElementById('gbForm').innerHTML = '최근 60경기 — ' + fl('KT', r.fK) + '<br>' + '최근 60경기 — ' + fl(rivName, r.fR);
+      '<div><b>' + sg(r.now) + '</b><span>지금 경기차</span></div>' +
+      '<div><b>' + sg(last.p50) + '</b><span>시즌 끝 예상 (80%: ' + sg(last.p10) + ' ~ ' + sg(last.p90) + ')</span></div>' +
+      '<div class="k"><b>' + probFmt(r.first) + '</b><span>KT 정규시즌 1위</span></div>';
+    document.getElementById('gbLegend').innerHTML =
+      '<span><i class="med"></i>가장 가능성 높은 흐름 (중앙값)</span>' +
+      '<span><i class="b50"></i>가상 시즌 10번 중 5번이 이 안</span>' +
+      '<span><i class="b80"></i>10번 중 8번이 이 안</span>';
+    // 아시안게임 보정 상세
+    const agBox = document.getElementById('gbAgBox');
+    const ro = window.__roster;
+    if(r.roster && ro && raw){
+      const outs = ['KT', rivName].flatMap(t => ((ro.teams[t] && ro.teams[t].out) || []).map(o => Object.assign({ team: t }, o)));
+      const lost = t => ro.teams[t] ? ((ro.abs[t] - ro.full[t]) * 1000).toFixed(0) + '리' : '-';
+      document.getElementById('gbAg').innerHTML =
+        '<p>대표팀 차출 선수는 복귀(' + (ro.ret ? psMd(ro.ret) : '-') + ' 가정) 전 경기에서 그 선수의 몫을 대체선수 수준(WAR 0)으로 바꿔 계산했습니다. ' +
+        '시즌 기록은 선수별 비율(타석·이닝당 WAR)로 쓰기 때문에 공백 기간 성적이 섞여도 완전체 전력이 따로 흔들리지 않습니다.</p>' +
+        '<table class="gbag"><thead><tr><th>선수</th><th>팀</th><th>시즌 기록</th><th>WAR</th><th>경기당 손실</th></tr></thead><tbody>' +
+        outs.sort((a, b) => b.pg - a.pg).map(o => '<tr><td>' + esc(o.n) + '</td><td>' + esc(o.team) + '</td><td>' + esc(o.s) + '</td><td>' + o.war.toFixed(2) + '</td><td>−' + (o.pg * 1000).toFixed(1) + '리</td></tr>').join('') +
+        '</tbody></table>' +
+        '<p>공백 중 전력 변화: KT <b>' + lost('KT') + '</b> · ' + esc(rivName) + ' <b>' + lost(rivName) + '</b> (1리 = 승률 .001) — ' +
+        'KT 1위 확률 공백 미반영 <b>' + probFmt(raw.first) + '</b> → 반영 <b>' + probFmt(r.first) + '</b>.</p>';
+      agBox.hidden = !outs.length;
+    } else if(adj && adj.teams && raw){
+      const rows = (adj.players || []).filter(p => p.team === 'KT' || p.team === rivName);
+      const tm = t => adj.teams[t] ? (adj.teams[t].delta * 1000).toFixed(0) + '리' : '영향 없음';
+      document.getElementById('gbAg').innerHTML =
+        '<p>대표팀 소집(' + psMd(adj.leave) + ')부터 복귀(' + psMd(adj.ret) + ' 가정)까지 빠진 선수의 시즌 기록으로 "팀이 경기당 잃는 점수"를 추정해, ' +
+        '① 이미 치른 공백 기간 경기가 시즌 성적을 끌어내린 몫은 되돌리고 ② 복귀 전 남은 경기만 공백 전력으로 계산했습니다.</p>' +
+        '<table class="gbag"><thead><tr><th>선수</th><th>팀</th><th>시즌 기록</th><th>경기당 손실</th></tr></thead><tbody>' +
+        rows.map(p => '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.team) + '</td><td>' + esc(p.line) + '</td><td>−' + p.runs.toFixed(2) + '점</td></tr>').join('') +
+        '</tbody></table>' +
+        '<p>공백 중 승률 변화: KT <b>' + tm('KT') + '</b> · ' + esc(rivName) + ' <b>' + tm(rivName) + '</b> (1리 = .001) — ' +
+        'KT 1위 확률 보정 전 <b>' + probFmt(raw.first) + '</b> → 보정 후 <b>' + probFmt(r.first) + '</b>.</p>' +
+        '<p class="muted">수비·주루 가치는 공개 기록만으로 추정이 어려워 빠져 있습니다(수비형 선수는 과소평가 가능).</p>';
+      agBox.hidden = false;
+    } else agBox.hidden = true;
+    // 선수별 WAR 근거
+    const roBox = document.getElementById('gbRoBox');
+    if(r.roster && ro){
+      const card = t => { const x = ro.teams[t]; if(!x) return '';
+        return '<div class="roc"><p><b>' + esc(t) + '</b> 전력 ' + ro.full[t].toFixed(3).slice(1) + ' · 타자 WAR ' + x.hitWar.toFixed(1) + ' + 투수 WAR ' + x.pitWar.toFixed(1) + ' (' + x.nPlayers + '명)</p><ol>' +
+          x.top.map(p => '<li><span>' + esc(p.n) + ' <small>' + (p.t === 'P' ? '투' : '타') + '</small></span><span class="w">' + p.war.toFixed(2) + '</span><small class="d">' + esc(p.s) + '</small></li>').join('') + '</ol></div>'; };
+      document.getElementById('gbRo').innerHTML =
+        '<p>팀 전력은 <b>현재 로스터 전 선수의 WAR</b>(타격·수비·주루·투구를 합친 대체선수 대비 승리 기여)로 계산했습니다. 선수마다 타석·이닝당 WAR에 출전 비중을 곱해 더하고(표본이 적은 선수는 대체선수 쪽으로 수축), ' +
+        '10개 팀 실제 득실 성과에 맞춰 격차 크기만 보정(×' + ro.k + ')했습니다. 경기별 선발 로테이션과 부상자 명단은 공개 데이터가 없어 빠져 있습니다.</p>' +
+        '<div class="rogrid">' + card('KT') + card(rivName) + '</div>';
+      roBox.hidden = false;
+    } else roBox.hidden = true;
     document.getElementById('gbNote').textContent =
-      '진한 띠 50%, 옅은 띠 80% 범위, 선은 중앙값 (+는 KT 우위). 최근 60경기 폼 30%·시즌 70%(올 시즌 사후 채점에서 가장 정확했던 조합)로 전력을 잡고 리그 잔여 일정 전체를 ' +
-      r.n.toLocaleString() + '회 굴렸습니다.' + (r.unsetK || r.unsetR ? ' 미편성 경기(KT ' + r.unsetK + ' · ' + rivName + ' ' + r.unsetR + ')는 "최종"에 평균 상대로 포함.' : '');
+      (r.roster ? '선수별 WAR을 합산한 팀 전력으로' : '시즌 전체 득실점·승률로 팀 전력을 잡고(올 시즌 455경기 사후 채점에서 가장 정확했던 설정)') + ' 리그 남은 일정 전체를 ' + GB_N.toLocaleString() + '번 가상으로 치렀습니다.' +
+      (r.unsetK || r.unsetR ? ' 아직 날짜가 안 잡힌 경기(KT ' + r.unsetK + ' · ' + rivName + ' ' + r.unsetR + ')는 "시즌 끝"에 리그 평균 상대로 포함.' : '');
+
     // 호버: 날짜별 분포
     const tip = document.getElementById('gbTip'), hov = document.getElementById('gbHov');
     svg.onmousemove = svg.onclick = e => {
@@ -2517,14 +2663,41 @@ gtag('config', 'G-8MC9LN4N1R');
       const i = Math.max(0, Math.min(series.length - 1, Math.round((sx - L) / (W - L - R) * (series.length - 1))));
       const p = series[i];
       hov.setAttribute('x1', X(i)); hov.setAttribute('x2', X(i)); hov.setAttribute('visibility', 'visible');
-      tip.innerHTML = '<b>' + (i === 0 ? '현재' : xs[i] === '최종' ? '시즌 최종' : xs[i] + ' 경기 후') + '</b><br>' +
-        (i === 0 ? fmt(p.p50) : '중앙값 ' + fmt(p.p50) + '<br><small>50% ' + fmt(p.p25) + ' ~ ' + fmt(p.p75) + '<br>80% ' + fmt(p.p10) + ' ~ ' + fmt(p.p90) + '</small>');
+      tip.innerHTML = '<b>' + (i === 0 ? '지금' : i === series.length - 1 ? '시즌 끝' : xs[i] + ' 경기 후') + '</b><br>' + fmt(p.p50) +
+        (i ? '<br><small>10번 중 5번: ' + sg(p.p25) + ' ~ ' + sg(p.p75) + '<br>10번 중 8번: ' + sg(p.p10) + ' ~ ' + sg(p.p90) + '</small>' : '');
       tip.hidden = false;
       const px = X(i) / W * pt.width;
       tip.style.left = Math.min(Math.max(0, px - tip.offsetWidth / 2), pt.width - tip.offsetWidth) + 'px';
-      tip.style.top = '0px';
+      tip.style.top = '8px';
     };
     svg.onmouseleave = () => { tip.hidden = true; hov.setAttribute('visibility', 'hidden'); };
+
+    // ▶ 가상 시즌 재생 — 가상 시즌을 한 줄씩 그려 "띠가 어떻게 만들어지는지" 보여준다
+    const btn = document.getElementById('gbPlay'), cntEl = document.getElementById('gbCount');
+    const fanG = document.getElementById('gbFanG'), pathG = document.getElementById('gbPaths');
+    let timer = null;
+    const pathD = pp => [r.now].concat(pp).map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join('');
+    btn.onclick = () => {
+      clearInterval(timer);
+      pathG.innerHTML = ''; pathG.classList.remove('dim'); fanG.classList.add('off');
+      let k = 0, win = 0;
+      const step = () => {
+        const pp = r.paths[k], end = pp[pp.length - 1];
+        if(end > 0) win++;
+        pathG.insertAdjacentHTML('beforeend', '<path class="sp ' + (end > 0 ? 'k' : end < 0 ? 'r' : 't') + '" d="' + pathD(pp) + '"/>');
+        k++;
+        cntEl.textContent = '가상 시즌 ' + k + ' / ' + r.paths.length + ' — KT가 앞선 채 끝남 ' + win + '번';
+        if(k >= r.paths.length){
+          clearInterval(timer);
+          fanG.classList.remove('off');
+          pathG.classList.add('dim'); // 다 그린 뒤엔 선을 흐리게 — 띠가 앞으로
+          cntEl.textContent += ' · 이런 시즌 ' + GB_N.toLocaleString() + '개를 모아 만든 게 띠와 선';
+          btn.textContent = '↺ 다시 재생';
+        }
+      };
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ while(k < r.paths.length) step(); }
+      else timer = setInterval(step, 70);
+    };
     box.hidden = false;
   }
 
@@ -3261,6 +3434,8 @@ gtag('config', 'G-8MC9LN4N1R');
         renderDuel(j.kt && j.kt.starters);
         renderMagic(j.standings);
         renderMagicBanner(j.standings);
+        window.__agAdj = j.agAdj || null; // 경기차 전망의 아시안게임 공백 보정값 (roster 없을 때 대체용)
+        window.__roster = j.roster || null; // 선수 단위 팀 전력 — 경기차 전망·경우의 수·KS 예측 공통
         renderPs(j.standings, j.pythag, j.sched, j.ps, j.date);
         renderAg(j.ag, j.date);
         renderTitleRace(j.titleRace);

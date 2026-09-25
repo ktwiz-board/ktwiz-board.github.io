@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   push:                       # 수집기 코드가 바뀌면 즉시 새 코드로 루프 재시작 (진행 중 루프는 concurrency로 취소)
     branches: [main]
-    paths: ['scripts/**', '.github/workflows/live.yml']
+    paths: ['scripts/**', 'tools/predictor/ag-impact.json', '.github/workflows/live.yml']
 
 permissions:
   contents: write

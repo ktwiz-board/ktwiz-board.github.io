@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board live fetcher)' };
+const { rosterStrength } = require('./roster');
 const API = 'https://api-gw.sports.naver.com';
 
 function kstNow() {
@@ -209,6 +210,12 @@ const KBO_TEAMS = ['KT', 'LG', '삼성', '두산', 'KIA', '롯데', 'SSG', 'NC',
 
 // 아시안게임 야구 (네이버 categoryId=agbaseball) — 대회 기간에만 수집. 한국 경기만 추린다.
 const AG_FROM = '2026-09-20', AG_TO = '2026-09-27';
+const AG_LEAVE = '2026-09-14'; // 대표팀 소집일 (선수 공백 시작)
+// 선수별 공백 영향 보정값 — tools/predictor에서 `node tools/predictor/predict.js ag --write`로 생성
+function agAdjust() {
+  try { return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'tools', 'predictor', 'ag-impact.json'), 'utf8')); }
+  catch (e) { return null; }
+}
 async function asianGames(today) {
   if (today < AG_FROM || today > AG_TO) return null;
   const u = `${API}/schedule/games?fields=basic,stadium,statusNum,homeStarterName,awayStarterName,winPitcherName,losePitcherName&upperCategoryId=kbaseball&categoryId=agbaseball&fromDate=${AG_FROM}&toDate=${AG_TO}&size=100`;
@@ -264,7 +271,7 @@ async function pythagorean(today) {
       for (const [me, op, my, opsc] of [[g.homeTeamName, g.awayTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.homeTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { rs: 0, ra: 0, w: 0, l: 0, d: 0 };
         agg[me].rs += my; agg[me].ra += opsc;
-        (log[me] = log[me] || []).push({ t: g.gameDateTime || g.gameDate, my, op: opsc });
+        (log[me] = log[me] || []).push({ t: g.gameDateTime || g.gameDate, d: g.gameDate, my, op: opsc });
         if (!h2h[me]) h2h[me] = {};
         if (!h2h[me][op]) h2h[me][op] = { w: 0, l: 0, d: 0 };
         if (my > opsc) { agg[me].w++; h2h[me][op].w++; }
@@ -276,7 +283,7 @@ async function pythagorean(today) {
   const E = 1.83;
   return {
     date: today,
-    v: 8,
+    v: 9,
     h2h,
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
@@ -285,7 +292,9 @@ async function pythagorean(today) {
       const last = (log[name] || []).sort((x, y) => x.t < y.t ? -1 : x.t > y.t ? 1 : 0).slice(-60);
       const f60 = { n: last.length, w: 0, l: 0, d: 0, rs: 0, ra: 0 };
       for (const x of last) { f60.rs += x.my; f60.ra += x.op; f60[x.my > x.op ? 'w' : x.my < x.op ? 'l' : 'd']++; }
-      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3), f60 };
+      // 아시안게임 차출 기간(AG_LEAVE~)에 치른 경기 수 — 화면에서 시즌 성적에 섞인 공백 몫을 되돌리는 데 사용
+      const agN = (log[name] || []).filter(x => x.d >= AG_LEAVE).length;
+      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3), f60, agN };
     }).sort((x, y) => y.exp - x.exp)
   };
 }
@@ -409,11 +418,13 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 8 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 9 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
     try { prev.ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); }
+    prev.agAdj = agAdjust();
+    // roster는 풀 수집 때 하루 1회 갱신된 값을 그대로 둔다
     if (yt2.length) prev.youtube = yt2;
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
@@ -691,7 +702,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
 
   // 7) 피타고리안 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 8
+    && prev.pythag.v === 9
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;
@@ -737,6 +748,18 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank));
   }
 
+  // 선수 단위 팀 전력 (scripts/roster.js) — 하루 1회, 실패 시 직전 값 유지
+  let roster = (prev && prev.roster && prev.roster.v === 2 && prev.roster.date === today) ? prev.roster : null;
+  if (!roster) {
+    try {
+      const gms = {}; for (const t of finalStandings) gms[t.name] = t.w + t.l + t.d;
+      const pyMap = {}; for (const t of ((pythag && pythag.teams) || [])) pyMap[t.name] = t.exp;
+      let absent = [], ret = null;
+      try { const agc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'tools', 'predictor', 'ag-2026.json'), 'utf8')); if (today < agc.return) { absent = agc.players; ret = agc.return; } } catch (e) {}
+      roster = Object.assign(await rosterStrength(gms, absent, UA, pyMap), { date: today, ret });
+    } catch (e) { console.error('roster fail', e.message); roster = (prev && prev.roster) || null; }
+  }
+
   // 포스트시즌 대진·시리즈 전적 (실패 시 직전 값 유지)
   let ps = (prev && prev.ps) || null;
   try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
@@ -760,7 +783,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched, ps, ag
+    youtube, pythag, sched, ps, ag, agAdj: agAdjust(), roster
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
