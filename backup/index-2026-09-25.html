@@ -278,8 +278,14 @@ gtag('config', 'G-8MC9LN4N1R');
   .gb-play:hover{background:rgba(212,162,74,.28)}
   .gb-wrap{position:relative;background:var(--panel);border-radius:16px;padding:8px}
   .gb{display:block;width:100%;height:auto;touch-action:pan-y}
-  .gb #gbPaths{transition:opacity .8s}
-  .gb #gbPaths.dim{opacity:.3}
+  .gb-cv{position:absolute;left:8px;top:8px;width:calc(100% - 16px);pointer-events:none;opacity:0;transition:opacity .6s}
+  .gb-cv.on{opacity:1}
+  .gb .htl{fill:var(--muted);font-size:13px;font-weight:800}
+  .gb .hax{stroke:rgba(255,255,255,.2)}
+  .gb .hb.k{fill:#d4a24a}
+  .gb .hb.t{fill:#8a8a94}
+  .gb .hb.r{fill:#5b8fe0}
+  .gb .hp{fill:var(--muted);font-size:12px;font-weight:700}
   .gb .zk{fill:rgba(212,162,74,.05)}
   .gb .zr{fill:rgba(91,143,224,.07)}
   .gb .zt{font-size:15px;font-weight:800}
@@ -291,7 +297,7 @@ gtag('config', 'G-8MC9LN4N1R');
   .gb .yttl{fill:var(--muted);font-size:13px;font-weight:700;text-anchor:middle}
   .gb .xtk{fill:var(--muted);font-size:14px;font-weight:600;text-anchor:middle}
   .gb .xtk.em{fill:var(--ink);font-weight:800}
-  .gb .zl{fill:var(--ink);font-size:14px;font-weight:800}
+  .gb .zl{fill:var(--ink);font-size:14px;font-weight:800;text-anchor:end}
   .gb .sep{stroke:rgba(255,255,255,.18);stroke-dasharray:4 5}
   .gb .sept{fill:var(--muted);font-size:12px;font-weight:600}
   .gb .fan{transition:opacity .8s}
@@ -302,10 +308,6 @@ gtag('config', 'G-8MC9LN4N1R');
   .gb .dot{fill:#f0c46a;stroke:var(--panel);stroke-width:2}
   .gb .lbl{fill:var(--ink);font-size:17px;font-weight:800}
   .gb .lbl.end{fill:#f0c46a;font-size:20px}
-  .gb .sp{fill:none;stroke-width:1.6;opacity:.45}
-  .gb .sp.k{stroke:#d4a24a}
-  .gb .sp.r{stroke:#5b8fe0;opacity:.7}
-  .gb .sp.t{stroke:#8a8a94}
   .gb .hov{stroke:rgba(255,255,255,.45);stroke-width:1}
   .gb-legend{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 4px;font-size:12px;color:var(--muted);font-weight:600}
   .gb-legend span{display:inline-flex;align-items:center;gap:7px}
@@ -927,9 +929,10 @@ gtag('config', 'G-8MC9LN4N1R');
       <div class="odds-col" id="gbFan" hidden>
         <p class="pshead">경기차 전망 · 선수별 WAR 기준 · 아시안게임 공백 반영</p>
         <div class="gb-sum" id="gbSum"></div>
-        <div class="gb-bar"><button type="button" class="gb-play" id="gbPlay">▶ 가상 시즌 재생</button><span id="gbCount">가상 시즌을 한 줄씩 그려 아래 띠가 어떻게 만들어지는지 보여줍니다</span></div>
+        <div class="gb-bar"><button type="button" class="gb-play" id="gbPlay">▶ 가상 시즌 재생</button><span id="gbCount">가상 시즌 4,000개를 실제로 겹쳐 그려, 띠와 오른쪽 분포가 어떻게 만들어지는지 보여줍니다</span></div>
         <div class="gb-wrap">
           <svg id="gbSvg" class="gb" role="img" aria-label="날짜별 KT와 경쟁팀 경기차 예측 분포"></svg>
+          <canvas class="gb-cv" id="gbCv" aria-hidden="true"></canvas>
           <div class="odds-tip" id="gbTip" hidden></div>
         </div>
         <div class="gb-legend" id="gbLegend"></div>
@@ -940,7 +943,8 @@ gtag('config', 'G-8MC9LN4N1R');
             <li>남은 경기를 팀 전력에 맞춰 <b>4,000번 가상으로 치러</b> 봤습니다. 매 경기 승패는 운이지만, 강한 팀이 이길 확률이 조금 더 높게 굴러갑니다.</li>
             <li><b>선</b>은 4,000번 중 한가운데 결과(중앙값), <b>진한 띠</b>는 10번 중 5번, <b>옅은 띠</b>는 10번 중 8번이 들어오는 범위입니다. 띠가 점점 넓어지는 건 남은 경기가 쌓일수록 결과가 퍼지기 때문이에요.</li>
             <li>띠가 <b>'동률' 선 아래로 거의 안 내려가면</b> 역전 가능성이 낮다는 뜻입니다. 그래프 위에 마우스를 올리거나 탭하면 날짜별 수치가 나옵니다.</li>
-            <li><b>▶ 가상 시즌 재생</b>을 누르면 가상 시즌 60개를 한 줄씩 그려서, 이 띠가 어떻게 만들어지는지 볼 수 있습니다.</li>
+            <li>오른쪽 <b>시즌 끝 분포</b> 막대는 4,000번 중 시즌이 각 경기차로 끝난 비율입니다. 동률선 아래(파랑) 막대를 합친 만큼이 역전 가능성이에요.</li>
+            <li><b>▶ 가상 시즌 재생</b>을 누르면 4,000개 가상 시즌을 실제로 겹쳐 그립니다. 많이 지나간 길일수록 진해지며 띠 모양이 되고, 분포 막대도 함께 자랍니다.</li>
           </ul>
         </details>
         <details class="gb-help" id="gbRoBox" hidden>
@@ -1250,7 +1254,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-124131';
+  const BUILD = '20260925-124942';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2497,7 +2501,8 @@ gtag('config', 'G-8MC9LN4N1R');
      팀 전력 = 시즌 전체(피타고리안 70%·승률 30%)를 리그평균으로 30% 회귀 — tools/predictor 백테스트(455경기)에서 가장 정확했던 설정.
      아시안게임 차출(9/14~) 기간 경기가 시즌 성적에 섞여 있으므로 그 몫(agN/경기수 × 공백 영향)을 되돌려 '완전체' 전력을 만들고,
      복귀일(adj.ret) 전 경기만 공백 전력으로 굴린다. 공백 영향은 선수별 기록으로 추정한 값(agAdj, tools/predictor ag --write). */
-  const GB_REG = 0.3, GB_N = 4000, GB_PATHS = 60;
+  const GB_REG = 0.3, GB_N = 4000;
+  let gbRaf = 0; // 재생 애니메이션 프레임 (재렌더 시 취소)
   function gbStrengths(st, py, adj){
     // 선수 단위 전력(roster: 선수별 WAR 합산, scripts/roster.js)이 있으면 그걸 쓴다 — 결장(아시안게임)도 선수 단위로 반영돼 있음.
     // adj === null 이면 '공백 없음' 비교용(Sa = S).
@@ -2532,7 +2537,7 @@ gtag('config', 'G-8MC9LN4N1R');
     const unsetR = Math.max(0, 144 - (rv.w + rv.l + rv.d) - cnt(rivName));
     const cols = dates.length + 1; // 마지막 칸 = 미편성분까지 포함한 시즌 최종
     const buf = []; for(let c = 0; c < cols; c++) buf.push(new Float32Array(GB_N));
-    const paths = [];
+    const win = new Uint8Array(GB_N); // 시뮬레이션별 KT 1위 여부
     let first = 0;
     for(let i = 0; i < GB_N; i++){
       let kw = me.w, kl = me.l, rw = rv.w, rl = rv.l, di = 0;
@@ -2546,12 +2551,14 @@ gtag('config', 'G-8MC9LN4N1R');
       for(let g = 0; g < unsetK; g++){ if(Math.random() < log5(S.KT, .5)) kw++; else kl++; }
       for(let g = 0; g < unsetR; g++){ if(Math.random() < log5(S[rivName], .5)) rw++; else rl++; }
       buf[cols - 1][i] = ((kw - rw) + (rl - kl)) / 2;
-      if(kw / (kw + kl) > rw / (rw + rl)) first++;
-      if(i < GB_PATHS) paths.push(Array.from(buf, col => col[i]));
+      if(kw / (kw + kl) > rw / (rw + rl)){ first++; win[i] = 1; }
     }
+    // 재생용: 4,000개 경로 전체를 한 배열에 (시뮬레이션 i의 날짜 c 경기차 = P[i*cols + c])
+    const P = new Float32Array(GB_N * cols);
+    for(let c = 0; c < cols; c++) for(let i = 0; i < GB_N; i++) P[i * cols + c] = buf[c][i];
     const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
     const pts = buf.map(col => { const s = Array.from(col).sort((x, y) => x - y); return { p10: q(s, .1), p25: q(s, .25), p50: q(s, .5), p75: q(s, .75), p90: q(s, .9) }; });
-    return { dates, pts, paths, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / GB_N, unsetK, unsetR, S, Sa, ret, roster };
+    return { dates, pts, P, cols, win, n: GB_N, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / GB_N, unsetK, unsetR, S, Sa, ret, roster };
   }
   function renderGbFan(st, py, sc, rivName){
     const box = document.getElementById('gbFan');
@@ -2561,7 +2568,7 @@ gtag('config', 'G-8MC9LN4N1R');
     const raw = adj ? gbForecast(st, py, sc, rivName, null) : null; // 보정 전 비교용
     // 넓은 화면은 16:9, 폰(폭 600px 미만)은 5:4로 그려 글자가 너무 작아지지 않게
     const svg0 = document.getElementById('gbSvg'), narrow = (svg0.parentNode.clientWidth || 960) < 600;
-    const W = narrow ? 600 : 960, H = narrow ? 480 : 540, L = narrow ? 56 : 70, R = narrow ? 64 : 108, T = 34, B = 58;
+    const W = narrow ? 600 : 960, H = narrow ? 480 : 540, L = narrow ? 50 : 70, R = narrow ? 128 : 210, T = 34, B = 58; // 오른쪽 여백 = 시즌 끝 분포 막대
     const xs = ['지금'].concat(r.dates.map(d => +d.slice(5, 7) + '/' + +d.slice(8)), ['시즌 끝']);
     const first = { p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now };
     const series = [first].concat(r.pts);
@@ -2583,14 +2590,26 @@ gtag('config', 'G-8MC9LN4N1R');
     }
     g += '<text class="yttl" x="16" y="' + ((T + H - B) / 2) + '" transform="rotate(-90 16 ' + ((T + H - B) / 2) + ')">KT 기준 경기차</text>';
     g += '<line class="zero" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>';
-    g += '<text class="zl" x="' + (W - R + 10) + '" y="' + (Y(0) + 5).toFixed(1) + '">동률</text>';
+    g += '<text class="zl" x="' + (W - R - 8) + '" y="' + (Y(0) - 7).toFixed(1) + '">동률</text>';
     xs.forEach((t, i) => { if(narrow && i % 2 && i !== xs.length - 1) return; g += '<text class="xtk' + (i === 0 || i === xs.length - 1 ? ' em' : '') + '" x="' + X(i).toFixed(1) + '" y="' + (H - B + 26) + '">' + t + '</text>'; });
     if(r.unsetK || r.unsetR){
       const xm = (X(xs.length - 2) + X(xs.length - 1)) / 2;
       g += '<line class="sep" x1="' + xm.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '"/>';
       g += '<text class="sept" x="' + (xm + 6).toFixed(1) + '" y="' + (T + 14) + '">미편성 경기 포함</text>';
     }
-    g += '<g id="gbPaths"></g>';
+    // 시즌 끝 분포 막대 (B안) — 가상 시즌마다 최종 경기차가 몇 번 나왔나
+    const finals = {}; for(let i = 0; i < r.n; i++){ const v = r.P[i * r.cols + r.cols - 1]; finals[v] = (finals[v] || 0) + 1; }
+    const hx0 = X(series.length - 1) + (narrow ? 44 : 64), hw = W - hx0 - (narrow ? 26 : 34);
+    const hMax = Math.max(...Object.values(finals));
+    const bh = Math.max(4, Math.min(18, (Y(0) - Y(0.5)) * 0.8));
+    g += '<text class="htl" x="' + hx0 + '" y="' + (T - 12) + '">시즌 끝 분포</text>';
+    g += '<line class="hax" x1="' + hx0 + '" x2="' + hx0 + '" y1="' + T + '" y2="' + (H - B) + '"/>';
+    const hist = Object.keys(finals).map(Number).filter(v => v >= lo && v <= hi).sort((a, b) => b - a).map(v => ({ v, c: finals[v] }));
+    hist.forEach((h, i) => {
+      const w = hw * h.c / hMax;
+      g += '<rect class="hb ' + (h.v > 0 ? 'k' : h.v < 0 ? 'r' : 't') + '" id="gbH' + i + '" x="' + hx0 + '" y="' + (Y(h.v) - bh / 2).toFixed(1) + '" height="' + bh.toFixed(1) + '" width="' + w.toFixed(1) + '" rx="2"/>' +
+           '<text class="hp" id="gbHt' + i + '" x="' + (hx0 + w + 4).toFixed(1) + '" y="' + (Y(h.v) + 4).toFixed(1) + '">' + (h.c / r.n >= 0.02 ? Math.round(100 * h.c / r.n) + '%' : '') + '</text>';
+    });
     g += '<g id="gbFanG" class="fan"><path class="b80" d="' + band('p10', 'p90') + '"/><path class="b50" d="' + band('p25', 'p75') + '"/>';
     g += '<path class="med" d="' + series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.p50).toFixed(1)).join('') + '"/>';
     series.forEach((p, i) => { g += '<circle class="dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(p.p50).toFixed(1) + '" r="' + (i === 0 || i === series.length - 1 ? 6 : 3.5) + '"/>'; });
@@ -2601,6 +2620,9 @@ gtag('config', 'G-8MC9LN4N1R');
     const svg = document.getElementById('gbSvg');
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.innerHTML = g;
+    hist.forEach((h, i) => { h.el = document.getElementById('gbH' + i); h.tx = document.getElementById('gbHt' + i); });
+    cancelAnimationFrame(gbRaf);
+    const cvOld = document.getElementById('gbCv'); if(cvOld) cvOld.classList.remove('on');
 
     const fmt = v => v > 0 ? 'KT ' + Math.abs(v).toFixed(1) + '경기 앞섬' : v < 0 ? esc(rivName) + ' ' + Math.abs(v).toFixed(1) + '경기 앞섬' : '동률';
     document.getElementById('gbSum').innerHTML =
@@ -2672,31 +2694,59 @@ gtag('config', 'G-8MC9LN4N1R');
     };
     svg.onmouseleave = () => { tip.hidden = true; hov.setAttribute('visibility', 'hidden'); };
 
-    // ▶ 가상 시즌 재생 — 가상 시즌을 한 줄씩 그려 "띠가 어떻게 만들어지는지" 보여준다
+    // ▶ 가상 시즌 재생 — 4,000개 가상 시즌을 전부 캔버스에 겹쳐 그린다.
+    // 처음 30개는 한 줄씩 또렷하게, 이후 점점 빨라지며 아주 옅게 누적 → 많이 지나간 경로가 진해져 띠 모양이 드러난다.
+    // 동시에 오른쪽 '시즌 끝 분포' 막대가 한 시즌 끝날 때마다 자라고, 카운터의 1위 확률이 수렴한다.
     const btn = document.getElementById('gbPlay'), cntEl = document.getElementById('gbCount');
-    const fanG = document.getElementById('gbFanG'), pathG = document.getElementById('gbPaths');
-    let timer = null;
-    const pathD = pp => [r.now].concat(pp).map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join('');
+    const fanG = document.getElementById('gbFanG'), cv = document.getElementById('gbCv');
+    const N = r.n, cols = r.cols;
+    const setBars = cnt => hist.forEach(h => {
+      const c = cnt[h.v] || 0, w = hMax ? hw * c / hMax : 0;
+      h.el.setAttribute('width', w.toFixed(1));
+      h.tx.setAttribute('x', (hx0 + w + 4).toFixed(1));
+      h.tx.textContent = cnt._n && c / cnt._n >= 0.02 ? Math.round(100 * c / cnt._n) + '%' : '';
+    });
+    const all = { _n: N }; hist.forEach(h => { all[h.v] = h.c; });
     btn.onclick = () => {
-      clearInterval(timer);
-      pathG.innerHTML = ''; pathG.classList.remove('dim'); fanG.classList.add('off');
-      let k = 0, win = 0;
-      const step = () => {
-        const pp = r.paths[k], end = pp[pp.length - 1];
-        if(end > 0) win++;
-        pathG.insertAdjacentHTML('beforeend', '<path class="sp ' + (end > 0 ? 'k' : end < 0 ? 'r' : 't') + '" d="' + pathD(pp) + '"/>');
-        k++;
-        cntEl.textContent = '가상 시즌 ' + k + ' / ' + r.paths.length + ' — KT가 앞선 채 끝남 ' + win + '번';
-        if(k >= r.paths.length){
-          clearInterval(timer);
-          fanG.classList.remove('off');
-          pathG.classList.add('dim'); // 다 그린 뒤엔 선을 흐리게 — 띠가 앞으로
-          cntEl.textContent += ' · 이런 시즌 ' + GB_N.toLocaleString() + '개를 모아 만든 게 띠와 선';
-          btn.textContent = '↺ 다시 재생';
-        }
+      cancelAnimationFrame(gbRaf);
+      const rect = svg.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      cv.style.height = rect.height + 'px';
+      cv.width = Math.round(rect.width * dpr); cv.height = Math.round(rect.height * dpr);
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+      ctx.lineJoin = 'round';
+      fanG.classList.add('off'); cv.classList.add('on');
+      const cnt = { _n: 0 };
+      setBars(cnt);
+      let n = 0, win = 0, last = 0;
+      const draw = () => {
+        const i = n, end = r.P[i * cols + cols - 1];
+        ctx.strokeStyle = end > 0 ? '#d4a24a' : end < 0 ? '#5b8fe0' : '#8a8a94';
+        ctx.globalAlpha = n < 30 ? 0.6 : (end < 0 ? 0.09 : 0.045);
+        ctx.lineWidth = n < 30 ? 1.8 : 1.1;
+        ctx.beginPath();
+        ctx.moveTo(X(0), Y(r.now));
+        for(let c = 0; c < cols; c++) ctx.lineTo(X(c + 1), Y(r.P[i * cols + c]));
+        ctx.stroke();
+        cnt[end] = (cnt[end] || 0) + 1; cnt._n++;
+        if(r.win[i]) win++;
+        n++;
       };
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ while(k < r.paths.length) step(); }
-      else timer = setInterval(step, 70);
+      const finish = () => {
+        setBars(all);
+        cntEl.textContent = '가상 시즌 ' + N.toLocaleString() + '개 완료 · KT 1위 ' + win.toLocaleString() + '번 (' + probFmt(100 * win / N) + ') — 이 결과를 요약한 게 띠와 선';
+        setTimeout(() => { cv.classList.remove('on'); fanG.classList.remove('off'); }, 700);
+        btn.textContent = '↺ 다시 재생';
+      };
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ while(n < N) draw(); finish(); return; }
+      const frame = t => {
+        if(n < 30){ if(t - last >= 70){ draw(); last = t; } }                    // 처음엔 한 줄씩
+        else { const k = Math.min(N - n, Math.ceil(n * 0.09)); for(let j = 0; j < k; j++) draw(); } // 점점 가속
+        setBars(cnt);
+        cntEl.textContent = '가상 시즌 ' + n.toLocaleString() + ' / ' + N.toLocaleString() + ' · KT 1위 ' + win.toLocaleString() + '번 (' + probFmt(100 * win / Math.max(1, n)) + ')';
+        if(n < N) gbRaf = requestAnimationFrame(frame); else finish();
+      };
+      gbRaf = requestAnimationFrame(frame);
     };
     box.hidden = false;
   }
