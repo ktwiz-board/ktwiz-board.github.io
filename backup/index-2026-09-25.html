@@ -855,7 +855,7 @@ gtag('config', 'G-8MC9LN4N1R');
         <p class="board-note" id="oddsNote"></p>
       </div>
       <div class="odds-col" id="gbFan" hidden>
-        <p class="pshead">경기차 전망 · 최근 30경기 폼</p>
+        <p class="pshead">경기차 전망 · 최근 60경기 폼</p>
         <div class="odds-sum two" id="gbSum"></div>
         <div class="gb-wrap">
           <svg id="gbSvg" class="gb" role="img" aria-label="날짜별 KT와 경쟁팀 경기차 예측 분포"></svg>
@@ -1161,7 +1161,7 @@ gtag('config', 'G-8MC9LN4N1R');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
-  const BUILD = '20260925-074039';
+  const BUILD = '20260925-121436';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -2402,8 +2402,9 @@ gtag('config', 'G-8MC9LN4N1R');
     }catch(e){ return null; }
   }
 
-  /* ---------- 경기차 전망 (최근 30경기 폼 기반 몬테카를로) ----------
-     팀 전력 = 최근 30경기(승률·피타고리안 반반) 70% + 시즌(피타고리안 70%·승률 30%) 30%, 리그평균으로 15% 회귀.
+  /* ---------- 경기차 전망 (최근 60경기 폼 기반 몬테카를로) ----------
+     팀 전력 = 최근 60경기(승률·피타고리안 반반) 30% + 시즌(피타고리안 70%·승률 30%) 70%, 리그평균으로 30% 회귀.
+     설정은 tools/predictor 백테스트(올 시즌 455경기 사후 예측 채점)에서 가장 정확했던 조합.
      리그 잔여 일정(sched.league)을 날짜순으로 굴려 날짜별 KT–경쟁팀 경기차 분포를 모으고,
      아직 편성되지 않은 경기는 리그 평균 상대와 치르는 것으로 마지막에 더한다. 홈팀 +2%p. */
   function gbForecast(st, py, sc, rivName){
@@ -2413,10 +2414,10 @@ gtag('config', 'G-8MC9LN4N1R');
     const E = 1.83, pyth = (rs, ra) => (rs + ra) ? Math.pow(rs, E) / (Math.pow(rs, E) + Math.pow(ra, E)) : 0.5;
     const S = {};
     teams.forEach(t => {
-      const f = t.f30;
+      const f = t.f60;
       const sea = 0.7 * t.exp + 0.3 * t.act;
-      const form = f && f.n >= 10 ? 0.5 * (f.w / Math.max(1, f.w + f.l)) + 0.5 * pyth(f.rs, f.ra) : sea;
-      S[t.name] = (0.7 * form + 0.3 * sea) * 0.85 + 0.5 * 0.15;
+      const form = f && f.n >= 20 ? 0.5 * (f.w / Math.max(1, f.w + f.l)) + 0.5 * pyth(f.rs, f.ra) : sea;
+      S[t.name] = (0.3 * form + 0.7 * sea) * 0.7 + 0.5 * 0.3;
     });
     const me = st.find(t => t.name === 'KT'), rv = st.find(t => t.name === rivName);
     if(!me || !rv || S.KT == null || S[rivName] == null) return null;
@@ -2446,9 +2447,9 @@ gtag('config', 'G-8MC9LN4N1R');
     }
     const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
     const pts = buf.map(col => { const s = Array.from(col).sort((x, y) => x - y); return { p10: q(s, .1), p25: q(s, .25), p50: q(s, .5), p75: q(s, .75), p90: q(s, .9) }; });
-    const f30 = n => (teams.find(t => t.name === n) || {}).f30;
+    const f60 = n => (teams.find(t => t.name === n) || {}).f60;
     return { dates, pts, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / N, tie: 100 * tie / N,
-             unsetK, unsetR, fK: f30('KT'), fR: f30(rivName), sK: S.KT, sR: S[rivName], n: N };
+             unsetK, unsetR, fK: f60('KT'), fR: f60(rivName), sK: S.KT, sR: S[rivName], n: N };
   }
   function renderGbFan(st, py, sc, rivName){
     const box = document.getElementById('gbFan');
@@ -2485,9 +2486,9 @@ gtag('config', 'G-8MC9LN4N1R');
       '<div><b>' + fmt(last.p50) + '</b><span>최종 경기차 (중앙값)</span></div>' +
       '<div><b>' + probFmt(r.first) + '</b><span>KT 1위 (폼 기준)</span></div>';
     const fl = (n, f) => f ? esc(n) + ' <b>' + f.w + '승 ' + f.l + '패' + (f.d ? ' ' + f.d + '무' : '') + '</b> · 득 ' + f.rs + ' 실 ' + f.ra : '';
-    document.getElementById('gbForm').innerHTML = '최근 30경기 — ' + fl('KT', r.fK) + '<br>' + '최근 30경기 — ' + fl(rivName, r.fR);
+    document.getElementById('gbForm').innerHTML = '최근 60경기 — ' + fl('KT', r.fK) + '<br>' + '최근 60경기 — ' + fl(rivName, r.fR);
     document.getElementById('gbNote').textContent =
-      '진한 띠 50%, 옅은 띠 80% 범위, 선은 중앙값 (+는 KT 우위). 최근 30경기 폼 70%·시즌 30%로 전력을 잡고 리그 잔여 일정 전체를 ' +
+      '진한 띠 50%, 옅은 띠 80% 범위, 선은 중앙값 (+는 KT 우위). 최근 60경기 폼 30%·시즌 70%(올 시즌 사후 채점에서 가장 정확했던 조합)로 전력을 잡고 리그 잔여 일정 전체를 ' +
       r.n.toLocaleString() + '회 굴렸습니다.' + (r.unsetK || r.unsetR ? ' 미편성 경기(KT ' + r.unsetK + ' · ' + rivName + ' ' + r.unsetR + ')는 "최종"에 평균 상대로 포함.' : '');
     // 호버: 날짜별 분포
     const tip = document.getElementById('gbTip'), hov = document.getElementById('gbHov');

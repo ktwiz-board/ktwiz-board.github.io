@@ -235,7 +235,7 @@ async function pythagorean(today) {
   const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {}; // name -> {rs, ra, w, l, d}
   const h2h = {}; // name -> opp -> {w, l, d} (팀간 상대전적 — 같은 경기 수집을 재활용)
-  const log = {}; // name -> [{t, my, op}] 최근 폼(최근 30경기) 계산용
+  const log = {}; // name -> [{t, my, op}] 최근 폼(최근 60경기) 계산용
   for (const [f, t] of ranges) {
     if (f > today) break;
     const gs = await games(f, t, 500);
@@ -259,16 +259,16 @@ async function pythagorean(today) {
   const E = 1.83;
   return {
     date: today,
-    v: 7,
+    v: 8,
     h2h,
     teams: Object.entries(agg).map(([name, a]) => {
       const exp = Math.pow(a.rs, E) / (Math.pow(a.rs, E) + Math.pow(a.ra, E));
       const act = (a.w + a.l) > 0 ? a.w / (a.w + a.l) : 0;
-      // 최근 30경기 폼 (경기차 전망 시뮬레이션용)
-      const last = (log[name] || []).sort((x, y) => x.t < y.t ? -1 : x.t > y.t ? 1 : 0).slice(-30);
-      const f30 = { n: last.length, w: 0, l: 0, d: 0, rs: 0, ra: 0 };
-      for (const x of last) { f30.rs += x.my; f30.ra += x.op; f30[x.my > x.op ? 'w' : x.my < x.op ? 'l' : 'd']++; }
-      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3), f30 };
+      // 최근 60경기 폼 (경기차 전망 시뮬레이션용) — 30·45·60경기 창 백테스트에서 60경기가 가장 정확(tools/predictor)
+      const last = (log[name] || []).sort((x, y) => x.t < y.t ? -1 : x.t > y.t ? 1 : 0).slice(-60);
+      const f60 = { n: last.length, w: 0, l: 0, d: 0, rs: 0, ra: 0 };
+      for (const x of last) { f60.rs += x.my; f60.ra += x.op; f60[x.my > x.op ? 'w' : x.my < x.op ? 'l' : 'd']++; }
+      return { name, rs: a.rs, ra: a.ra, exp: +exp.toFixed(3), act: +act.toFixed(3), diff: +(act - exp).toFixed(3), f60 };
     }).sort((x, y) => y.exp - x.exp)
   };
 }
@@ -388,7 +388,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 7 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 8 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
@@ -669,7 +669,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
 
   // 7) 피타고리안 기대승률 — 하루 1회(이전 데이터가 오늘자면 재사용), 실패 시 이전 값 유지
   const prevPyValid = prev && prev.pythag && prev.pythag.date === today
-    && prev.pythag.v === 7
+    && prev.pythag.v === 8
     && prev.pythag.teams && prev.pythag.teams.length === 10
     && prev.pythag.teams.every(t => KBO_TEAMS.includes(t.name));
   let pythag = prevPyValid ? prev.pythag : null;

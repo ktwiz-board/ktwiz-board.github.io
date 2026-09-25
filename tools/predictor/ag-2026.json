@@ -1,0 +1,30 @@
+{
+  "note": "2026 아이치·나고야 아시안게임 야구 대표팀 (류지현호). 소집 9/14, 대회 9/21~26, KBO 리그는 중단 없이 진행. 출처: olympics.com·나무위키(2026-09-25 확인). 이재현(삼성)은 소집 전 목 근경직으로 대표팀 말소 → 공백 명단에서 제외.",
+  "leave": "2026-09-14",
+  "return": "2026-09-28",
+  "players": [
+    { "name": "김영우", "team": "LG", "pos": "P" },
+    { "name": "조병현", "team": "SSG", "pos": "P" },
+    { "name": "배찬승", "team": "삼성", "pos": "P" },
+    { "name": "박영현", "team": "KT", "pos": "P" },
+    { "name": "소형준", "team": "KT", "pos": "P" },
+    { "name": "오원석", "team": "KT", "pos": "P" },
+    { "name": "최준용", "team": "롯데", "pos": "P" },
+    { "name": "김진욱", "team": "롯데", "pos": "P" },
+    { "name": "성영탁", "team": "KIA", "pos": "P" },
+    { "name": "곽빈", "team": "두산", "pos": "P" },
+    { "name": "최민석", "team": "두산", "pos": "P" },
+    { "name": "조형우", "team": "SSG", "pos": "H" },
+    { "name": "김건희", "team": "키움", "pos": "H" },
+    { "name": "문보경", "team": "LG", "pos": "H" },
+    { "name": "노시환", "team": "한화", "pos": "H" },
+    { "name": "정준재", "team": "SSG", "pos": "H" },
+    { "name": "김주원", "team": "NC", "pos": "H" },
+    { "name": "김도영", "team": "KIA", "pos": "H" },
+    { "name": "박준순", "team": "두산", "pos": "H" },
+    { "name": "문현빈", "team": "한화", "pos": "H" },
+    { "name": "김지찬", "team": "삼성", "pos": "H" },
+    { "name": "윤동희", "team": "롯데", "pos": "H" },
+    { "name": "박재현", "team": "KIA", "pos": "H" }
+  ]
+}
