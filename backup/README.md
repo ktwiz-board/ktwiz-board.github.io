@@ -31,3 +31,23 @@ git show 2b52724:index.html > index.html          # KT 보드 전체
 git checkout 2b52724 -- giants                      # 롯데 보드
 git show 2b52724:scripts/fetch-live.js > scripts/fetch-live.js
 ```
+
+## 2026-09-27 — 대대적 리뉴얼 (흑백 에디토리얼)
+
+리뉴얼 직전 커밋: `b195bfc` · git 태그 **`pre-renewal-2026-09-27`** (원격에도 올라가 있음)
+
+| 파일 | 내용 |
+|---|---|
+| `index-2026-09-27-before-renewal.html` | 리뉴얼 직전 보드 (검은 바탕 · 금빛 트레일 · 마법의 성 · 지도 인트로) |
+| `index-2026-09-27.html` | 리뉴얼 후 보드 |
+
+### 되돌리기
+
+```bash
+git show pre-renewal-2026-09-27:index.html > index.html
+```
+
+### 리뉴얼에서 없앤 장식 (위 태그·백업 파일에 그대로 남아 있음)
+
+- 마법 지도 인트로(첫 방문 4초 연출), 라인아트 성, 페이지 전체를 가로지르는 금빛 트레일(발자국·나침반·스파클)
+- THE BIGINNING 엠블럼 히어로 — 타이포 커버("Magic in October, Suwon.")로 대체
