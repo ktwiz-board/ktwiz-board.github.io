@@ -1,0 +1,3275 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- CSP: 실제 사용하는 외부 출처만 허용 (심층 방어 — GitHub Pages는 응답 헤더 설정이 불가해 meta로 적용) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https://i.ytimg.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://api.open-meteo.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8MC9LN4N1R"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8MC9LN4N1R');
+</script>
+<title>wiz board — kt wiz 실시간 스코어·라인업·KBO 순위</title>
+<meta name="description" content="kt wiz 팬을 위한 KBO 실시간 대시보드. 정규시즌 1위 매직넘버, 오늘의 스코어·라인업, 팀 순위, 전국 구장 날씨까지 5분마다 자동 갱신으로 한눈에.">
+<meta name="keywords" content="kt wiz, KT 위즈, KBO, 프로야구, 실시간 스코어, 라인업, 순위, 수원 케이티 위즈 파크, 야구 일정">
+<meta name="author" content="wiz board">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ktwiz-board.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="wiz board">
+<meta property="og:title" content="wiz board — 수원의 마법 상황판">
+<meta property="og:description" content="매직넘버 · 오늘의 스코어와 라인업 · 팀 순위 · 구장 날씨 — kt wiz의 오늘이 자동으로 갱신됩니다.">
+<meta property="og:url" content="https://ktwiz-board.github.io/">
+<meta property="og:image" content="https://ktwiz-board.github.io/img/og-magicmap.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="wiz board — 수원의 마법 상황판">
+<meta name="twitter:description" content="매직넘버 · 스코어 · 라인업 · 순위 · 구장 날씨, kt wiz의 오늘을 자동 갱신.">
+<meta name="twitter:image" content="https://ktwiz-board.github.io/img/og-magicmap.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚾</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"wiz board","alternateName":"위즈보드","url":"https://ktwiz-board.github.io/","description":"kt wiz 팬을 위한 KBO 실시간 대시보드","inLanguage":"ko"}
+</script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="wiz board">
+<!-- 글꼴은 화면을 막지 않게 비동기로 (CDN이 느려도 기본 글꼴로 먼저 그리고, 도착하면 교체) -->
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"></noscript>
+<script>(function(d){d.classList.add('js');try{var t=localStorage.getItem('wizTheme');if(t==='light'||t==='dark')d.setAttribute('data-theme',t)}catch(e){}})(document.documentElement)</script>
+<style>
+/* ==========================================================================
+   WIZ BOARD — 2026 가을 리뉴얼
+   흑백 에디토리얼 + KT 레드 한 가지 포인트. 색은 전부 토큰, 테마는 자동/밝게/어둡게.
+   레이아웃 규칙: 섹션 = 왼쪽 번호 표식(스티키) + 오른쪽 본문, 구획은 1px 선.
+   ========================================================================== */
+
+/* ---------- tokens ---------- */
+:root{
+  --paper:#fff; --ink:#111; --black:#0b0b0b;
+  --g1:#2a2a2a; --g2:#6b6b6b; --g3:#a3a3a3; --g4:#d9d9d9; --g5:#f3f3f1;
+  --line:#e3e3e3; --line-d:rgba(255,255,255,.16);
+  --accent:#e0122f;              /* KT 레드 — 유일한 포인트 색 */
+  --rv:#2f67d0;                  /* 경쟁팀(발산형 차트 반대 극) */
+  --neu:#8a8a94;                 /* 중립(동률) */
+  --pos:#18794a;                 /* 정상·우세 같은 좋은 상태 (아주 제한적으로) */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --serif:"Instrument Serif","Times New Roman",serif;
+  --max:1240px; --gutter:clamp(18px,4vw,56px);
+  --ease:cubic-bezier(.22,.8,.2,1);
+  /* 예전 이름(스크립트 인라인 스타일에서 사용) → 새 토큰 */
+  --bg:var(--paper); --panel:var(--g5); --card:var(--paper); --muted:var(--g2);
+  --red:var(--accent); --red-soft:var(--accent); --ok:var(--pos); --gold:var(--ink);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){color-scheme:dark;--paper:#121212;--ink:#ececec;--black:#000;--g1:#d0d0d0;--g2:#a3a3a3;--g3:#707070;--g4:#3a3a3a;--g5:#1b1b1b;--line:#2a2a2a;--accent:#ff4a5f;--rv:#6f9df0;--pos:#4cc27f}
+}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#121212;--ink:#ececec;--black:#000;--g1:#d0d0d0;--g2:#a3a3a3;--g3:#707070;--g4:#3a3a3a;--g5:#1b1b1b;--line:#2a2a2a;--accent:#ff4a5f;--rv:#6f9df0;--pos:#4cc27f}
+/* 항상 검은 면 — 어느 테마든 같은 값 */
+.ink,.todaybox,.foot{--paper:#0b0b0b;--ink:#f2f2f2;--g1:#d6d6d6;--g2:#9d9d9d;--g3:#6b6b6b;--g4:#3a3a3a;--g5:rgba(255,255,255,.05);--line:rgba(255,255,255,.16);--accent:#ff4a5f;--rv:#7fa6f2;--pos:#4cc27f;color-scheme:dark}
+html.theme-anim,html.theme-anim *{transition:background-color .45s,color .45s,border-color .45s,fill .45s,stroke .45s!important}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;word-break:keep-all;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--ink);color:var(--paper)}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+.it{font-family:var(--serif);font-style:italic;font-weight:400}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1,h2,h3,h4,h5{text-wrap:balance}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:14.5px}
+th{font-size:11px;letter-spacing:.14em;color:var(--g2);text-transform:uppercase;text-align:right;padding:14px 16px;border-bottom:1px solid var(--ink);font-weight:600}
+th:nth-child(2){text-align:left}
+td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+td:nth-child(2){text-align:left;font-weight:700}
+tbody tr{transition:background-color .3s}
+tbody tr:hover{background:var(--g5)}
+
+/* ---------- motion: 등장 ---------- */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.reveal.on{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+/* 섹션 표식은 통째로 떠오르지 않고 글자가 아래에서 밀려 올라온다 */
+.sec-head.reveal{opacity:1;transform:none}
+.sec-head.reveal h2,.sec-head.reveal .kicker{clip-path:inset(0 0 100% 0);transform:translateY(60%);transition:clip-path 1.1s var(--ease),transform 1.1s var(--ease)}
+.sec-head.reveal .kicker{transition-delay:.1s}
+.sec-head.reveal.on h2,.sec-head.reveal.on .kicker{clip-path:inset(-10% -4% -20% -4%);transform:none}
+
+/* 가을 낙엽 — 가는 선으로만 그린 잎 (색 없이 잉크 선) */
+.leaves{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:var(--ink);opacity:.5}
+.leaves.bg{position:fixed;opacity:.28}
+.leaf{position:absolute;top:0;will-change:transform}
+.leaf .sway,.leaf .spin{display:block;width:100%;height:100%}
+.leaf svg{display:block;width:100%;height:100%;overflow:visible}
+.leaf .blade{fill:none;stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
+.leaf .vein{fill:none;stroke:currentColor;stroke-width:.8;opacity:.6;vector-effect:non-scaling-stroke}
+@media (prefers-reduced-motion:no-preference){
+  .leaf{animation:leafFall var(--dur) linear var(--delay) infinite}
+  .leaf .sway{animation:leafSway var(--swd) ease-in-out var(--delay) infinite alternate}
+  .leaf .spin{animation:leafSpin var(--spd) linear var(--delay) infinite}
+  @keyframes leafFall{from{transform:translate3d(0,-40px,0)}to{transform:translate3d(0,var(--fall,600px),0)}}
+  @keyframes leafSway{from{transform:translateX(calc(var(--sw) * -1))}to{transform:translateX(var(--sw))}}
+  @keyframes leafSpin{from{transform:rotate3d(var(--rx),1,var(--rz),0deg)}to{transform:rotate3d(var(--rx),1,var(--rz),360deg)}}
+}
+@media (prefers-reduced-motion:reduce){.leaves{display:none}}
+
+/* ---------- 공통: 카드 대신 선 ---------- */
+.board,.tablebox,.boxpanel,.calbox,.lu,.chartbox,.lastgame,.h2hbox,.spot,.scorelog,.psgames,.attend{background:none;border-radius:0;border-top:1px solid var(--ink)}
+.tablebox{overflow-x:auto}
+.pshead,.boxpanel h4,.calbox h4,.scorelog h4,.lg-col h4,.tcard h5{margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--g2)}
+.pshead{margin:56px 0 14px;display:flex;align-items:baseline;gap:12px}
+.pshead:first-of-type{margin-top:0}
+.board-note,.py-note,.magic-note,.h2h-note,.insta-note,.gall-note{font-size:12.5px;color:var(--g2);margin:14px 0 0;line-height:1.75}
+.py-note b,.magic-note b{color:var(--ink)}
+.empty{padding:34px 0;color:var(--g2);font-size:14px}
+.h2h-toggle{display:inline-flex;margin-top:18px;background:none;border:1px solid var(--ink);color:var(--ink);font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:999px;cursor:pointer;transition:background-color .3s,color .3s}
+.h2h-toggle:hover{background:var(--ink);color:var(--paper)}
+
+/* ---------- 현황판 ---------- */
+.live-head{display:flex;align-items:center;gap:9px;margin-top:16px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+@media (prefers-reduced-motion:no-preference){.dot.pulse{animation:pulse 1.8s ease-in-out infinite}@keyframes pulse{50%{opacity:.25}}}
+.live-head .tag{font-size:12.5px;color:var(--g2)}
+.board{overflow-x:auto}
+.game{display:grid;grid-template-columns:96px 1fr auto 1fr 92px;align-items:center;gap:8px;min-width:660px;padding:22px 4px;border-bottom:1px solid var(--line);transition:background-color .3s,padding .4s var(--ease)}
+.game:hover{background:var(--g5)}
+.game.kt-game{box-shadow:inset 3px 0 0 var(--accent);padding-left:16px}
+.game .stadium{display:flex;flex-direction:column;gap:2px;font-size:12px;letter-spacing:.08em;color:var(--g2);font-weight:700}
+.game.kt-game .stadium{color:var(--accent)}
+.game .dhtag{font-size:9.5px;letter-spacing:.05em;border:1px solid currentColor;border-radius:999px;padding:0 6px;margin-left:5px}
+.game .wx{font-size:11.5px;letter-spacing:0;color:var(--g1);font-weight:500;white-space:nowrap}
+.game .wx .pp{color:var(--rv)}
+.game .wx .pp.rainy{color:var(--accent);font-weight:700}
+.game .side{display:flex;flex-direction:column;gap:1px;min-width:0}
+.game .side.away{align-items:flex-end;text-align:right}
+.game .side .team{font-size:17px;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.game .side .team .rec{font-size:11.5px;color:var(--g2);font-weight:500;margin:0 6px;letter-spacing:0}
+.game .side .sp{font-size:12px;color:var(--g2);white-space:nowrap}
+.game .side .sp b{color:var(--g1);font-weight:600}
+.game .mid{display:flex;flex-direction:column;align-items:center;padding:0 16px}
+.game .mid .sc{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.04em}
+.game .mid .sc .w{color:var(--accent)}
+.game .mid .sc .d{color:var(--g3);font-size:16px;padding:0 8px;font-weight:500}
+.game .status{justify-self:end;font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;border:1px solid var(--line);color:var(--g2);white-space:nowrap;background:none}
+.game .status.live{border-color:var(--accent);color:var(--accent)}
+.game .status.end{border-color:var(--ink);color:var(--ink)}
+.scorelog{margin-top:36px;padding-top:20px}
+.scorelog ul{list-style:none;margin:0;padding:0}
+.scorelog li{display:grid;grid-template-columns:56px 22px 1fr;gap:10px;align-items:baseline;font-size:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+.scorelog .inn{color:var(--g2);font-weight:700;font-size:12px}
+.scorelog .sign{font-weight:800;font-size:14px}
+.scorelog li.plus .sign{color:var(--accent)}
+.scorelog li.minus .sign{color:var(--g3)}
+.scorelog .desc b{font-weight:700}
+.scorelog .desc span{color:var(--g2);font-size:12px;margin-left:6px}
+
+/* ---------- 가을야구 ---------- */
+.pshero{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,56px);align-items:end;padding:26px 0 30px;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);margin-bottom:8px;background:none;border-radius:0}
+.pshero .big{font-size:clamp(80px,10vw,150px);font-weight:800;letter-spacing:-.07em;line-height:.85;color:var(--ink);font-variant-numeric:tabular-nums}
+.pshero .lbl{margin:0 0 8px;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2);text-transform:none;letter-spacing:0}
+.pshero .hd{font-size:clamp(18px,1.7vw,23px);font-weight:700;letter-spacing:-.03em;margin:0 0 6px}
+.pshero .dt{font-size:14px;color:var(--g2);margin:0;line-height:1.75}
+@media (max-width:560px){.pshero{grid-template-columns:1fr;gap:10px}}
+.psbracket{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);margin:0 0 6px}
+.psnode{padding:18px 18px 20px 0;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:9px;background:none;border-radius:0;position:relative}
+.psnode+.psnode{padding-left:18px}
+.psnode:last-child{border-right:0}
+.psnode.kt::before{content:"";position:absolute;left:0;right:0;top:-1px;height:3px;background:var(--accent)}
+.psnode+.psnode.kt::before{left:0}
+.psnode .psr{margin:0 0 4px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 8px;font-size:14px;font-weight:800;letter-spacing:-.02em}
+.psnode .psr small{font-family:var(--serif);font-style:italic;font-weight:400;font-size:15px;color:var(--g2);white-space:nowrap}
+.pst{display:grid;grid-template-columns:30px 1fr auto;align-items:baseline;gap:6px;font-size:15px}
+.pst i{font-style:normal;font-size:11px;color:var(--g2);font-weight:600}
+.pst b{font-weight:700;letter-spacing:-.02em}
+.pst em{font-style:normal;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.pst.tbd b{color:var(--g3);font-weight:500;font-size:14px}
+.pst.kt b{color:var(--accent)}
+.pst.win b,.pst.win em{color:var(--ink)}
+.pst.lose{opacity:.35}
+.psnode .psf{margin:4px 0 0;font-size:12px;color:var(--g2);line-height:1.6}
+.psnode .psf b{color:var(--ink)}
+@media (max-width:820px){.psbracket{grid-template-columns:1fr 1fr}.psnode:nth-child(2){border-right:0}.psnode:nth-child(3){padding-left:0}.psnode:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:360px){.psbracket{grid-template-columns:1fr}.psnode{border-right:0;padding-left:0!important}.psnode+.psnode{border-top:1px solid var(--line)}}
+.psgames{list-style:none;margin:0 0 10px;padding:0}
+.psgames li{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;font-weight:700}
+.psgames .gn{font-family:var(--serif);font-style:italic;font-weight:400;font-size:17px;color:var(--g2)}
+.psgames .gm{min-width:0}
+.psgames .gm small{display:block;color:var(--g2);font-size:12px;font-weight:500;margin-top:2px}
+.psgames .gs{font-size:12px;font-weight:800;color:var(--g2);white-space:nowrap}
+.psgames .gs.w{color:var(--ink)}
+.psgames .gs.l{color:var(--accent)}
+/* 큰 숫자 칸 (KS 확률 · 경우의 수 요약 · 경기차 요약) */
+.ksgrid,.odds-sum,.gb-sum{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--ink);margin:0 0 18px}
+.odds-sum,.gb-sum{grid-template-columns:repeat(3,1fr)}
+.kstile,.odds-sum div,.gb-sum div{background:none;border-radius:0;padding:20px 20px 22px 0;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.kstile+.kstile,.odds-sum div+div,.gb-sum div+div{padding-left:20px}
+.kstile:last-child,.odds-sum div:last-child,.gb-sum div:last-child{border-right:0}
+.kstile b,.odds-sum b,.gb-sum b{font-size:clamp(44px,5.4vw,76px);font-weight:800;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
+.kstile span,.odds-sum span,.gb-sum span{font-size:12.5px;color:var(--g2);line-height:1.5}
+.kstile.champ b,.gb-sum .k b,.odds-sum div:first-child b{color:var(--accent)}
+@media (max-width:560px){.ksgrid,.odds-sum,.gb-sum{grid-template-columns:1fr}.kstile,.odds-sum div,.gb-sum div{border-right:0;padding-left:0!important;border-bottom:1px solid var(--line)}.kstile b,.odds-sum b,.gb-sum b{font-size:52px}}
+.tablebox.ksopp{margin-top:6px}
+.pybar{position:relative;display:inline-block;width:80px;height:2px;background:var(--line);vertical-align:3px;margin-right:10px}
+.pybar i{position:absolute;left:0;top:-1px;bottom:-1px;background:var(--ink)}
+tr.kt .pybar i{background:var(--accent)}
+
+/* 1위 경우의 수 격자 */
+.odds-row{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(56px,7vw,96px);align-items:start;margin-bottom:10px}
+.odds-row.solo{grid-template-columns:1fr}
+.odds-wrap{position:relative}
+.odds{display:grid;gap:2px;max-width:780px;padding:14px 0 10px;border-top:1px solid var(--ink);background:none;border-radius:0}
+.odds .ox,.odds .oy{font-size:10.5px;color:var(--g2);font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.odds .ox{padding-bottom:4px}
+.odds .oc{height:17px;border-radius:0;cursor:pointer;transition:transform .25s var(--ease)}
+.odds .oc:hover{transform:scale(1.18);outline:1px solid var(--ink);z-index:1;position:relative}
+@media (max-width:560px){.odds .oc{height:18px}}
+.odds .oc.w,.odds-legend i.w{background:var(--accent)}
+.odds .oc.t,.odds-legend i.t{background:var(--neu)}
+.odds .oc.l,.odds-legend i.l{background:var(--rv)}
+.odds .oc.t{display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;line-height:1}
+.odds .oc.na,.odds-legend i.na{background:repeating-linear-gradient(45deg,transparent 0 3px,var(--line) 3px 5px)}
+.odds-tip{position:absolute;z-index:5;pointer-events:none;background:var(--ink);color:var(--paper);border-radius:0;padding:10px 13px;font-size:12px;line-height:1.6;white-space:nowrap}
+.odds-tip small{opacity:.7}
+.odds-axis{display:flex;gap:4px 18px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--g2)}
+.odds-legend,.gb-legend,.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--g2)}
+.odds-legend span,.gb-legend span,.chart-legend span{display:inline-flex;align-items:center;gap:7px}
+.odds-legend i{width:11px;height:11px;display:inline-block}
+.odds-legend i.na{outline:1px solid var(--line)}
+
+/* 경기차 전망 */
+.gb-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px;font-size:12.5px;color:var(--g2)}
+.gb-play{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:999px;padding:10px 20px;font-size:13.5px;font-weight:700;cursor:pointer;transition:background-color .3s,color .3s}
+.gb-play:hover{background:transparent;color:var(--ink)}
+.gb-wrap{position:relative;padding:10px 0 0;border-top:1px solid var(--ink)}
+.gb{display:block;width:100%;height:auto;touch-action:pan-y}
+.gb-cv{position:absolute;left:0;top:10px;width:100%;pointer-events:none;opacity:0;transition:opacity .6s}
+.gb-cv.on{opacity:1}
+.gb .zk{fill:var(--accent);fill-opacity:.04}
+.gb .zr{fill:var(--rv);fill-opacity:.05}
+.gb .zt{font-size:15px;font-weight:700}
+.gb .zt.k{fill:var(--accent)}
+.gb .zt.r{fill:var(--rv)}
+.gb .grid{stroke:var(--line);stroke-width:1}
+.gb .zero{stroke:var(--ink);stroke-width:1.2}
+.gb .ytk{fill:var(--g2);font-size:14px;font-weight:600;text-anchor:end}
+.gb .yttl{fill:var(--g2);font-size:13px;font-weight:600;text-anchor:middle}
+.gb .xtk{fill:var(--g2);font-size:14px;font-weight:500;text-anchor:middle}
+.gb .xtk.em{fill:var(--ink);font-weight:800}
+.gb .zl{fill:var(--ink);font-size:14px;font-weight:800;text-anchor:end}
+.gb .sep{stroke:var(--g3);stroke-dasharray:4 5}
+.gb .sept{fill:var(--g2);font-size:12px}
+.gb .fan{transition:opacity .8s}
+.gb .fan.off{opacity:0}
+.gb .b80{fill:var(--accent);fill-opacity:.12}
+.gb .b50{fill:var(--accent);fill-opacity:.26}
+.gb .med{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.gb .dot{fill:var(--accent);stroke:var(--paper);stroke-width:2}
+.gb .lbl{fill:var(--ink);font-size:17px;font-weight:800}
+.gb .lbl.end{fill:var(--accent);font-size:21px}
+.gb .hov{stroke:var(--ink);stroke-opacity:.5;stroke-width:1}
+.gb .htl{fill:var(--g2);font-size:13px;font-weight:700}
+.gb .hax{stroke:var(--g3)}
+.gb .hb.k{fill:var(--accent)}
+.gb .hb.t{fill:var(--neu)}
+.gb .hb.r{fill:var(--rv)}
+.gb .hp{fill:var(--g2);font-size:12px;font-weight:700}
+.gb-legend i{display:inline-block;width:18px;height:10px}
+.gb-legend i.med{height:3px;background:var(--accent)}
+.gb-legend i.b50{background:color-mix(in srgb,var(--accent) 26%,transparent)}
+.gb-legend i.b80{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.gb-help{margin-top:0;border-bottom:1px solid var(--line);padding:0;font-size:13.5px;color:var(--g2);line-height:1.85;background:none;border-radius:0}
+.gb-help:first-of-type{margin-top:22px;border-top:1px solid var(--ink)}
+.gb-help summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:16px 0;font-weight:700;color:var(--ink);font-size:14.5px;transition:padding .4s var(--ease)}
+.gb-help summary::-webkit-details-marker{display:none}
+.gb-help summary::after{content:"+";font-weight:300;font-size:22px;line-height:1;transition:transform .4s var(--ease)}
+.gb-help[open] summary::after{transform:rotate(45deg)}
+.gb-help summary:hover{padding-left:10px}
+.gb-help>*:not(summary){padding-bottom:18px}
+.gb-help ul{margin:0 0 4px;padding-left:18px}
+.gb-help b{color:var(--ink)}
+.gb-help .muted{font-size:12px}
+.rogrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:10px}
+@media (max-width:640px){.rogrid{grid-template-columns:1fr}}
+.roc{border-top:1px solid var(--ink);padding-top:12px}
+.roc p{margin:0 0 8px;font-size:13px}
+.roc ol{margin:0;padding-left:18px;font-size:13px}
+.roc li{margin:5px 0}
+.roc li span:first-child{color:var(--ink);font-weight:700}
+.roc li .w{float:right;color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
+.roc li .d{display:block;color:var(--g2);font-size:11.5px}
+.gbag{width:100%;min-width:0;border-collapse:collapse;margin:10px 0;font-size:13px}
+.gbag th,.gbag td{padding:8px 6px;text-align:left}
+.gbag td:nth-child(2){font-weight:500}
+.gbag td:last-child{text-align:right;font-weight:800;white-space:nowrap}
+
+/* ---------- 타이틀 레이스 ---------- */
+.titlegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));column-gap:28px;row-gap:34px}
+.tcard{border-top:1px solid var(--ink);padding-top:14px;background:none;border-radius:0}
+.tcard ol{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.tcard li{display:flex;gap:8px;align-items:baseline}
+.tcard .rk{font-family:var(--serif);font-style:italic;color:var(--g2);font-size:15px;width:16px;flex:none}
+.tcard .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard .tm{color:var(--g2);font-size:11.5px;flex:none}
+.tcard .vl{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.tcard li.mine .nm,.tcard li.mine .vl{color:var(--accent)}
+
+/* ---------- 박스스코어 ---------- */
+.boxgrid{display:grid;gap:44px}
+.boxpanel{padding-top:16px;overflow-x:auto}
+.boxpanel table{min-width:0;width:100%;font-size:13.5px}
+.boxpanel th,.boxpanel td{padding:9px 10px}
+.boxpanel td:first-child,.boxpanel th:first-child{text-align:left}
+.line td.win{color:var(--accent);font-weight:800}
+.bx b{font-weight:700}
+.bx .hot td{color:var(--accent)}
+.keyrec{list-style:none;margin:0;padding:0}
+.keyrec li{display:flex;gap:14px;font-size:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.keyrec .k{flex:0 0 64px;font-size:11.5px;font-weight:800;color:var(--accent);padding-top:2px;letter-spacing:.04em}
+.boxcols{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+@media (max-width:760px){.boxcols{grid-template-columns:1fr}}
+
+/* ---------- 일정 · 흐름 ---------- */
+.cal{display:grid;grid-template-columns:1.6fr 1fr;gap:44px 48px}
+@media (max-width:760px){.cal{grid-template-columns:1fr}}
+.calbox{padding-top:16px}
+.week{list-style:none;margin:0;padding:0}
+.week li{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14.5px;transition:padding .4s var(--ease)}
+.week li:hover{padding-left:8px}
+.week .d{font-size:12.5px;color:var(--g2);font-weight:600;font-variant-numeric:tabular-nums}
+.week .d.today{color:var(--accent);font-weight:800}
+.week .m b{font-weight:700}
+.week .m .ha{font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:8px;border:1px solid currentColor;vertical-align:1px}
+.week .m .ha.h{color:var(--accent)}
+.week .m .ha.a{color:var(--g2)}
+.week .t{font-size:12.5px;color:var(--g2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.week .mk{font-size:11px;font-weight:700;margin-left:8px;padding:1px 8px;border-radius:999px;white-space:nowrap;border:1px solid var(--pos);color:var(--pos);vertical-align:1px;cursor:help}
+.week .mk.est{border-color:var(--line);color:var(--g2)}
+@media (max-width:560px){.week .mk{display:inline-block;margin:5px 0 0 0}}
+.form{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.form .f{width:46px;height:46px;display:grid;place-items:center;font-weight:800;font-size:16px;border:1px solid var(--ink);border-radius:0}
+.form .f.W{background:var(--ink);color:var(--paper)}
+.form .f.L{color:var(--g2);border-color:var(--line)}
+.form .f.D{color:var(--g2);border-style:dashed}
+.formlist{list-style:none;margin:0;padding:0}
+.formlist li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.formlist .r{font-weight:800}
+.formlist .r.W{color:var(--ink)}
+.formlist .r.L{color:var(--g3)}
+.formlist .sc2{color:var(--g2);font-variant-numeric:tabular-nums}
+
+/* ---------- 순위 ---------- */
+.rank{display:inline-block;min-width:26px;text-align:center;font-weight:800;color:var(--g2);font-variant-numeric:tabular-nums}
+tr.kt td{color:var(--accent)}
+tr.kt td:nth-child(2){color:var(--accent)}
+tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
+.po{font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:999px;margin-left:8px;vertical-align:1.5px;letter-spacing:.08em;border:1px solid currentColor;color:var(--g2)}
+.gbbar{display:inline-block;height:2px;background:var(--g3);vertical-align:3px;margin-right:8px}
+.magic{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--ink);margin-bottom:14px}
+.magic .m{padding:18px 18px 20px 0;border-right:1px solid var(--line);text-align:left;background:none;border-radius:0}
+.magic .m+.m{padding-left:18px}
+.magic .m:last-child{border-right:0}
+.magic .m b{display:block;font-size:38px;font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.magic .m b.red{color:var(--accent)}
+.magic .m span{font-size:11px;color:var(--g2);letter-spacing:.12em;font-weight:600;text-transform:uppercase}
+
+/* ---------- 순위 변동 차트 ---------- */
+.chartbox{padding-top:16px}
+#rankCanvas{width:100%;height:300px;display:block}
+.rank-controls{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.rank-controls button{background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:999px;padding:8px 18px;font-weight:700;cursor:pointer;font-size:13px;transition:background-color .3s,color .3s}
+.rank-controls button:hover{background:transparent;color:var(--ink)}
+.rank-controls input[type=range]{flex:1;accent-color:var(--accent)}
+.rank-controls span{font-variant-numeric:tabular-nums;color:var(--g2);font-size:13px;min-width:78px;text-align:right}
+.chart-legend i{width:16px;height:2px;display:inline-block}
+
+/* ---------- 지난 경기 ---------- */
+.lastgame{overflow:hidden}
+.lg-hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px;padding:24px 0 26px;border-bottom:1px solid var(--line)}
+.lg-hero .matchup{display:flex;align-items:flex-end;gap:26px}
+.lg-hero .t{text-align:left}
+.lg-hero .t .nm{font-size:14px;font-weight:600;color:var(--g2)}
+.lg-hero .t .sc{font-size:clamp(56px,7vw,96px);font-weight:800;font-variant-numeric:tabular-nums;line-height:.9;letter-spacing:-.06em}
+.lg-hero .t.w .nm{color:var(--ink)}
+.lg-hero .t.w .sc{color:var(--accent)}
+.lg-hero .vs{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2);padding-bottom:10px}
+.lg-hero .meta{margin-left:auto;text-align:right;font-size:13.5px;color:var(--g2);line-height:1.8}
+.lg-hero .meta b{color:var(--ink)}
+.wbadge{display:inline-block;font-size:10.5px;font-weight:800;background:var(--accent);color:#fff;padding:2px 10px;border-radius:999px;letter-spacing:.1em;margin-bottom:8px}
+.lg-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 44px}
+.lg-col{padding:24px 0}
+@media (max-width:660px){.lg-col+.lg-col{border-top:1px solid var(--line)}}
+.key-plays{list-style:none;margin:0;padding:0}
+.key-plays li{display:flex;gap:14px;font-size:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.key-plays .inn{flex:0 0 40px;font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}
+.key-plays b{font-weight:700}
+.pit{display:flex;flex-direction:column;font-size:14px}
+.pit .p{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);background:none;border-radius:0}
+.pit .p b{font-weight:700}
+.pit .p span{color:var(--g2);font-size:12.5px}
+
+/* ---------- 라인업 ---------- */
+.lineups{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:44px 48px}
+.lu{padding-top:16px}
+.lu.today{border-top-width:3px}
+.lu .lu-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.lu .lu-head h4{margin:0;font-size:20px;font-weight:800;letter-spacing:-.03em}
+.lu .lock{font-size:10.5px;font-weight:700;color:var(--pos);border:1px solid currentColor;padding:1px 9px;border-radius:999px;letter-spacing:.06em}
+.lu .lu-head span.when{font-size:12px;color:var(--g2)}
+.lu .sp{font-size:13.5px;color:var(--g2);margin:0 0 14px}
+.lu .sp b{color:var(--accent);font-weight:700}
+.lu ol{list-style:none;margin:0;padding:0;counter-reset:bat}
+.lu ol li{display:flex;align-items:baseline;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px;transition:padding .4s var(--ease)}
+.lu ol li:hover{padding-left:8px}
+.lu ol li::before{counter-increment:bat;content:counter(bat);flex:0 0 20px;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--g2);line-height:1}
+.lu ol li b{font-weight:700}
+.lu ol li .ps{margin-left:auto;font-size:11px;color:var(--g2);letter-spacing:.1em;font-weight:600}
+.lu .note{font-size:12.5px;color:var(--g2);margin:16px 0 0}
+.lu .note a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:44px 48px;margin-top:48px}
+@media (max-width:660px){.duel{grid-template-columns:1fr}}
+.duel .dcard{border-top:1px solid var(--ink);padding-top:16px;background:none;border-radius:0}
+.duel .dcard.kt{border-top:3px solid var(--accent)}
+.duel h5{margin:0 0 4px;font-size:18px;font-weight:800;letter-spacing:-.03em}
+.duel .dsub{font-size:12.5px;color:var(--g2);margin:0 0 14px}
+.duel .pt{display:grid;grid-template-columns:64px 1fr 70px;align-items:center;gap:12px;margin:9px 0;font-size:13px}
+.duel .pt .pn{color:var(--g2);font-weight:600}
+.duel .pt .pbar{height:2px;background:var(--line);overflow:visible;position:relative}
+.duel .pt .pbar i{display:block;height:100%;background:var(--ink);position:relative;top:0}
+.duel .dcard.kt .pt .pbar i{background:var(--accent)}
+.duel .pt .pv{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+
+/* ---------- 상대전적 ---------- */
+.h2h-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.h2h-sum .chip{font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid var(--line);color:var(--g2);background:none}
+.h2h-sum .chip b{color:var(--ink)}
+.h2hbox{padding-top:0}
+.h2h-list{list-style:none;margin:0;padding:0}
+.h2h-list li{display:grid;grid-template-columns:120px 1fr 110px;align-items:center;gap:18px;padding:16px 4px;border-bottom:1px solid var(--line);transition:background-color .3s}
+.h2h-list li:hover{background:var(--g5)}
+.h2h-list li.today{box-shadow:inset 3px 0 0 var(--accent);padding-left:14px}
+.h2h-opp b{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.h2h-opp em{font-style:normal;font-size:11px;color:var(--g2);margin-left:6px;font-variant-numeric:tabular-nums}
+.h2h-opp .tdy{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+.h2h-seg{display:flex;gap:3px;height:12px}
+.h2h-seg i{flex:1;background:var(--g5);outline:1px solid var(--line);outline-offset:-1px}
+.h2h-seg i.w{background:var(--ink);outline:0}
+.h2h-seg i.d{background:var(--g3);outline:0}
+.h2h-seg i.l{background:var(--accent);outline:0}
+.h2h-rec{display:block;font-size:12px;color:var(--g2);margin-top:6px;font-variant-numeric:tabular-nums}
+.h2h-side{text-align:right}
+.h2h-diff{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.h2h-diff.up{color:var(--ink)}
+.h2h-diff.dn{color:var(--accent)}
+.h2h-diff.ev{color:var(--g2);font-size:12px}
+.h2h-side em{font-style:normal;font-size:11px;color:var(--g2)}
+.h2h td{font-size:12.5px;padding:10px 8px;text-align:center}
+.h2h th{text-align:center;padding:12px 8px}
+.h2h td:first-child{text-align:left;font-weight:700}
+.h2h td.win{color:var(--ink);font-weight:800}
+.h2h td.lose{color:var(--accent)}
+.h2h td.diag{color:var(--g4)}
+.h2h th.kt-col,.h2h td.kt-col{background:var(--g5)}
+@media (max-width:560px){.h2h-list li{grid-template-columns:84px 1fr 82px;gap:10px}.h2h-seg{gap:2px;height:9px}.h2h-opp b{font-size:13.5px}}
+@media (max-width:400px){.h2h-list li{grid-template-columns:76px 1fr 72px;gap:8px}.h2h-seg{gap:1px}}
+
+/* ---------- 이 주의 마법사 ---------- */
+.spot{position:relative;padding:26px 0 8px;overflow:hidden}
+.spot .ghostnum{position:absolute;right:-6px;top:-10px;font-family:var(--serif);font-style:italic;font-size:clamp(200px,26vw,320px);font-weight:400;line-height:.8;color:transparent;-webkit-text-stroke:1px var(--g4);pointer-events:none;user-select:none}
+.spot .pos{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2);text-transform:none;letter-spacing:0}
+.spot .name{position:relative;font-size:clamp(48px,7vw,104px);font-weight:800;margin:4px 0 16px;letter-spacing:-.06em;line-height:1}
+.spot p{position:relative;margin:0 0 30px;font-size:15.5px;color:var(--g2);max-width:56ch;line-height:1.75}
+.spot .nums{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));border-top:1px solid var(--ink)}
+.spot .n{padding:18px 18px 4px 0;border-right:1px solid var(--line);text-align:left;background:none;border-radius:0}
+.spot .n+.n{padding-left:18px}
+.spot .n:last-child{border-right:0}
+.spot .n b{display:block;font-size:clamp(34px,4vw,52px);font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.spot .n span{font-size:11.5px;color:var(--g2);letter-spacing:.12em;font-weight:600}
+
+/* ---------- 영상 · 인스타 · 소식 · 링크 ---------- */
+.yt{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:34px 28px}
+.yt a{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:none;border-radius:0}
+.yt .th{position:relative;aspect-ratio:16/9;background:var(--g5);overflow:hidden}
+.yt .th img{filter:grayscale(1);transform:scale(1.02);transition:filter .6s var(--ease),transform .8s var(--ease)}
+.yt a:hover .th img{filter:none;transform:scale(1.06)}
+.yt .ti{padding:12px 0 0;font-size:14.5px;font-weight:700;line-height:1.45;letter-spacing:-.02em}
+.yt .ti span{display:block;margin-top:6px;font-size:11.5px;color:var(--g2);font-weight:500}
+.insta{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink)}
+.insta a{display:flex;flex-direction:column;gap:3px;padding:18px 16px 18px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;background:none;border-radius:0;transition:padding .4s var(--ease)}
+.insta a:hover{padding-left:10px}
+.insta .nm{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.insta .hd{font-size:12px;color:var(--g2)}
+.insta a.official{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:16px;padding:22px 0}
+.insta a.official .ig{display:none}
+.insta a.official .nm{font-size:clamp(24px,2.6vw,34px);letter-spacing:-.04em}
+@media (max-width:760px){.insta{grid-template-columns:repeat(2,1fr)}}
+.cards{display:block;border-top:1px solid var(--ink)}
+.card{display:grid;grid-template-columns:150px 1fr;column-gap:24px;row-gap:6px;padding:24px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;background:none;border-radius:0;transition:padding .4s var(--ease)}
+.card:hover{padding-left:14px}
+.card .date{grid-column:1;grid-row:1/span 3;font-size:12.5px;color:var(--g2);font-variant-numeric:tabular-nums;padding-top:3px}
+.card .chip{display:none}
+.card h3{grid-column:2;margin:0;font-size:clamp(17px,1.5vw,21px);line-height:1.45;font-weight:700;letter-spacing:-.025em}
+.card p{grid-column:2;margin:0;font-size:14px;color:var(--g2)}
+@media (max-width:620px){.card{grid-template-columns:1fr}.card .date,.card h3,.card p{grid-column:1;grid-row:auto}}
+.chip{font-size:10.5px;font-weight:700;border:1px solid currentColor;padding:2px 10px;border-radius:999px;letter-spacing:.08em}
+.links{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink)}
+.links a{display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:128px;padding:20px 20px 20px 0;border-right:1px solid var(--line);font-size:clamp(16px,1.4vw,19px);font-weight:700;letter-spacing:-.02em;text-decoration:none;color:inherit;background:none;border-radius:0;transition:padding .4s var(--ease)}
+.links a+a{padding-left:20px}
+.links a:last-child{border-right:0}
+.links a::after{content:"↗";font-weight:300;font-size:22px}
+.links a:hover{padding-left:30px}
+.links a.primary{color:var(--accent)}
+@media (max-width:760px){.links{grid-template-columns:1fr 1fr}.links a:nth-child(2){border-right:0}.links a:nth-child(3){padding-left:0}.links a:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* ---------- 상단: 로고 · 오늘 경기 상태 · 테마 / 아래 줄: 섹션 바로가기 (둘 다 고정) ---------- */
+.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top__bar{display:flex;align-items:center;gap:16px;height:60px}
+.logo{font-size:17px;font-weight:800;letter-spacing:-.03em;text-decoration:none;white-space:nowrap;margin-right:auto}
+.logo .it{font-size:23px;letter-spacing:-.01em;margin-right:2px}
+.statuschip{display:inline-flex;align-items:center;gap:8px;min-width:0;font-size:12.5px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:6px 13px;text-decoration:none;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .3s}
+.statuschip i{width:6px;height:6px;border-radius:50%;background:var(--g3);flex:none}
+.statuschip.is-live{border-color:var(--accent);color:var(--accent)}
+.statuschip.is-live i{background:var(--accent);animation:pulse 1.8s ease-in-out infinite}
+.statuschip span{overflow:hidden;text-overflow:ellipsis}
+.themebtn{width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:none;padding:0;cursor:pointer;color:var(--ink)}
+.themebtn::after{content:"";position:absolute;inset:0;background:currentColor;transform:translateX(50%);transition:transform .45s var(--ease)}
+.themebtn[data-mode="light"]::after{transform:translateX(105%)}
+.themebtn[data-mode="dark"]::after{transform:none}
+.subnav{border-top:1px solid var(--line)}
+.subnav .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.subnav .wrap::-webkit-scrollbar{display:none}
+.subnav a{position:relative;flex:none;padding:12px 12px 11px;font-size:13.5px;font-weight:600;color:var(--g2);text-decoration:none;transition:color .25s}
+.subnav a:first-child{padding-left:0}
+.subnav a::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.subnav a:first-child::after{left:0}
+.subnav a:hover{color:var(--ink)}
+.subnav a.is-on{color:var(--ink)}
+.subnav a.is-on::after{transform:scaleX(1)}
+html{scroll-padding-top:118px}
+
+/* ---------- 오늘: 첫 화면에서 바로 보이는 검은 판 (경기 + 시즌 요약) ---------- */
+.todaybox{background:var(--black);color:var(--ink);position:relative;z-index:1}
+.todaybox>.wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:clamp(28px,4vw,64px);padding-top:clamp(40px,5vw,64px);padding-bottom:clamp(40px,5vw,64px)}
+@media (max-width:900px){.todaybox>.wrap{grid-template-columns:1fr}}
+.ktbanner{position:relative}
+.ktbanner .ghost{display:none}
+.ktbanner .wrap,.agbanner .wrap{display:block;padding:0;max-width:none}
+.ktbanner .today{margin:0;display:flex;align-items:baseline;gap:10px;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2)}
+.ktbanner .match{font-size:clamp(44px,6.4vw,96px);font-weight:800;letter-spacing:-.055em;line-height:1;margin:12px 0 18px}
+.ktbanner .match .at{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--g2);font-size:.5em;letter-spacing:0;padding:0 .22em;vertical-align:.18em}
+.ktbanner .match .live-score{color:var(--accent);font-variant-numeric:tabular-nums}
+.ktbanner .detail{font-size:15.5px;color:var(--g1);margin:0;line-height:1.75}
+.ktbanner .detail b{color:var(--ink)}
+.agbanner{margin-bottom:34px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.agbanner .match{font-size:clamp(32px,4vw,60px)}
+.agbanner .ag-sub{font-size:13.5px;color:var(--g2);margin-top:8px}
+.quicklinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.quicklinks a{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:11px 20px;border-radius:999px;border:1px solid var(--line);text-decoration:none;transition:background-color .3s,color .3s,border-color .3s}
+.quicklinks a:first-child{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.quicklinks a:hover,.quicklinks a:focus-visible{border-color:var(--ink)}
+.quicklinks a:first-child:hover{background:transparent;color:var(--ink)}
+.playbadge{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid currentColor;vertical-align:1px}
+.playbadge.ok{color:var(--pos)}
+.playbadge.warn{color:var(--g2)}
+.playbadge.bad{color:var(--accent)}
+.winbadge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:800;letter-spacing:.2em;padding:5px 14px;border-radius:999px;margin-bottom:14px}
+.celebrate-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+/* 시즌 요약 (매직넘버) — 오른쪽 칸 */
+.magicbanner{border-left:1px solid var(--line);padding-left:clamp(24px,3vw,44px);display:flex;flex-direction:column}
+@media (max-width:900px){.magicbanner{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:24px}}
+.magicbanner .wrap{display:contents}
+.magicbanner .mb-num{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.magicbanner .mb-kicker{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--g2);line-height:1.2}
+.magicbanner .mb-num b{font-size:clamp(76px,8vw,120px);line-height:.82;font-weight:800;letter-spacing:-.07em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.magicbanner.clinch .mb-num b{color:var(--accent)}
+.magicbanner .mb-head{font-size:16px;font-weight:700;letter-spacing:-.02em;line-height:1.55;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.magicbanner .mb-head b{color:var(--accent)}
+.magicbanner .mb-chips{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-top:1px solid var(--line)}
+.magicbanner .mb-chips span{font-size:12.5px;color:var(--g2);padding:10px 8px 10px 0;border-bottom:1px solid var(--line)}
+.magicbanner .mb-chips span:nth-child(even){padding-left:12px;border-left:1px solid var(--line)}
+.magicbanner .mb-chips span b{display:block;font-size:19px;font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+.mb-more{margin-top:14px;font-size:13px;color:var(--g2)}
+.mb-more summary{cursor:pointer;font-weight:700;color:var(--g1);list-style:none}
+.mb-more summary::-webkit-details-marker{display:none}
+.mb-more summary::after{content:" +"}
+.mb-more[open] summary::after{content:" −"}
+.magicbanner .mb-ex{font-size:13px;color:var(--g2);line-height:1.75;margin:8px 0 0}
+.magicbanner .mb-ex b{color:var(--ink)}
+
+/* ---------- 섹션: 제목 한 줄(한글 + 영문 이탤릭) + 굵은 선 ---------- */
+.main>.wrap>section,.main>.wrap>.block{padding-top:clamp(64px,7vw,104px);position:relative}
+.sec-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--ink);padding-bottom:12px;margin:0 0 22px}
+.sec-head h2{order:1;font-size:clamp(22px,2.4vw,30px);font-weight:800;letter-spacing:-.045em;line-height:1.2;margin:0}
+.sec-head .kicker{order:2;margin:0;font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(18px,1.8vw,22px);color:var(--g2);letter-spacing:0;text-transform:none}
+.sec-head .sub{order:4;flex-basis:100%;font-size:13px;color:var(--g2);margin:2px 0 0;line-height:1.6}
+.sec-head .live-head{order:3;margin:0 0 0 auto}
+.sec-head .aside{order:3;margin-left:auto;font-size:12.5px;color:var(--g2)}
+.subhead{display:flex;align-items:baseline;gap:10px;margin:40px 0 12px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.subhead small{font-family:var(--serif);font-style:italic;font-weight:400;font-size:16px;color:var(--g2)}
+.pshead{display:flex;align-items:baseline;gap:10px;margin:40px 0 12px;font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--ink);text-transform:none}
+.pshead:first-child{margin-top:0}
+
+/* ---------- 탭 (분석 · 가을야구 상세) ---------- */
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin:0 0 22px;position:relative}
+.tabs::-webkit-scrollbar{display:none}
+.tabs [role=tab]{flex:none;background:none;border:0;padding:11px 14px 12px;font-size:14px;font-weight:700;color:var(--g2);cursor:pointer;position:relative;transition:color .25s}
+.tabs [role=tab]:first-child{padding-left:0}
+.tabs [role=tab]:hover{color:var(--ink)}
+.tabs [role=tab][aria-selected="true"]{color:var(--ink)}
+.tabs .tabs__bar{position:absolute;bottom:-1px;left:0;height:2px;background:var(--ink);transition:transform .45s var(--ease),width .45s var(--ease)}
+.tabpanel.is-off{display:none!important}
+.tabpanel>section{padding:0}
+.tabpanel .sec-head{border-bottom:0;padding:0;margin:0 0 16px}
+.tabpanel .sec-head h2{display:none}
+.tabpanel .sec-head .kicker{font-size:17px}
+.tabpanel .sec-head .sub{flex-basis:auto;order:3}
+@media (prefers-reduced-motion:no-preference){.tabpanel{animation:panelIn .5s var(--ease)}@keyframes panelIn{from{opacity:0;transform:translateY(10px)}}}
+
+/* ---------- 리그: 현황판 + 순위 나란히 (각 칸 폭에 맞춰 컨테이너 쿼리로 줄바꿈) ---------- */
+.league{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media (max-width:1000px){.league{grid-template-columns:1fr}}
+.league>div{min-width:0}
+.league .board,.league .tablebox{container-type:inline-size}
+#magicRow,#magicNote{display:none!important}   /* 시즌 요약은 맨 위 '오늘' 판에 있음 */
+
+/* ---------- 소식: 기사 목록 + 영상 ---------- */
+.news2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media (max-width:900px){.news2{grid-template-columns:1fr}}
+.news2>section{padding:0}
+.news2 .yt{grid-template-columns:1fr 1fr;gap:20px 16px}
+.news2 .yt a:nth-child(n+5){display:none}
+
+/* v2 보정: 섹션 제목 선 바로 아래 오는 덩어리는 윗선을 겹쳐 긋지 않음 */
+.sec-head+:is(.board,.tablebox,.lastgame,.spot,.h2hbox,.chartbox,.cards,.insta,.links,.lineups,.titlegrid,.pshero,.boxgrid,.cal,.psbracket,.yt,.league){border-top:0}
+.sec-head+.pshero{padding-top:6px}
+/* 큰 덩어리(블록) 안에 들어간 섹션의 제목은 작은 소제목으로 */
+.block section{padding:0}
+.block section .sec-head{border-bottom:0;padding:0;margin:0 0 12px}
+.block section .sec-head h2{font-size:16px;letter-spacing:-.02em}
+.block section .sec-head .kicker{font-size:16px}
+.block section+section{margin-top:44px}
+/* 오늘 판 안의 득점 로그 */
+.todaybox .scorelog{margin-top:30px;border-top:1px solid var(--line)}
+/* 1위 레이스 탭 안: 탭 이름과 겹치는 소제목 숨김 */
+.odds-col.tabpanel>.pshead{display:none}
+#gbFan.tabpanel>.pshead{display:none}
+
+/* 일정: 잔여 일정이 있으면 '이번 주'는 중복이라 숨기고, 잔여 일정(왼쪽) + 최근 5경기(오른쪽) */
+.cal:has(#ktRestBox:not([style*="none"]))>.calbox:first-child{display:none}
+.cal:has(#ktRestBox:not([style*="none"])) #ktRestBox{grid-column:1!important;grid-row:1}
+.cal:has(#ktRestBox:not([style*="none"]))>.calbox:nth-child(2){grid-column:2;grid-row:1}
+@media (max-width:760px){.cal:has(#ktRestBox:not([style*="none"]))>.calbox:nth-child(2){grid-column:1;grid-row:auto}}
+/* 접어 두는 참고 목록 */
+.fold summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary h4{margin:0}
+.fold__hint{font-size:12.5px;color:var(--g2);margin-left:auto}
+.fold__hint::after{content:" +";font-weight:700}
+.fold[open] .fold__hint::after{content:" −"}
+.fold[open] summary{margin-bottom:12px}
+/* 영상이 없는 날은 기사 목록이 전체 폭 */
+.news2:has(#ytSec[style*="none"]){grid-template-columns:1fr}
+#psOdds{margin-top:56px}
+.ksopp th:first-child,.ksopp td:first-child{text-align:left;font-weight:700}
+/* ---------- 바닥글 ---------- */
+.foot{background:var(--black);color:var(--g2);font-size:13px;line-height:1.85;margin-top:clamp(90px,10vw,140px);position:relative;z-index:1}
+.foot .wrap{display:flex;justify-content:space-between;gap:16px 40px;flex-wrap:wrap;padding-top:32px;padding-bottom:32px}
+.foot strong{color:var(--ink);font-weight:700}
+.foot .mischief{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink)}
+
+/* ---------- 좁은 칸 (컨테이너 기준) ---------- */
+@container (max-width:640px){
+  .game{min-width:0;grid-template-columns:1fr auto;grid-template-areas:"stadium status" "away mid" "home mid";gap:5px 12px;padding:15px 2px;align-items:center}
+  .game.kt-game{padding-left:12px}
+  .game .stadium{grid-area:stadium;flex-direction:row;flex-wrap:wrap;align-items:center;gap:7px}
+  .game .status{grid-area:status;justify-self:end;align-self:start}
+  .game .side.away{grid-area:away;align-items:flex-start;text-align:left}
+  .game .side.home{grid-area:home;align-items:flex-start;text-align:left}
+  .game .mid{grid-area:mid;padding:0 2px 0 10px}
+  .game .side .team{font-size:16px;white-space:normal}
+  .game .mid .sc{font-size:28px}
+}
+@container (max-width:560px){
+  table{min-width:0}
+  th,td{padding:11px 6px;font-size:13px}
+  th:nth-child(3),td:nth-child(3),th:nth-child(6),td:nth-child(6){display:none}
+  .gbbar{display:none}
+}
+
+/* ---------- 모바일 ---------- */
+@media (max-width:600px){
+  .top__bar{height:54px;gap:10px}
+  .statuschip{max-width:52vw}
+  .main>.wrap>section,.main>.wrap>.block{padding-top:56px}
+  .tablebox table{min-width:0;width:100%}
+  .tablebox th,.tablebox td{padding:11px 6px;font-size:13px}
+  .tablebox:not(.ksopp) th:nth-child(3),.tablebox:not(.ksopp) td:nth-child(3),
+  .tablebox th:nth-child(6),.tablebox td:nth-child(6){display:none}
+  .bx th,.bx td{padding:7px 5px;font-size:12px}
+  #batTable th:nth-child(8),#batTable td:nth-child(8),#batTable th:nth-child(9),#batTable td:nth-child(9){display:none}
+  .line th,.line td{padding:6px 4px;font-size:10.5px}
+  .lg-hero .meta{margin-left:0;text-align:left;width:100%}
+  .playbadge{display:inline-block;margin:8px 0 0}
+  .spot .ghostnum{font-size:180px}
+  .news2 .yt{grid-template-columns:1fr}
+}
+@media (max-width:380px){.game .side .team .rec{display:none}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+
+</style>
+</head>
+<body>
+<a class="sr" href="#today">본문 바로가기</a>
+
+<header class="top" id="mast">
+  <div class="wrap top__bar">
+    <a href="#today" class="logo" aria-label="wiz board, 맨 위로"><span class="it">wiz</span>board</a>
+    <a href="#today" class="statuschip" id="statusChip"><i></i><span id="statusTxt">불러오는 중</span></a>
+    <button class="themebtn" type="button" id="themeBtn" aria-label="화면 모드 바꾸기"></button>
+  </div>
+  <nav class="subnav" id="subnav" aria-label="섹션 바로가기">
+    <div class="wrap">
+      <a href="#today">오늘</a>
+      <a href="#luSec">경기</a>
+      <a href="#psSec">가을야구</a>
+      <a href="#leagueSec">리그</a>
+      <a href="#calSec">일정</a>
+      <a href="#anaSec">분석</a>
+      <a href="#newsBlock">소식</a>
+    </div>
+  </nav>
+</header>
+
+<div class="leaves bg" id="leavesBg" aria-hidden="true"></div>
+
+<main class="main">
+<section class="todaybox" id="today" aria-label="오늘의 kt wiz">
+  <div class="wrap">
+    <div class="today__main">
+      <div class="ktbanner agbanner" id="agBanner" hidden>
+        <div class="wrap">
+          <p class="today" id="agKicker">Asian Games · Team Korea</p>
+          <div class="match" id="agMatch"></div>
+          <p class="detail" id="agDetail"></p>
+          <p class="detail ag-sub" id="agSub"></p>
+          <div class="quicklinks">
+            <a id="agRelay" href="https://m.sports.naver.com/kbaseball/index" target="_blank" rel="noopener">문자중계 ↗</a>
+            <a href="https://chzzk.naver.com/" target="_blank" rel="noopener">치지직 중계 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="ktbanner">
+        <div class="ghost" id="ghostType" aria-hidden="true">Victory</div>
+        <div class="wrap">
+          <p class="today">Today · kt wiz</p>
+          <div class="match" id="ktMatch">KT <span class="at">vs</span> KIA</div>
+          <p class="detail" id="ktDetail">불러오는 중…</p>
+          <div class="quicklinks">
+            <a href="https://www.tving.com/live/player/C05007" target="_blank" rel="noopener">TVING 중계 ↗</a>
+            <a href="https://tkt.ktwiz.co.kr/" target="_blank" rel="noopener">티켓 예매 ↗</a>
+            <a href="https://sports.news.naver.com/kbaseball/schedule/index" target="_blank" rel="noopener">문자중계 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="scorelog " id="scoreLog" style="display:none">
+      <h4>득점 로그</h4>
+      <ul id="scoreLogList"></ul>
+    </div>
+    </div>
+    <aside class="magicbanner" id="magicBanner" aria-label="시즌 요약">
+      <div class="mb-num"><span class="mb-kicker" id="mbKicker">PS Magic Number</span><b id="mbNum">–</b></div>
+      <p class="mb-head" id="mbHead">매직넘버 계산 중…</p>
+      <div class="mb-chips" id="mbChips"></div>
+      <details class="mb-more"><summary>어떻게 계산했나</summary><p class="mb-ex" id="mbEx"></p></details>
+    </aside>
+  </div>
+</section>
+
+<div class="wrap">
+  <section id="luSec">
+    <div class="sec-head reveal">
+      <p class="kicker" id="luKicker">Lineup</p>
+      <h2>라인업</h2>
+    </div>
+    <div class="lineups">
+      <div class="lu today reveal d1">
+        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
+        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
+        <ol id="luList"></ol>
+        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+      </div>
+      <div class="lu reveal d2" id="lgluBox" style="display:none">
+        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
+        <p class="sp" id="lgluSp"></p>
+        <ol id="lgluList"></ol>
+      </div>
+    </div>
+    <!-- 오늘 선발 구종 맞대결 -->
+    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
+  </section>
+
+  <section id="boxSec" style="display:none">
+    <div class="sec-head reveal on">
+      <p class="kicker">Box score</p>
+      <h2 id="boxTitle">오늘 경기 기록</h2>
+      <p class="sub" id="boxSub"></p>
+    </div>
+    <div class="boxgrid">
+      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
+      <div class="boxpanel"><h4>kt 타자 기록</h4>
+        <table class="bx" id="batTable"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
+      </div>
+      <div class="boxcols">
+        <div class="boxpanel"><h4>kt 투수 기록</h4>
+          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>투구수</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
+        </div>
+        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="psSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Postseason 2026</p>
+      <h2>가을야구</h2>
+      <p class="sub" id="psSub">포스트시즌 대진과 한국시리즈 확률</p>
+    </div>
+    <div class="pshero reveal d1" id="psHero"></div>
+    <p class="pshead reveal d1">포스트시즌 대진표</p>
+    <div class="psbracket reveal d1" id="psBracket"></div>
+    <p class="board-note reveal d1" id="psBracketNote" style="margin:-6px 0 18px"></p>
+    <div id="psGamesBox" hidden>
+      <p class="pshead" id="psGamesHead">시리즈 경기</p>
+      <ul class="psgames" id="psGames"></ul>
+    </div>
+    <p class="pshead reveal d2">한국시리즈 예측</p>
+    <div class="ksgrid reveal d2">
+      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
+      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
+    </div>
+    <div class="tablebox ksopp reveal d2">
+      <table>
+        <thead><tr><th>예상 KS 상대</th><th>정규시즌 맞대결</th><th>확률</th></tr></thead>
+        <tbody id="ksOppBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="ksNote"></p>
+    <div id="psOdds" class="odds-row" data-tabs hidden>
+      <p class="pshead">정규시즌 1위 레이스 <small class="it">Pennant race</small></p>
+      <div class="tabs" role="tablist" aria-label="1위 레이스">
+        <button type="button" role="tab" id="t-odds" aria-controls="oddsPanel">1위 경우의 수</button>
+        <button type="button" role="tab" id="t-gb" aria-controls="gbFan">경기차 전망</button>
+      </div>
+      <div class="odds-col tabpanel" id="oddsPanel" role="tabpanel" aria-labelledby="t-odds">
+        <p class="pshead">정규시즌 1위 경우의 수</p>
+        <div class="odds-sum" id="oddsSum"></div>
+        <div class="odds-wrap">
+          <div class="odds" id="oddsGrid" role="img" aria-label="KT와 경쟁팀의 남은 경기 승수 조합별 1위 결과"></div>
+          <div class="odds-tip" id="oddsTip" hidden></div>
+        </div>
+        <div class="odds-axis" id="oddsAxis"></div>
+        <div class="odds-legend" id="oddsLegend"></div>
+        <p class="board-note" id="oddsNote"></p>
+      </div>
+      <div class="odds-col tabpanel" id="gbFan" role="tabpanel" aria-labelledby="t-gb" hidden>
+        <p class="pshead">경기차 전망 · 선수별 WAR 기준 · 아시안게임 공백 반영</p>
+        <div class="gb-sum" id="gbSum"></div>
+        <div class="gb-bar"><button type="button" class="gb-play" id="gbPlay">▶ 가상 시즌 재생</button><span id="gbCount">가상 시즌 4,000개를 실제로 겹쳐 그려, 띠와 오른쪽 분포가 어떻게 만들어지는지 보여줍니다</span></div>
+        <div class="gb-wrap">
+          <svg id="gbSvg" class="gb" role="img" aria-label="날짜별 KT와 경쟁팀 경기차 예측 분포"></svg>
+          <canvas class="gb-cv" id="gbCv" aria-hidden="true"></canvas>
+          <div class="odds-tip" id="gbTip" hidden></div>
+        </div>
+        <div class="gb-legend" id="gbLegend"></div>
+        <details class="gb-help">
+          <summary>그래프 읽는 법</summary>
+          <ul>
+            <li><b>가로</b>는 날짜(KT·경쟁팀 경기가 있는 날), <b>세로</b>는 KT 기준 경기차입니다. 위쪽 금색 영역이면 KT가 앞선 상태, 아래 파란 영역이면 경쟁팀이 앞선 상태예요.</li>
+            <li>남은 경기를 팀 전력에 맞춰 <b>4,000번 가상으로 치러</b> 봤습니다. 매 경기 승패는 운이지만, 강한 팀이 이길 확률이 조금 더 높게 굴러갑니다.</li>
+            <li><b>선</b>은 4,000번 중 한가운데 결과(중앙값), <b>진한 띠</b>는 10번 중 5번, <b>옅은 띠</b>는 10번 중 8번이 들어오는 범위입니다. 띠가 점점 넓어지는 건 남은 경기가 쌓일수록 결과가 퍼지기 때문이에요.</li>
+            <li>띠가 <b>'동률' 선 아래로 거의 안 내려가면</b> 역전 가능성이 낮다는 뜻입니다. 그래프 위에 마우스를 올리거나 탭하면 날짜별 수치가 나옵니다.</li>
+            <li>오른쪽 <b>시즌 끝 분포</b> 막대는 4,000번 중 시즌이 각 경기차로 끝난 비율입니다. 동률선 아래(파랑) 막대를 합친 만큼이 역전 가능성이에요.</li>
+            <li><b>▶ 가상 시즌 재생</b>을 누르면 4,000개 가상 시즌을 실제로 겹쳐 그립니다. 많이 지나간 길일수록 진해지며 띠 모양이 되고, 분포 막대도 함께 자랍니다.</li>
+          </ul>
+        </details>
+        <details class="gb-help" id="gbRoBox" hidden>
+          <summary>전력 계산 근거 · 선수별 WAR</summary>
+          <div id="gbRo"></div>
+        </details>
+        <details class="gb-help" id="gbAgBox" hidden>
+          <summary>아시안게임 공백 보정 자세히</summary>
+          <div id="gbAg"></div>
+        </details>
+        <p class="board-note" id="gbNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="leagueSec">
+    <div class="sec-head reveal">
+      <h2>리그</h2>
+      <p class="kicker">Around the league</p>
+      <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
+    </div>
+    <div class="league">
+      <div>
+        <p class="subhead">오늘의 현황판 <small>Scoreboard</small></p>
+        <div class="board reveal d1" id="board"></div>
+        <p class="board-note">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
+      </div>
+      <div>
+        <p class="subhead">팀 순위 <small id="standKicker">Standings</small></p>
+        <div class="magic reveal" id="magicRow" style="display:none"></div>
+    <p class="magic-note reveal" id="magicNote" style="display:none"></p>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
+        <tbody id="standBody">
+          <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
+          <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
+          <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
+          <tr><td><span class="rank">4</span></td><td>KIA 타이거즈<span class="po">PS</span></td><td>83</td><td>44</td><td>37</td><td>2</td><td>.543</td><td><span class="gbbar" style="width:39px"></span>6.5</td></tr>
+          <tr><td><span class="rank">5</span></td><td>두산 베어스<span class="po">PS</span></td><td>84</td><td>42</td><td>40</td><td>2</td><td>.512</td><td><span class="gbbar" style="width:54px"></span>9.0</td></tr>
+          <tr><td><span class="rank">6</span></td><td>한화 이글스</td><td>80</td><td>39</td><td>39</td><td>2</td><td>.500</td><td><span class="gbbar" style="width:60px"></span>10.0</td></tr>
+          <tr><td><span class="rank">7</span></td><td>NC 다이노스</td><td>80</td><td>38</td><td>41</td><td>1</td><td>.481</td><td><span class="gbbar" style="width:69px"></span>11.5</td></tr>
+          <tr><td><span class="rank">8</span></td><td>롯데 자이언츠</td><td>82</td><td>36</td><td>44</td><td>2</td><td>.450</td><td><span class="gbbar" style="width:84px"></span>14.0</td></tr>
+          <tr><td><span class="rank">9</span></td><td>SSG 랜더스</td><td>83</td><td>30</td><td>50</td><td>3</td><td>.375</td><td><span class="gbbar" style="width:120px"></span>20.0</td></tr>
+          <tr><td><span class="rank">10</span></td><td>키움 히어로즈</td><td>85</td><td>29</td><td>55</td><td>1</td><td>.345</td><td><span class="gbbar" style="width:138px"></span>23.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="calSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Schedule &amp; Form</p>
+      <h2>KT 일정 · 최근 흐름</h2>
+    </div>
+    <div class="cal">
+      <div class="calbox reveal d1">
+        <h4>이번 주 kt wiz</h4>
+        <ul class="week" id="ktWeek"><li><span class="d">—</span><span class="m">데이터 수집 대기 중</span><span class="t"></span></li></ul>
+      </div>
+      <div class="calbox reveal d2">
+        <h4>최근 5경기</h4>
+        <div class="form" id="ktForm"></div>
+        <ul class="formlist" id="ktFormList"><li>데이터 수집 대기 중</li></ul>
+      </div>
+      <div class="calbox reveal d3" id="ktRestBox" style="grid-column:1/-1;display:none">
+        <h4>잔여 경기 일정 <span id="ktRestCount"></span></h4>
+        <ul class="week" id="ktRestList"></ul>
+        <button class="h2h-toggle" id="ktRestTgl" type="button" aria-expanded="false" aria-controls="ktRestList" style="margin-top:14px"></button>
+        <p class="board-note" id="ktRestNote" style="margin-top:12px"></p>
+      </div>
+      <div class="calbox reveal d3" id="ktCancelBox" style="grid-column:1/-1;display:none">
+        <details class="fold">
+          <summary><h4>시즌 취소 경기</h4><span class="fold__hint">재편성 날짜 보기</span></summary>
+          <ul class="week" id="ktCancelList"></ul>
+          <p class="board-note" id="ktCancelNote" style="margin-top:12px"></p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="anaSec">
+    <div class="sec-head reveal">
+      <h2>분석</h2>
+      <p class="kicker">Analysis</p>
+    </div>
+    <div data-tabs>
+      <div class="tabs" role="tablist" aria-label="분석">
+        <button type="button" role="tab" id="t-last" aria-controls="p-last">지난 경기</button>
+        <button type="button" role="tab" id="t-h2h" aria-controls="p-h2h">상대전적</button>
+        <button type="button" role="tab" id="t-rank" aria-controls="p-rank">순위 변동</button>
+        <button type="button" role="tab" id="t-title" aria-controls="p-title">타이틀 레이스</button>
+        <button type="button" role="tab" id="t-spot" aria-controls="p-spot">이 주의 마법사</button>
+      </div>
+      <div class="tabpanel" id="p-last" role="tabpanel" aria-labelledby="t-last">
+<section id="lastGameSec">
+    <div class="sec-head reveal">
+      <p class="kicker" id="lgKicker">Last game</p>
+      <h2>지난 경기</h2>
+    </div>
+    <div class="lastgame reveal d1" id="lastGameBox">
+      <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
+    </div>
+  </section>
+      </div>
+      <div class="tabpanel" id="p-h2h" role="tabpanel" aria-labelledby="t-h2h">
+<section id="h2hSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Head to Head</p>
+      <h2>KT 상대전적</h2>
+      <p class="sub">팀당 16차전 — 승·무·패와 남은 맞대결까지 한눈에</p>
+    </div>
+    <div class="h2h-sum reveal d1" id="h2hSum"></div>
+    <div class="h2hbox reveal d1"><ul class="h2h-list" id="h2hList"></ul></div>
+    <p class="h2h-note reveal d2" id="h2hNote"></p>
+    <button class="h2h-toggle reveal d2" id="h2hTgl" type="button" aria-expanded="false" aria-controls="h2hMatWrap">전체 10팀 매트릭스 펼치기 ▾</button>
+    <div class="tablebox" id="h2hMatWrap" style="overflow-x:auto;display:none;margin-top:14px">
+      <table class="h2h"><thead id="h2hHead"></thead><tbody id="h2hBody"></tbody></table>
+      <p class="h2h-note" style="margin:10px 4px 4px">각 칸은 가로줄 팀 기준 승-패 · 무승부 제외</p>
+    </div>
+  </section>
+      </div>
+      <div class="tabpanel" id="p-rank" role="tabpanel" aria-labelledby="t-rank">
+<section id="rankChartSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Rank History</p>
+      <h2>시즌 순위 변동</h2>
+    </div>
+    <div class="chartbox reveal d1">
+      <div class="rank-controls">
+        <button id="rankPlay" type="button" aria-label="재생">▶ 재생</button>
+        <input id="rankSlider" type="range" min="1" value="1" step="1" aria-label="날짜 이동">
+        <span id="rankDate"></span>
+      </div>
+      <canvas id="rankCanvas"></canvas>
+      <div class="chart-legend" id="rankLegend"></div>
+    </div>
+  </section>
+      </div>
+      <div class="tabpanel" id="p-title" role="tabpanel" aria-labelledby="t-title">
+<section id="titleSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">Title Race</p>
+      <h2>개인 타이틀 레이스</h2>
+      <p class="sub">부문별 리그 TOP3 — KBO 공식 기록, 우리 팀 선수 강조</p>
+    </div>
+    <div class="titlegrid reveal d1" id="titleGrid"></div>
+  </section>
+      </div>
+      <div class="tabpanel" id="p-spot" role="tabpanel" aria-labelledby="t-spot">
+<section id="spotSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Spotlight</p>
+      <h2>이 주의 마법사</h2>
+    </div>
+    <div class="spot reveal d1">
+      <div class="ghostnum" aria-hidden="true" id="spotNum">3</div>
+      <div class="pos" id="spotPos">오늘의 키플레이어</div>
+      <div class="name" id="spotName">최원준</div>
+      <p id="spotDesc">경기 데이터가 수집되면 이 자리에 그날의 키플레이어가 자동으로 표시됩니다.</p>
+      <div class="nums" id="spotNums">
+        <div class="n"><b>.365</b><span>타율</span></div>
+        <div class="n"><b>7</b><span>홈런</span></div>
+        <div class="n"><b>44</b><span>타점</span></div>
+      </div>
+    </div>
+  </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="newsBlock">
+    <div class="sec-head reveal">
+      <h2>소식</h2>
+      <p class="kicker">News &amp; media</p>
+    </div>
+    <div class="news2">
+<section id="newsSec">
+    <div class="sec-head reveal">
+      <p class="kicker">News</p>
+      <h2>wiz 최근 소식</h2>
+    </div>
+    <div class="cards" id="newsCards">
+      <div class="card reveal d1">
+        <span class="date">자동 수집 대기 중</span>
+        <span class="chip">뉴스</span>
+        <h3>kt wiz 관련 최신 기사가 이 자리에 자동으로 표시됩니다</h3>
+        <p>구글 뉴스에서 30분 주기로 수집됩니다.</p>
+      </div>
+    </div>
+    <p class="gall-note reveal d2">구글 뉴스 검색 결과의 제목·출처만 표시하며, 클릭 시 해당 언론사 기사로 이동합니다.</p>
+  </section>
+<section id="ytSec" style="display:none">
+    <div class="sec-head reveal">
+      <p class="kicker">wiz TV</p>
+      <h2>공식 유튜브 최신 영상</h2>
+    </div>
+    <div class="yt reveal d1" id="ytGrid"></div>
+  </section>
+    </div>
+<section id="instaSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Instagram</p>
+      <h2>선수단 인스타그램</h2>
+    </div>
+    <div class="insta reveal d1">
+      <a class="official" href="https://www.instagram.com/ktwiz.pr/" target="_blank" rel="noopener">
+        <span><span class="nm">kt wiz 공식</span><br><span class="hd">@ktwiz.pr · 구단 공식 계정</span></span>
+      </a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EC%86%8C%ED%98%95%EC%A4%80" target="_blank" rel="noopener"><span class="nm">소형준</span><span class="hd">투수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EB%B0%95%EC%98%81%ED%98%84" target="_blank" rel="noopener"><span class="nm">박영현</span><span class="hd">투수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EA%B3%A0%EC%98%81%ED%91%9C" target="_blank" rel="noopener"><span class="nm">고영표</span><span class="hd">투수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EC%B5%9C%EC%9B%90%EC%A4%80" target="_blank" rel="noopener"><span class="nm">최원준</span><span class="hd">외야수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EA%B9%80%ED%98%84%EC%88%98" target="_blank" rel="noopener"><span class="nm">김현수</span><span class="hd">내야수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EC%95%88%ED%98%84%EB%AF%BC" target="_blank" rel="noopener"><span class="nm">안현민</span><span class="hd">외야수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%EB%B0%B0%EC%A0%95%EB%8C%80" target="_blank" rel="noopener"><span class="nm">배정대</span><span class="hd">외야수 · 인스타 검색</span></a>
+      <a href="https://www.instagram.com/explore/search/keyword/?q=%ED%97%88%EA%B2%BD%EB%AF%BC" target="_blank" rel="noopener"><span class="nm">허경민</span><span class="hd">내야수 · 인스타 검색</span></a>
+    </div>
+    <p class="insta-note reveal d2">공식 계정 외 선수 개인 계정은 사칭 계정 위험 때문에 직접 연결 대신 인스타그램 검색으로 안내합니다.</p>
+  </section>
+<section id="linkSec">
+    <div class="sec-head reveal">
+      <p class="kicker">Links</p>
+      <h2>실시간 확인</h2>
+    </div>
+    <div class="links reveal d1">
+      <a class="primary" href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식 홈페이지</a>
+      <a href="https://www.koreabaseball.com/Record/TeamRank/TeamRankDaily.aspx" target="_blank" rel="noopener">KBO 공식 순위표</a>
+      <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠 kt wiz</a>
+      <a href="https://yagu.today/teams/kt" target="_blank" rel="noopener">경기 일정 · 오늘야구</a>
+    </div>
+  </section>
+  </section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div><strong>wiz board</strong> — kt wiz 팬이 만든 비공식 상황판. kt wiz·KBO와 무관합니다.<br>스코어·순위·라인업·날씨는 자동 수집으로 갱신됩니다.</div>
+    <div class="mischief">See you in Suwon.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 (캐시된 옛 페이지 방지) ---------- */
+  const BUILD = '20260927-101459';
+  async function checkVersion(){
+    try{
+      const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
+      if(!r.ok) return;
+      const v = (await r.text()).trim();
+      if(!v || v === BUILD || BUILD.indexOf('%') === 0) return; // 로컬/플레이스홀더는 무시
+      let done = '';
+      try{ done = localStorage.getItem('wizReloadedFor') || ''; }catch(e){}
+      if(done === v) return; // 같은 버전으로 이미 리로드함 (루프 방지)
+      try{ localStorage.setItem('wizReloadedFor', v); }catch(e){}
+      location.reload();
+    }catch(e){}
+  }
+  setTimeout(checkVersion, 8000);
+  setInterval(checkVersion, 600000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) checkVersion(); });
+
+  /* ==========================================================================
+     화면 동작 (v2) — 외부 라이브러리 없음, 요소가 없으면 조용히 건너뜀
+     ========================================================================== */
+
+  /* 테마: 자동 → 밝게 → 어둡게 (선택은 브라우저에 저장). 바뀌면 캔버스 차트를 다시 그리도록 알린다 */
+  (function theme(){
+    const btn = document.getElementById('themeBtn');
+    if(!btn) return;
+    const root = document.documentElement, order = ['auto', 'light', 'dark'], name = { auto:'자동', light:'밝게', dark:'어둡게' };
+    const sys = matchMedia('(prefers-color-scheme: dark)');
+    const mode = () => root.getAttribute('data-theme') || 'auto';
+    const paint = () => {
+      const m = mode(), dark = m === 'dark' || (m === 'auto' && sys.matches);
+      btn.dataset.mode = m; btn.title = '화면 모드: ' + name[m];
+      btn.setAttribute('aria-label', '화면 모드: ' + name[m] + ' (누르면 바뀜)');
+      document.querySelectorAll('meta[name=theme-color]').forEach(x => { x.content = dark ? '#121212' : '#ffffff'; });
+      dispatchEvent(new Event('themechange'));
+    };
+    btn.addEventListener('click', () => {
+      const next = order[(order.indexOf(mode()) + 1) % order.length];
+      if(!reduce){ root.classList.add('theme-anim'); setTimeout(() => root.classList.remove('theme-anim'), 500); }
+      if(next === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', next);
+      try{ next === 'auto' ? localStorage.removeItem('wizTheme') : localStorage.setItem('wizTheme', next); }catch(e){}
+      paint();
+    });
+    if(sys.addEventListener) sys.addEventListener('change', paint);
+    paint();
+  })();
+
+  /* 탭: 데이터가 없는 탭은 스스로 숨는다(패널 안 섹션이 display:none이거나 패널이 hidden이면).
+     패널 전환은 hidden이 아니라 .is-off 클래스로 — hidden은 데이터 유무 표시에 스크립트가 이미 쓰고 있어서 */
+  (function tabs(){
+    document.querySelectorAll('[data-tabs]').forEach(root => {
+      const list = root.querySelector('.tabs');
+      const btns = [...list.querySelectorAll('[role=tab]')];
+      const panels = btns.map(b => document.getElementById(b.getAttribute('aria-controls')));
+      const bar = document.createElement('i'); bar.className = 'tabs__bar'; list.appendChild(bar);
+      let cur = -1;
+      const moveBar = () => {   // 밑줄을 선택된 탭 글자 폭에 맞춰 미끄러지게
+        const b = btns[cur];
+        if(!b || b.hidden){ bar.style.width = '0'; return; }
+        const cs = getComputedStyle(b), pl = parseFloat(cs.paddingLeft), pr = parseFloat(cs.paddingRight);
+        bar.style.width = (b.offsetWidth - pl - pr) + 'px'; bar.style.transform = 'translateX(' + (b.offsetLeft + pl) + 'px)';
+      };
+      const pick = (k, focus) => {
+        cur = k;
+        btns.forEach((b, j) => { b.setAttribute('aria-selected', j === k); b.tabIndex = j === k ? 0 : -1; });
+        panels.forEach((p, j) => p && p.classList.toggle('is-off', j !== k));
+        if(focus) btns[k].focus();
+        moveBar();
+        dispatchEvent(new Event('themechange'));   // 숨어 있던 캔버스 차트(순위 변동)가 폭을 얻었으니 다시 그리기
+      };
+      const sync = () => {
+        btns.forEach((b, j) => { const p = panels[j], sec = p && p.querySelector('section');
+          b.hidden = !p || p.hidden || (sec && sec.style.display === 'none'); });
+        root.hidden = btns.every(b => b.hidden);
+        if(cur < 0 || btns[cur].hidden){ const k = btns.findIndex(b => !b.hidden); if(k >= 0) pick(k); } else moveBar();
+      };
+      btns.forEach((b, k) => b.addEventListener('click', () => pick(k)));
+      list.addEventListener('keydown', e => {
+        if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const vis = btns.map((b, j) => j).filter(j => !btns[j].hidden), i = vis.indexOf(cur);
+        pick(vis[(i + (e.key === 'ArrowRight' ? 1 : -1) + vis.length) % vis.length], true);
+      });
+      // 데이터가 들어와 섹션 표시가 바뀌면 탭 목록을 다시 맞춘다
+      // (탭 전체를 감시하면 밑줄 위치를 옮길 때 바뀌는 style에 다시 반응해 무한 반복 → 패널만 감시)
+      if('MutationObserver' in window){ const mo = new MutationObserver(sync); panels.forEach(p => p && mo.observe(p, { attributes:true, attributeFilter:['style', 'hidden'], subtree:true })); }
+      addEventListener('resize', moveBar);
+      sync();
+    });
+  })();
+
+  /* 섹션 바로가기: 화면 위쪽을 지난 마지막 섹션을 '현재'로. 가로로 넘치는 폰에서는 현재 칸이 보이게 스크롤 */
+  (function spy(){
+    const nav = document.getElementById('subnav');
+    if(!nav) return;
+    const links = [...nav.querySelectorAll('a')];
+    const secs = links.map(a => document.getElementById(a.getAttribute('href').slice(1)));
+    let cur = -1;
+    const sync = () => {
+      let k = 0;
+      secs.forEach((s, j) => { if(s && s.offsetParent !== null && s.getBoundingClientRect().top < 170) k = j; });
+      if(k === cur) return; cur = k;
+      links.forEach((a, j) => a.classList.toggle('is-on', j === k));
+      const a = links[k], box = a.parentElement;
+      if(box.scrollWidth > box.clientWidth) box.scrollTo({ left:a.offsetLeft - 20, behavior:reduce ? 'auto' : 'smooth' });
+    };
+    addEventListener('scroll', sync, { passive:true });
+    sync();
+  })();
+
+  /* 상단 칩: 오늘 KT 경기 상태를 한 줄로 (어느 위치에서든 보임, 누르면 맨 위 '오늘'로) */
+  function renderStatusChip(games){
+    const el = document.getElementById('statusChip'), tx = document.getElementById('statusTxt');
+    if(!el) return;
+    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    el.classList.remove('is-live');
+    if(!g){ tx.textContent = '오늘 경기 없음'; return; }
+    const kt = g.home === 'KT', opp = kt ? g.away : g.home, my = kt ? g.hs : g.as, op = kt ? g.as : g.hs;
+    if(g.code === 'STARTED' || g.code === 'LIVE'){ el.classList.add('is-live'); tx.textContent = (g.status || 'LIVE') + ' · KT ' + my + ':' + op + ' ' + opp; }
+    else if(g.code === 'RESULT' || g.code === 'ENDED') tx.textContent = '종료 · KT ' + my + ':' + op + ' ' + opp + (my > op ? ' 승' : my < op ? ' 패' : ' 무');
+    else if(g.code === 'CANCEL') tx.textContent = '오늘 경기 취소 · vs ' + opp;
+    else tx.textContent = '오늘 ' + (g.time ? g.time + ' ' : '') + 'vs ' + opp;
+  }
+
+  /* ---------- 가을 낙엽 ---------- */
+  (function leaves(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // 단풍·은행·참나무 세 종류. viewBox 0 0 24 24 기준, 잎자루가 아래를 향한다.
+    const KIND = [
+      { blade:'M12 1.6 8.9 6.8 4.4 5.1 6 9.6 1.4 9.1 5.6 12.6 2.3 15.4 7.4 15.2 6.8 19.4 11 16.6 11.4 22.4 12.6 22.4 13 16.6 17.2 19.4 16.6 15.2 21.7 15.4 18.4 12.6 22.6 9.1 18 9.6 19.6 5.1 15.1 6.8Z',
+        vein:'M12 21.4V9.5M12 12.4 7.4 8.6M12 12.4 16.6 8.6' },                         // 단풍
+      { blade:'M12 22.2c0-5.4.3-7.6.3-8.7-3.1.1-6-.5-8.4-1.9C4.6 6.1 8.2 2.6 12 2.6s7.4 3.5 8.1 9c-2.4 1.4-5.3 2-8.4 1.9 0 1.1.3 3.3.3 8.7Z',
+        vein:'M12 21.6v-8.2M12 13.4 8.2 5.4M12 13.4 15.8 5.4' },                        // 은행
+      { blade:'M12 1.8c5.4 4.2 7.4 8.4 5.6 13.1-1 2.6-3 4.9-5.6 7.3-2.6-2.4-4.6-4.7-5.6-7.3C4.6 10.2 6.6 6 12 1.8Z',
+        vein:'M12 21.4V4.2M12 8.6 8.4 6.4M12 8.6l3.6-2.2M12 13 8 10.6M12 13l4-2.4' }    // 참나무
+    ];
+    const COLOR = ['#c8873c','#a8552a','#d9a94c','#8e3a1e','#b9762e','#e0b45c'];
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const mob = window.innerWidth < 700;
+
+    function sow(box, o){
+      const frag = document.createDocumentFragment();
+      for(let i = 0; i < o.n; i++){
+        const k = KIND[i % KIND.length];
+        const size = rnd(o.size[0], o.size[1]);
+        const el = document.createElement('span');
+        el.className = 'leaf';
+        // 좌우로 고르게 흩되 완전 균등하진 않게 — 줄 맞춰 떨어지는 티가 나지 않도록
+        el.style.left = (i / o.n * 100 + rnd(-4, 6)).toFixed(1) + '%';
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.setProperty('--lf', COLOR[Math.floor(rnd(0, COLOR.length))]);
+        el.style.setProperty('--dur', rnd(o.dur[0], o.dur[1]).toFixed(1) + 's');
+        el.style.setProperty('--delay', (-rnd(0, o.dur[1])).toFixed(1) + 's');  // 음수 지연 = 처음부터 흩날리는 중
+        el.style.setProperty('--sw', rnd(14, 52).toFixed(0) + 'px');
+        el.style.setProperty('--swd', rnd(2.6, 5.4).toFixed(1) + 's');
+        el.style.setProperty('--spd', rnd(o.spin[0], o.spin[1]).toFixed(1) + 's');
+        el.style.setProperty('--rx', rnd(0.2, 1).toFixed(2));
+        el.style.setProperty('--rz', rnd(-1, 1).toFixed(2));
+        el.style.opacity = rnd(o.op[0], o.op[1]).toFixed(2);
+        el.innerHTML = '<span class="sway"><span class="spin">' +
+          '<svg viewBox="0 0 24 24"><path class="blade" d="' + k.blade + '"/>' +
+          '<path class="vein" d="' + k.vein + '"/></svg></span></span>';
+        frag.appendChild(el);
+      }
+      box.appendChild(frag);
+    }
+
+    // translateY의 %는 "요소 자기 크기" 기준이라 낙하 거리로 못 쓴다 — 컨테이너 높이를 넘겨준다
+    const fits = [];
+    function bind(box, h){ const f = () => box.style.setProperty('--fall', (h() + 40) + 'px'); f(); fits.push(f); }
+
+    // 히어로: 가깝고 또렷하게
+    const hero = document.getElementById('leaves');
+    if(hero){
+      sow(hero, { n: mob ? 8 : 15, size:[13,26], dur:[11,21], spin:[4,11], op:[.45,1] });
+      bind(hero, () => hero.clientHeight);
+    }
+
+    // 배경(고정): 스크롤 내내 보이는 층. 읽기를 방해하지 않도록 더 작고·느리고·옅게.
+    const bg = document.getElementById('leavesBg');
+    if(bg){
+      sow(bg, { n: mob ? 6 : 12, size:[10,19], dur:[26,46], spin:[9,20], op:[.22,.5] });
+      bind(bg, () => window.innerHeight);
+    }
+
+    let t;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => fits.forEach(f => f()), 200); });
+  })();
+
+  /* scroll reveal */
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }
+  }), {threshold:.1, rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* count-up */
+  const cu = new IntersectionObserver(es => es.forEach(e => {
+    if(!e.isIntersecting) return;
+    const el = e.target, target = +el.dataset.count;
+    cu.unobserve(el);
+    if(reduce){ el.textContent = target; return; }
+    const t0 = performance.now(), dur = 1200;
+    (function tick(t){
+      const p = Math.min((t - t0)/dur, 1), ease = 1 - Math.pow(1-p, 3);
+      el.textContent = Math.round(target * ease);
+      if(p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }), {threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(el => cu.observe(el));
+
+  /* fallback: 3초 내 관찰자 미발화 시 즉시 표시 */
+  setTimeout(() => {
+    document.querySelectorAll('.reveal:not(.on)').forEach(el => el.classList.add('on'));
+    document.querySelectorAll('[data-count]').forEach(el => {
+      if(el.textContent === '0' && +el.dataset.count !== 0) el.textContent = el.dataset.count;
+    });
+  }, 3000);
+
+  /* parallax: hero 사진 + VICTORY 고스트 타이포 */
+  const heroBg = document.getElementById('heroBg');
+  const ghost = document.getElementById('ghostType');
+  if(!reduce){
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if(ticking) return; ticking = true;
+      requestAnimationFrame(() => {
+        const y = scrollY;
+        if(heroBg && y < innerHeight * 1.4) heroBg.style.transform = 'translateY(' + (y * .28) + 'px)';
+        if(ghost){
+          const r = ghost.parentElement.getBoundingClientRect();
+          if(r.bottom > 0 && r.top < innerHeight){
+            const p = (innerHeight - r.top) / (innerHeight + r.height);
+            ghost.style.transform = 'translate(' + ((p - .5) * -160).toFixed(1) + 'px, -50%)';
+          }
+        }
+        ticking = false;
+      });
+    }, {passive:true});
+  }
+
+  /* ---------- 구장별 라이브 현황판 ---------- */
+  const SEED = [
+    {stadium:'광주', away:'KT', home:'KIA', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'로건', hp:'올러'},
+    {stadium:'대구', away:'한화', home:'삼성', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'박준영', hp:'페덱'},
+    {stadium:'문학', away:'LG', home:'SSG', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'임찬규', hp:'해치'},
+    {stadium:'잠실', away:'NC', home:'두산', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'라일리', hp:'최민석'},
+    {stadium:'사직', away:'키움', home:'롯데', as:0, hs:0, status:'취소', code:'CANCEL', reason:'폭염취소', ap:'안우진', hp:'박세웅'}
+  ];
+  const board = document.getElementById('board');
+  const stamp = document.getElementById('boardStamp');
+  const dot = document.getElementById('liveDot');
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  /* 팀 시즌 전적 (8/4 종료 기준 — live.json 로드 시 자동 갱신되는 폴백값) */
+  const REC = {'KT':'59-36-2','삼성':'59-39-2','LG':'55-45-1','두산':'52-45-4','KIA':'52-46-2','한화':'47-49-3','NC':'43-50-2','롯데':'44-54-2','SSG':'39-60-4','키움':'38-64-2'};
+
+  /* 구장 좌표 (Open-Meteo 날씨용) */
+  const COORD = {
+    '수원':[37.2997,127.0097],'잠실':[37.512,127.072],'대구':[35.841,128.6819],
+    '대전':[36.3173,127.4290],'사직':[35.1941,129.0615],'고척':[37.498,126.867],
+    '창원':[35.2225,128.5822],'광주':[35.1683,126.8889],'문학':[37.437,126.6933],
+    '포항':[36.008,129.359],'울산':[35.532,129.265],'청주':[36.639,127.470]
+  };
+  const WX = {};
+  let lastGames = SEED, lastLive = false;
+
+  /* 취소 사유 라벨: KBO 공식 사유(live.json reason) 우선, 없으면 구장 날씨로 추정 */
+  function cancelLabel(g, w){
+    if(g.reason){
+      const ic = g.reason.indexOf('폭염') >= 0 ? '🥵 ' : (g.reason.indexOf('우천') >= 0 ? '☔ ' : (g.reason.indexOf('미세먼지') >= 0 ? '😷 ' : ''));
+      return ic + g.reason.replace('취소', ' 취소');
+    }
+    if(w){
+      // 폭염 신호(경기 시간대 체감 33°+ — KBO 혹서 취소 검토 기준 — 또는 기온 33°+)가 소나기 확률보다 우선
+      if((w.at18 != null && w.at18 >= 33) || (w.t18 != null ? w.t18 : w.t) >= 33) return '🥵 폭염 취소';
+      if(w.pp >= 50) return '☔ 우천 취소';
+    }
+    return g.status;
+  }
+
+  function wmoIcon(c){
+    if(c <= 1) return '☀️'; if(c === 2) return '⛅'; if(c === 3) return '☁️';
+    if(c === 45 || c === 48) return '🌫️'; if(c >= 95) return '⛈️';
+    if(c >= 71 && c <= 77) return '❄️'; if(c >= 51) return '🌧️';
+    return '🌤️';
+  }
+
+  async function fetchWeather(){
+    // 10구단 홈구장은 항상 + 제2구장(포항·울산·청주)은 경기 있는 날만
+    // 고척은 돔구장이라 날씨 무관 → 제외
+    const HOMES = ['수원','잠실','대구','대전','사직','창원','광주','문학'];
+    const names = HOMES.concat(Object.keys(COORD).filter(n =>
+      n !== '고척' && HOMES.indexOf(n) < 0 && lastGames.some(g => (g.stadium || '').indexOf(n) === 0)));
+    const lats = names.map(n => COORD[n][0]).join(','), lons = names.map(n => COORD[n][1]).join(',');
+    try{
+      const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
+        '&current=temperature_2m,weather_code&hourly=precipitation_probability,temperature_2m,apparent_temperature,weather_code&forecast_days=1&timezone=Asia%2FSeoul');
+      if(!r.ok) return;
+      let j = await r.json();
+      if(!Array.isArray(j)) j = [j];
+      names.forEach((n, i) => {
+        const d = j[i]; if(!d || !d.current) return;
+        const h = d.hourly || {};
+        const pp = h.precipitation_probability ? Math.max(h.precipitation_probability[18] || 0, h.precipitation_probability[19] || 0) : null;
+        const t18 = h.temperature_2m && h.temperature_2m[18] != null ? Math.round(h.temperature_2m[18]) : null;
+        const at18 = h.apparent_temperature && h.apparent_temperature[18] != null ? Math.round(h.apparent_temperature[18]) : null;
+        const hours = [];
+        if(h.temperature_2m){
+          for(let i = 12; i <= 22 && i < h.temperature_2m.length; i++){
+            hours.push({
+              h: i,
+              t: Math.round(h.temperature_2m[i]),
+              at: h.apparent_temperature ? Math.round(h.apparent_temperature[i]) : null,
+              pp: h.precipitation_probability ? (h.precipitation_probability[i] || 0) : null,
+              code: h.weather_code ? h.weather_code[i] : null
+            });
+          }
+        }
+        WX[n] = { t: Math.round(d.current.temperature_2m), icon: wmoIcon(d.current.weather_code), code: d.current.weather_code, pp: pp, t18: t18, at18: at18, hours: hours };
+        wxUpdated = new Date();
+      });
+      render(lastGames, lastLive);
+    }catch(e){ /* 날씨 없이 표시 */ }
+  }
+
+  /* ---------- 구장 날씨 (현황판 오늘 경기 표시용) ---------- */
+  let wxUpdated = null;
+
+  /* KT 타이포 배너 갱신 */
+  let ktWeekCache = null; // 다음 경기 안내용 (loadData에서 갱신)
+  let ktLastCache = null; // 마지막 경기 (공백일 카운트용)
+
+  function ktGapNext(){
+    /* "마지막 경기 후 N일째 · 다음 경기 …" — 연속 취소·휴식기용 */
+    let parts = [];
+    if(ktLastCache && ktLastCache.date){
+      const days = Math.round((new Date().setHours(0,0,0,0) - new Date(ktLastCache.date + 'T00:00:00').getTime()) / 86400000);
+      if(days >= 2) parts.push('마지막 경기 후 <b>' + days + '일째</b>');
+    }
+    if(ktWeekCache){
+      const n = ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
+      if(n){
+        const ktHome = n.home === 'KT';
+        parts.push('다음 경기 ' + esc(n.date.slice(5).replace('-', '.')) + ' vs <b>' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + (ktHome ? ' (홈)' : ' (원정)'));
+      }
+    }
+    return parts.join(' · ');
+  }
+
+  function updateBanner(games){
+    /* 더블헤더 대비: 진행 중 > 예정 > (종료·취소 중 마지막) 순으로 대표 경기 선택 */
+    const ktGames = games.filter(x => x.home === 'KT' || x.away === 'KT');
+    const g = ktGames.find(x => x.code === 'STARTED' || x.code === 'LIVE')
+      || ktGames.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code))
+      || ktGames[ktGames.length - 1];
+    const dhTxt = ktGames.length > 1 ? ' · 더블헤더 ' + (ktGames.indexOf(g) + 1) + '차전' : '';
+    const m = document.getElementById('ktMatch'), d = document.getElementById('ktDetail');
+    if(!g){
+      /* 오늘 KT 경기 없음 → 휴식일 표기 + 다음 경기 안내 */
+      m.innerHTML = '오늘은 <span class="live-score">경기가 없는 날</span>';
+      d.innerHTML = ktGapNext() || '마법사들도 재정비 중 — 다음 경기에서 만나요 🧙';
+      return;
+    }
+    const done = g.code === 'RESULT' || g.code === 'ENDED';
+    const playing = g.code === 'STARTED' || g.code === 'LIVE';
+    if(g.code === 'CANCEL'){
+      const wname = Object.keys(COORD).find(n => (g.stadium || '').indexOf(n) === 0);
+      m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
+      const gn = ktGapNext();
+      d.innerHTML = '오늘 경기 <b>' + esc(cancelLabel(g, wname && WX[wname])) + '</b> · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + (gn ? '<br>' + gn : '');
+      return;
+    }
+    if(playing || done){
+      m.innerHTML = esc(g.away) + ' <span class="live-score">' + g.as + '</span><span class="at">:</span><span class="live-score">' + g.hs + '</span> ' + esc(g.home);
+      d.innerHTML = (done ? '경기 종료' : '<b>' + esc(g.status) + '</b>') + ' · ' + esc(g.stadium || '') + (g.home === 'KT' ? ' (홈)' : ' (원정)') + dhTxt;
+    }else{
+      m.innerHTML = esc(g.away) + ' <span class="at">vs</span> ' + esc(g.home);
+      const wname = Object.keys(COORD).find(n => (g.stadium||'').indexOf(n) === 0);
+      const w = wname && WX[wname];
+      let pb = '';
+      if(w){
+        const pl = playability(w.pp, w.code, w.at18);
+        if(pl) pb = ' <span class="playbadge ' + pl.s + '" title="' + esc(pl.d) + '">' + w.icon + ' ' + esc(pl.t) + '</span>';
+      }
+      const bh = g.home === 'KT'; // 원정이어도 우리 팀 선발을 앞에·볼드로
+      d.innerHTML = '오늘 ' + esc(g.time || '18:30') + ' · ' + esc(g.stadium || '') + (bh ? ' (홈)' : ' (원정)') + dhTxt + ' · 선발 <b>' + esc((bh ? g.hp : g.ap) || '미정') + '</b> vs ' + esc((bh ? g.ap : g.hp) || '미정') + pb;
+    }
+  }
+
+  function render(games, live){
+    lastGames = games; lastLive = live;
+    updateBanner(games);
+    if(!games.length){
+      board.innerHTML = '<div class="empty">오늘은 예정된 KBO 경기가 없습니다 ⚾</div>';
+      stamp.textContent = '자동 수집 · ' + updatedKST + ' KST';
+      dot.style.background = '#86868b';
+      return;
+    }
+    games = games.slice().sort((a,b) => ((b.home==='KT'||b.away==='KT')?1:0) - ((a.home==='KT'||a.away==='KT')?1:0));
+    /* 더블헤더 감지: 같은 날 같은 대진 2경기 → DH 1·2차 표기 (취소 재편성 시즌 대비) */
+    const dhCnt = {}, dhSeen = {};
+    games.forEach(g => { const k = g.date + '|' + g.away + '|' + g.home; dhCnt[k] = (dhCnt[k] || 0) + 1; });
+    board.innerHTML = games.map(g => {
+      const dhKey = g.date + '|' + g.away + '|' + g.home;
+      let dhTag = '';
+      if(dhCnt[dhKey] > 1){ dhSeen[dhKey] = (dhSeen[dhKey] || 0) + 1; dhTag = ' <span class="dhtag">DH' + dhSeen[dhKey] + '</span>'; }
+      const isKT = g.home === 'KT' || g.away === 'KT';
+      const done = g.code === 'RESULT' || g.code === 'ENDED';
+      const playing = g.code === 'STARTED' || g.code === 'LIVE';
+      const stCls = playing ? 'status live' : (done ? 'status end' : 'status');
+      const before = !done && !playing;
+      const sc = before
+        ? '<span class="d">' + esc(g.status.replace(/[^0-9:]/g,'') || 'VS') + '</span>'
+        : '<span class="' + (done && g.as > g.hs ? 'w' : '') + '">' + g.as + '</span><span class="d">:</span><span class="' + (done && g.hs > g.as ? 'w' : '') + '">' + g.hs + '</span>';
+      const side = (name, pitcher, cls) =>
+        '<div class="side ' + cls + '"><span class="team">' + esc(name) + '<span class="rec">' + esc(REC[name] || '') + '</span></span>' +
+        '<span class="sp">선발 <b>' + esc(pitcher || '미정') + '</b></span></div>';
+      const wname = Object.keys(COORD).find(n => g.stadium.indexOf(n) === 0);
+      const w = wname && WX[wname];
+      const wx = w ? '<span class="wx">' + w.icon + ' ' + w.t + '°' +
+        (w.pp != null ? ' <span class="pp' + (w.pp >= 50 ? ' rainy' : '') + '">☂' + w.pp + '%</span>' : '') + '</span>' : '';
+      return '<div class="game' + (isKT ? ' kt-game' : '') + '">' +
+        '<span class="stadium"><span>' + esc(g.stadium) + dhTag + '</span>' + wx + '</span>' +
+        side(g.away, g.ap, 'away') +
+        '<div class="mid"><span class="sc">' + sc + '</span></div>' +
+        side(g.home, g.hp, 'home') +
+        '<span class="' + stCls + '" ' + (g.code === 'CANCEL' && !g.reason && w ? 'title="구장 기상 데이터 기반 추정"' : (g.reason ? 'title="KBO 공식 일정 기준"' : '')) + '>' +
+          esc(g.code === 'CANCEL' ? cancelLabel(g, w) : g.status) + '</span>' +
+      '</div>';
+    }).join('');
+    const now = new Date();
+    const ageMin = updatedISO ? Math.round((Date.now() - new Date(updatedISO).getTime()) / 60000) : null;
+    const stale = ageMin != null && ageMin > 40;
+    stamp.textContent = live
+      ? (stale ? '⚠️ 갱신 지연 · ' : '자동 수집 · ') + (updatedKST || (now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'))) + ' KST' + (ageMin != null ? ' (' + ageMin + '분 전)' : '')
+      : '기본 데이터 · ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 기준';
+    dot.style.background = !live ? '#86868b' : (stale ? 'var(--gold)' : 'var(--ok)');
+  }
+
+  /* ---------- 자동 수집 JSON (GitHub Actions, 5분 주기) ---------- */
+  let updatedKST = '', updatedISO = null;
+
+  function renderWeek(week, today){
+    const el = document.getElementById('ktWeek');
+    if(!week || !week.length){ el.innerHTML = '<li><span class="d">—</span><span class="m">이번 주 예정 경기 없음</span><span class="t"></span></li>'; return; }
+    const DOW = ['일','월','화','수','목','금','토'];
+    const wkCnt = {}, wkSeen = {};
+    week.forEach(g => { wkCnt[g.date] = (wkCnt[g.date] || 0) + 1; });
+    el.innerHTML = week.map(g => {
+      const ktHome = g.home === 'KT';
+      const opp = ktHome ? g.away : g.home;
+      const dt = new Date(g.date + 'T00:00:00');
+      const isToday = g.date === today;
+      let dh = '';
+      if(wkCnt[g.date] > 1){ wkSeen[g.date] = (wkSeen[g.date] || 0) + 1; dh = ' DH' + wkSeen[g.date]; }
+      const done = g.code === 'RESULT' || g.code === 'ENDED';
+      const right = done
+        ? ((ktHome ? g.hs : g.as) + ':' + (ktHome ? g.as : g.hs) + (((ktHome?g.hs:g.as) > (ktHome?g.as:g.hs)) ? ' 승' : ((ktHome?g.hs:g.as) < (ktHome?g.as:g.hs)) ? ' 패' : ' 무'))
+        : (g.code === 'CANCEL' ? (g.reason || '취소') : g.time + ' · ' + g.stadium);
+      return '<li><span class="d' + (isToday ? ' today' : '') + '">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')' + dh + '</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span></span>' +
+        '<span class="t">' + esc(right) + '</span></li>';
+    }).join('');
+  }
+
+  /* 시즌 취소 경기 (KT) — KBO 공식 일정 기준, 사유·잔여 경기 포함 */
+  /* ---------- 잔여 경기 일정 (시즌 끝까지) ---------- */
+  let ktRestOpen = false;
+  function renderRest(sched, games, standings){
+    const box = document.getElementById('ktRestBox');
+    /* 잔여 일정은 하루 1회 계산이라 오늘 끝난 경기가 남아 있을 수 있다 → 종료된 경기는 뺀다 */
+    const done = {};
+    (games || []).forEach(g => {
+      if(g.code === 'RESULT' || g.code === 'ENDED') done[g.date + '|' + g.away + '|' + g.home] = 1;
+    });
+    const list = ((sched && sched.mine) || []).filter(g => !done[g.date + '|' + g.away + '|' + g.home]);
+    if(!box || !list.length) return;
+    box.style.display = '';
+    const DOW = ['일','월','화','수','목','금','토'];
+    /* 재편성 경기 표시: makeups의 값(재편성 날짜)+대진으로 역인덱스를 만든다 */
+    const mkSet = {};
+    Object.entries((sched && sched.makeups) || {}).forEach(([k, v]) => {
+      const p = k.split('|');
+      if(v && v.date) mkSet[v.date + '|' + p[1] + '|' + p[2]] = v.sure;
+    });
+    const SHOW = 8;
+    const rows = ktRestOpen ? list : list.slice(0, SHOW);
+    document.getElementById('ktRestCount').textContent = '· 총 ' + list.length + '경기';
+    document.getElementById('ktRestList').innerHTML = rows.map(g => {
+      const ktHome = g.home === 'KT';
+      const opp = ktHome ? g.away : g.home;
+      const dt = new Date(g.date + 'T00:00:00');
+      const sure = mkSet[g.date + '|' + g.away + '|' + g.home];
+      const mkTag = sure === undefined ? '' :
+        '<span class="mk' + (sure ? '' : ' est') + '" title="' +
+        (sure ? '취소 경기의 재편성분입니다' : '재편성분으로 추정되는 경기입니다') + '">재편성' + (sure ? '' : '?') + '</span>';
+      return '<li><span class="d">' + g.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span>' + mkTag + '</span>' +
+        '<span class="t">' + esc(g.time || '') + ' · ' + esc(g.stadium) + '</span></li>';
+    }).join('');
+    const tgl = document.getElementById('ktRestTgl');
+    tgl.textContent = ktRestOpen ? '접기 ▴' : ('전체 ' + list.length + '경기 보기 ▾');
+    tgl.setAttribute('aria-expanded', String(ktRestOpen));
+    tgl.onclick = () => { ktRestOpen = !ktRestOpen; renderRest(sched, games, standings); };
+    const home = list.filter(g => g.home === 'KT').length;
+    /* 144경기 기준 잔여보다 편성된 경기가 적으면 = 아직 날짜가 안 잡힌 취소분이 남아 있다는 뜻 */
+    const me = (standings || []).find(t => t.name === 'KT');
+    const totalLeft = me ? 144 - (me.w + me.l + me.d) : null;
+    const unset = totalLeft != null ? totalLeft - list.length : 0;
+    document.getElementById('ktRestNote').innerHTML =
+      'KBO 공개 잔여 일정 기준 — 홈 <b>' + home + '</b> · 원정 <b>' + (list.length - home) + '</b>경기. ' +
+      (unset > 0 ? '이와 별개로 <b>' + unset + '경기</b>는 취소 후 아직 날짜가 잡히지 않았습니다(144경기 기준 잔여 ' + totalLeft + '). ' : '') +
+      '<span class="mk" style="margin:0">재편성</span> 표시는 취소 경기가 다시 편성된 경기입니다.';
+  }
+
+  function renderCancelled(cn, standings, sched){
+    const box = document.getElementById('ktCancelBox');
+    if(!box || !cn || !cn.list) return;
+    const kt = cn.list.filter(c => c.away === 'KT' || c.home === 'KT');
+    if(!kt.length) return;
+    box.style.display = '';
+    const DOW = ['일','월','화','수','목','금','토'];
+    const icon = r => r.indexOf('폭염') >= 0 ? '🥵 ' : (r.indexOf('우천') >= 0 ? '☔ ' : (r.indexOf('미세먼지') >= 0 ? '😷 ' : ''));
+    document.getElementById('ktCancelList').innerHTML = kt.slice().reverse().map(c => {
+      const ktHome = c.home === 'KT';
+      const opp = ktHome ? c.away : c.home;
+      const dt = new Date(c.date + 'T00:00:00');
+      /* 재편성 날짜: 대진별 잔여 경기 수로 역산 (sure=수학적 확정 / 아니면 추정) */
+      const mk = sched && sched.makeups ? sched.makeups[c.date + '|' + c.away + '|' + c.home] : null;
+      let mkTag = '';
+      if(mk && mk.date){
+        const mDt = new Date(mk.date + 'T00:00:00');
+        const label = mk.date.slice(5).replace('-','.') + ' (' + DOW[mDt.getDay()] + ')';
+        mkTag = '<span class="mk' + (mk.sure ? '' : ' est') + '" title="' +
+          (mk.sure
+            ? '이 대진의 잔여 경기 수가 취소 경기 수와 같아 재편성 날짜가 확정적으로 특정됩니다'
+            : 'KBO가 재편성 경기를 일정에 따로 표시하지 않아, 같은 대진의 잔여 경기 중 뒤쪽 경기를 재편성분으로 추정한 값입니다') +
+          '">→ ' + label + (mk.sure ? '' : ' 추정') + '</span>';
+      }
+      return '<li><span class="d">' + c.date.slice(5).replace('-','.') + ' (' + DOW[dt.getDay()] + ')</span>' +
+        '<span class="m"><b>vs ' + esc(opp) + '</b><span class="ha ' + (ktHome ? 'h">홈' : 'a">원정') + '</span>' + mkTag + '</span>' +
+        '<span class="t">' + icon(c.reason) + esc(c.reason) + ' · ' + esc(c.stadium) + '</span></li>';
+    }).join('');
+    const heat = kt.filter(c => c.reason.indexOf('폭염') >= 0).length;
+    const rain = kt.filter(c => c.reason.indexOf('우천') >= 0).length;
+    const etc = kt.length - heat - rain;
+    const s = (standings || []).find(t => t.name === 'KT');
+    const rem = s ? 144 - (s.w + s.l + s.d) : null;
+    /* 잔여 일정 표본이 잔여 경기 수와 같으면 = 취소분이 모두 재편성되어 일정이 확정된 상태 */
+    const se = sched && sched.teams ? sched.teams.find(t => t.name === 'KT') : null;
+    const rescheduled = se && se.sampleN > 0 && se.sampleN >= se.remaining;
+    document.getElementById('ktCancelNote').innerHTML =
+      'KT 취소 <b>' + kt.length + '경기</b> (🥵 폭염 ' + heat + ' · ☔ 우천 ' + rain + (etc ? ' · 기타 ' + etc : '') + ')' +
+      (rescheduled
+        ? ' — 취소분은 <b>모두 재편성 완료</b>되어 잔여 일정에 반영되었습니다.'
+        : ' — 취소된 경기는 시즌 후반 추후 재편성됩니다.') +
+      (rem != null ? ' 현재 시즌 잔여 <b>' + rem + '경기</b> (144경기 기준).' : '');
+  }
+
+  function renderForm(recent){
+    const f = document.getElementById('ktForm'), l = document.getElementById('ktFormList');
+    if(!recent || !recent.length){ l.innerHTML = '<li>최근 경기 데이터 없음</li>'; return; }
+    f.innerHTML = recent.map(g => '<span class="f ' + g.r + '">' + (g.r === 'W' ? '승' : g.r === 'L' ? '패' : '무') + '</span>').join('');
+    l.innerHTML = recent.slice().reverse().map(g =>
+      '<li><span><span class="r ' + g.r + '">' + g.r + '</span> vs ' + esc(g.opp) + '</span><span class="sc2">' + g.my + ':' + g.op + ' · ' + g.date.slice(5).replace('-','.') + '</span></li>'
+    ).join('');
+  }
+
+  /* ---------- 내 직관 기록 (localStorage, 서버 전송 없음) ---------- */
+  const ATTEND_KEY = 'wizAttendGames';
+  function attendLoad(){ try{ return JSON.parse(localStorage.getItem(ATTEND_KEY) || '{}'); }catch(e){ return {}; } }
+  function attendSave(obj){ try{ localStorage.setItem(ATTEND_KEY, JSON.stringify(obj)); }catch(e){} }
+
+  function renderAttend(kt){
+    const store = attendLoad();
+    const cands = [];
+    if(kt && kt.recent) cands.push(...kt.recent);
+    if(kt && kt.lastGame && !cands.some(g => g.id === kt.lastGame.gameId)){
+      const lg = kt.lastGame;
+      cands.push({ id: lg.date + '-' + lg.opp, date: lg.date, opp: lg.opp, my: lg.my, op: lg.op, r: lg.r });
+    }
+    if(!cands.length) return;
+    // 새 경기는 스토어에 attended:false로 등록(기존 값은 보존)
+    cands.forEach(g => { const id = g.id || (g.date + '-' + g.opp); if(!store[id]) store[id] = { date: g.date, opp: g.opp, my: g.my, op: g.op, r: g.r, attended: false }; });
+    attendSave(store);
+
+    function renderList(){
+      const entries = Object.entries(store).sort((a, b) => b[1].date.localeCompare(a[1].date)).slice(0, 20);
+      document.getElementById('attendList').innerHTML = entries.map(([id, g]) =>
+        '<li><span class="ad">' + fmtDate(g.date).replace(' (', '(').replace(')', ')') + '</span>' +
+        '<span class="am">vs ' + esc(g.opp) + ' <span class="sc2" style="font-weight:500;color:var(--muted)">' + g.my + ':' + g.op + '</span></span>' +
+        '<span class="ar ' + g.r + '">' + (g.r === 'W' ? '승' : g.r === 'L' ? '패' : '무') + '</span>' +
+        '<input type="checkbox" class="attend-toggle" data-id="' + esc(id) + '" ' + (g.attended ? 'checked' : '') + ' aria-label="직관 체크">' +
+        '</li>'
+      ).join('');
+      document.querySelectorAll('.attend-toggle').forEach(cb => {
+        cb.addEventListener('change', () => {
+          store[cb.dataset.id].attended = cb.checked;
+          attendSave(store);
+          renderStats();
+        });
+      });
+    }
+    function renderStats(){
+      const attended = Object.values(store).filter(g => g.attended);
+      const wins = attended.filter(g => g.r === 'W').length;
+      const losses = attended.filter(g => g.r === 'L').length;
+      document.getElementById('attendCount').textContent = attended.length;
+      document.getElementById('attendWin').textContent = wins;
+      const rate = attended.length ? Math.round(wins / attended.length * 100) : null;
+      document.getElementById('attendRate').textContent = rate == null ? '—' : rate + '%';
+      const badge = document.getElementById('attendBadge');
+      if(!attended.length){ badge.textContent = ''; }
+      else if(rate >= 70){ badge.textContent = '🍀 직관 요정'; }
+      else if(rate <= 30 && attended.length >= 3){ badge.textContent = '😅 직관 노잼러'; }
+      else { badge.textContent = '⚾ 위즈 팬'; }
+    }
+    renderList(); renderStats();
+  }
+
+  /* ---------- 시즌 순위 변동 차트 ---------- */
+  const TEAM_COLORS = {
+    'KT':'#ff4d63','LG':'#c30452','삼성':'#0765a8','KIA':'#ea0029','두산':'#3b4557',
+    '한화':'#f37321','NC':'#1d467d','롯데':'#8b98a8','SSG':'#ce0e2d','키움':'#820024'
+  };
+  let rankHist = null, rankFrame = 0, rankTimer = null;
+  function renderRankChart(hist, frame){
+    if(!hist || hist.length < 2) return;
+    rankHist = hist;
+    if(frame === undefined) frame = rankFrame || hist.length - 1;
+    rankFrame = frame = Math.max(1, Math.min(frame, hist.length - 1));
+    const sec = document.getElementById('rankChartSec');
+    if(sec.style.display !== 'block') sec.style.display = 'block';
+    const cv = document.getElementById('rankCanvas');
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const cw = cv.clientWidth || cv.parentElement.clientWidth;
+    // 레이아웃 전에 호출되면 폭이 비정상적으로 작음 — 다음 프레임에 재시도
+    // 숨은 탭 안이면 폭이 0 — 재시도하지 않고, 탭이 열릴 때(themechange) 다시 그린다
+    if(cw < 100){ if(cv.offsetParent !== null) requestAnimationFrame(() => renderRankChart(hist, frame)); return; }
+    const ch = 280;
+    cv.width = cw * dpr; cv.height = ch * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cw, ch);
+    const padL = 30, padR = 52, padT = 14, padB = 24; // 우측: 팀명 라벨 공간
+    const plotW = cw - padL - padR, plotH = ch - padT - padB;
+    const n = hist.length;
+    const xAt = i => padL + (n === 1 ? 0 : (i / (n - 1)) * plotW);
+    const yAt = rank => padT + ((rank - 1) / 9) * plotH;
+    // 순위 격자선 + 라벨 (1,5,10위)
+    const cs = getComputedStyle(document.documentElement), tok = k => cs.getPropertyValue(k).trim();
+    const C_LINE = tok('--line') || '#e3e3e3', C_MUTED = tok('--g2') || '#6b6b6b', C_OTHER = tok('--g3') || '#a3a3a3', C_KT = tok('--accent') || '#e0122f';
+    const FONT = '"Pretendard Variable",Pretendard,-apple-system,sans-serif';
+    ctx.strokeStyle = C_LINE; ctx.lineWidth = 1;
+    ctx.fillStyle = C_MUTED; ctx.font = '11px ' + FONT; ctx.textBaseline = 'middle';
+    [1, 5, 10].forEach(r => {
+      const y = yAt(r);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cw - padR, y); ctx.stroke();
+      ctx.fillText(r + '위', 2, y);
+    });
+    // frame일까지의 각 팀 선 + 머리점 + 팀명 라벨 (KT는 마지막에 굵게)
+    const teamNames = hist[hist.length - 1].teams.map(t => t.name);
+    const drawTeam = nm => {
+      const isKT = nm === 'KT';
+      const color = isKT ? C_KT : C_OTHER;
+      ctx.beginPath();
+      let head = null;
+      for(let i = 0; i <= frame; i++){
+        const t = hist[i].teams.find(x => x.name === nm); if(!t) continue;
+        const x = xAt(i), y = yAt(t.rank);
+        head === null ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        head = { x, y };
+      }
+      ctx.strokeStyle = color; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      if(isKT){
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }else{
+        ctx.globalAlpha = .7; ctx.lineWidth = 1.2; ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      if(head){
+        ctx.beginPath(); ctx.arc(head.x, head.y, isKT ? 4.5 : 3, 0, 7); ctx.fillStyle = color; ctx.fill();
+        ctx.font = (isKT ? '800 12px ' : '500 11px ') + FONT;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(isKT ? 'kt wiz' : nm, head.x + 7, head.y);
+      }
+    };
+    teamNames.filter(nm => nm !== 'KT').forEach(drawTeam);
+    drawTeam('KT');
+    // x축 날짜 라벨 (처음/현재)
+    ctx.fillStyle = C_MUTED; ctx.font = '11px ' + FONT; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.fillText(hist[0].date.slice(5).replace('-', '.'), padL, ch - 6);
+    ctx.textAlign = 'right';
+    ctx.fillText(hist[frame].date.slice(5).replace('-', '.'), cw - padR + 40, ch - 6);
+    document.getElementById('rankLegend').innerHTML =
+      ['KT'].concat(teamNames.filter(nm => nm !== 'KT')).map(nm =>
+        '<span><i style="background:' + (nm === 'KT' ? C_KT : C_OTHER) + '"></i>' +
+        (nm === 'KT' ? '<b>kt wiz</b>' : nm) + '</span>').join('');
+    // 컨트롤 동기화
+    const sl = document.getElementById('rankSlider');
+    sl.max = hist.length - 1; sl.value = frame;
+    document.getElementById('rankDate').textContent = hist[frame].date.replace(/-/g, '.');
+  }
+  addEventListener('themechange', () => { if(rankHist) renderRankChart(rankHist, rankFrame); });
+  function rankStop(){
+    if(rankTimer){ clearInterval(rankTimer); rankTimer = null; }
+    document.getElementById('rankPlay').textContent = '▶ 재생';
+  }
+  function rankPlayToggle(){
+    if(rankTimer){ rankStop(); return; }
+    if(rankFrame >= rankHist.length - 1) rankFrame = 1; // 끝이면 처음부터
+    document.getElementById('rankPlay').textContent = '⏸ 정지';
+    rankTimer = setInterval(() => {
+      if(!rankHist || rankFrame >= rankHist.length - 1){ rankStop(); return; }
+      renderRankChart(rankHist, rankFrame + 1);
+    }, 90);
+  }
+  document.getElementById('rankPlay').addEventListener('click', rankPlayToggle);
+  document.getElementById('rankSlider').addEventListener('input', e => { rankStop(); renderRankChart(rankHist, +e.target.value); });
+  addEventListener('resize', () => { if(rankHist && !rankTimer) renderRankChart(rankHist); });
+
+  async function loadRankHistory(){
+    const urls = [
+      'https://api.github.com/repos/ktwiz-board/ktwiz-board.github.io/contents/data/standings-history.json?ref=data',
+      'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/standings-history.json?t=' + Date.now(),
+      './data/standings-history.json?t=' + Date.now()
+    ];
+    for(const url of urls){
+      try{
+        const opts = url.includes('api.github.com') ? { headers: { Accept: 'application/vnd.github.raw+json' } } : {};
+        const r = await fetch(url, {...opts, cache: 'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
+        if(!r.ok) continue;
+        const hist = await r.json();
+        if(Array.isArray(hist) && hist.length){ renderRankChart(hist); return; }
+      }catch(e){ /* 다음 경로 */ }
+    }
+  }
+
+  function renderStandings(st, date){
+    if(!st || st.length < 10) return;
+    if(date) document.getElementById('standKicker').textContent = 'Standings · ' + date.replace(/-0?/g, '. ');
+    /* KT 팀 투타 지표 리그 위치 (순위표 부가 데이터 활용) */
+    const kt = st.find(t => t.name === 'KT');
+    if(kt && kt.era != null && kt.hra != null){
+      const rankBy = (key, asc) => {
+        const arr = st.filter(t => t[key] != null).slice().sort((a, b) => asc ? parseFloat(a[key]) - parseFloat(b[key]) : parseFloat(b[key]) - parseFloat(a[key]));
+        const i = arr.findIndex(t => t.name === 'KT');
+        return i < 0 ? null : i + 1;
+      };
+      const er = rankBy('era', true), hr2 = rankBy('hra', false), hrr = rankBy('hr', false);
+      const el2 = document.getElementById('ktStat');
+      if(el2 && er){
+        el2.style.display = '';
+        el2.innerHTML = '<b>kt wiz 팀 지표</b> — 평균자책 <b>' + esc(kt.era) + '</b> (리그 ' + er + '위) · 팀 타율 <b>' + esc(('' + kt.hra).replace(/^0\./, '.')) + '</b> (' + hr2 + '위) · 홈런 <b>' + kt.hr + '개</b> (' + hrr + '위)';
+      }
+    }
+    const max = Math.max(...st.map(t => t.w - t.l));
+    document.getElementById('standBody').innerHTML = st.map(t => {
+      const gb = ((max - (t.w - t.l)) / 2).toFixed(1);
+      const isKT = t.name === 'KT';
+      const games = t.w + t.l + t.d;
+      REC[t.name] = t.w + '-' + t.l + '-' + t.d;
+      return '<tr' + (isKT ? ' class="kt"' : '') + '><td><span class="rank">' + t.rank + '</span></td>' +
+        '<td>' + esc(t.name) + (t.rank <= 5 ? '<span class="po">PS</span>' : '') + '</td>' +
+        '<td>' + games + '</td><td>' + t.w + '</td><td>' + t.l + '</td><td>' + t.d + '</td>' +
+        '<td>' + ('' + t.wra).replace(/^0\./,'.') + '</td>' +
+        '<td>' + (gb === '0.0' ? '—' : '<span class="gbbar" style="width:' + Math.min(140, gb * 6) + 'px"></span>' + gb) + '</td></tr>';
+    }).join('');
+  }
+
+  function renderLineup(kt, games){
+    const gToday = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    /* 오늘 KT 경기 없음 → 낡은 라인업 대신 안내 + 다음 경기 */
+    if(!gToday){
+      document.getElementById('luTitle').textContent = '오늘 경기 없음';
+      document.getElementById('luLock').textContent = '휴식일';
+      document.getElementById('luWhen').textContent = '';
+      let nextTxt = '다음 경기 라인업은 발표 후 자동 표시됩니다.';
+      const n = ktWeekCache && ktWeekCache.find(x => !['RESULT','ENDED','CANCEL'].includes(x.code));
+      if(n){
+        const ktHome = n.home === 'KT';
+        nextTxt = '다음 경기: <b>' + n.date.slice(5).replace('-', '. ') + ' vs ' + esc(ktHome ? n.away : n.home) + '</b> · ' + esc(n.time) + ' ' + esc(n.stadium) + ' — 라인업은 발표 후 자동 표시';
+      }
+      document.getElementById('luStarter').innerHTML = nextTxt;
+      document.getElementById('luList').innerHTML = '<li style="color:var(--muted)">오늘은 경기가 없는 날입니다 ⚾</li>';
+      return;
+    }
+    const oppK = gToday.home === 'KT' ? gToday.away : gToday.home;
+    document.getElementById('luKicker').textContent = 'Lineup · vs ' + oppK + ' ' + (gToday.time || '');
+    if(!kt || !kt.lineup){
+      /* 경기는 있지만 라인업 미발표 → 오늘 실제 매치업으로 갱신 (이전 경기 잔재 방지) */
+      document.getElementById('luTitle').textContent = '라인업 발표 전';
+      document.getElementById('luLock').textContent = '대기 중';
+      document.getElementById('luWhen').textContent = gToday.date.slice(5).replace('-','/') + ' · ' + gToday.stadium;
+      const oppStarterPre = gToday.home === 'KT' ? gToday.ap : gToday.hp;
+      const ktStarterPre = gToday.home === 'KT' ? gToday.hp : gToday.ap;
+      document.getElementById('luStarter').innerHTML =
+        (ktStarterPre ? '선발 예고 <b>' + esc(ktStarterPre) + '</b>' : '선발 미정') +
+        ' vs ' + esc(oppK) + (oppStarterPre ? ' <b>' + esc(oppStarterPre) + '</b>' : '');
+      document.getElementById('luList').innerHTML = '<li style="color:var(--muted)">라인업 발표 대기 중 — 발표되면 자동으로 표시됩니다</li>';
+      return;
+    }
+    const g = gToday;
+    const opp = g ? (g.home === 'KT' ? g.away : g.home) : '';
+    const oppStarter = g ? (g.home === 'KT' ? g.ap : g.hp) : '';
+    document.getElementById('luTitle').textContent = '오늘 확정 라인업';
+    document.getElementById('luLock').textContent = '발표 완료';
+    if(g) document.getElementById('luWhen').textContent = g.date.slice(5).replace('-','/') + ' · ' + g.stadium;
+    document.getElementById('luStarter').innerHTML = '선발 <b>' + esc(kt.lineup.starter) + '</b>' + (opp ? ' vs ' + esc(opp) + ' <b>' + esc(oppStarter) + '</b>' : '');
+    const POS = {'지명타자':'DH','포수':'C','1루수':'1B','2루수':'2B','3루수':'3B','유격수':'SS','좌익수':'LF','중견수':'CF','우익수':'RF','투수':'P'};
+    document.getElementById('luList').innerHTML = kt.lineup.batters.map(b =>
+      '<li><b>' + esc(b.name) + '</b><span class="ps">' + (POS[b.pos] || esc(b.pos)) + '</span></li>').join('');
+  }
+
+  /* ---------- 득점 로그 (KT 기준 — 언제·무엇으로 득점/실점했는지) ---------- */
+  function renderScoreLog(kt, games){
+    const box = document.getElementById('scoreLog');
+    const sl = kt && kt.scoreLog;
+    if(!box || !sl || !sl.events) { if(box) box.style.display = 'none'; return; }
+    const flat = [];
+    Object.keys(sl.events).sort((a, b) => +a - +b).forEach(inn => {
+      (sl.events[inn] || []).forEach(e => flat.push(e));
+    });
+    // 초 → 말 순서 보정 (같은 이닝 내에서 초의 실점이 먼저 오도록)
+    flat.sort((a, b) => (a.inn - b.inn) || ((a.half === '초' ? 0 : 1) - (b.half === '초' ? 0 : 1)));
+    if(!flat.length){ box.style.display = 'none'; return; }
+    box.style.display = '';
+    document.getElementById('scoreLogList').innerHTML = flat.map(e => {
+      const isKt = e.team === 'KT';
+      const scorer = (e.scorer || '').replace(/^\d+루주자\s*/, '').replace(/^타자주자\s*/, '');
+      const selfScored = scorer === e.batter; // 홈런: 타자 본인이 곧바로 득점 — 이름 중복 표기 방지
+      return '<li class="' + (isKt ? 'plus' : 'minus') + '"><span class="inn">' + e.inn + '회' + esc(e.half) + '</span>' +
+        '<span class="sign">' + (isKt ? '+' : '−') + '</span>' +
+        '<span class="desc"><b>' + esc(scorer) + '</b> 득점' + (e.how ? ' · ' + (selfScored ? '' : esc(e.batter) + ' ') + esc(e.how) : '') +
+        '<span>(' + (isKt ? 'KT 득점' : esc(e.team) + ' 득점 — KT 실점') + ')</span></span></li>';
+    }).join('');
+  }
+
+  function renderBox(kt, games){
+    const box = kt && kt.box;
+    const sec = document.getElementById('boxSec');
+    if(!box || !box.batters || !box.batters.length){ sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    const g = (games || []).find(x => x.id === kt.gameId);
+    const done = g && (g.code === 'RESULT' || g.code === 'ENDED');
+    document.getElementById('boxTitle').textContent = done ? '오늘 경기 최종 기록' : '오늘 경기 기록 (진행 중)';
+    if(g) document.getElementById('boxSub').textContent = g.away + ' ' + g.as + ' : ' + g.hs + ' ' + g.home + ' · ' + g.stadium + (done ? ' · 경기 종료' : ' · ' + g.status);
+    /* 라인스코어 */
+    if(box.inn && box.rheb && g){
+      const innN = Math.max(box.inn.away.length, box.inn.home.length, 9);
+      const head = '<tr><th></th>' + Array.from({length:innN}, (_,i) => '<th>' + (i+1) + '</th>').join('') + '<th>R</th><th>H</th><th>E</th></tr>';
+      const row = (nm, arr, rh, win) => '<tr>' + '<td' + (win ? ' class="win"' : '') + '><b>' + esc(nm) + '</b></td>' +
+        Array.from({length:innN}, (_,i) => '<td>' + (arr[i] == null ? '-' : arr[i]) + '</td>').join('') +
+        '<td' + (win ? ' class="win"' : '') + '>' + rh.r + '</td><td>' + rh.h + '</td><td>' + rh.e + '</td></tr>';
+      const awayWin = done && g.as > g.hs, homeWin = done && g.hs > g.as;
+      document.getElementById('lineScore').innerHTML = head + row(g.away, box.inn.away, box.rheb.away, awayWin) + row(g.home, box.inn.home, box.rheb.home, homeWin);
+    }
+    /* 타자 */
+    document.getElementById('batBox').innerHTML = box.batters.map(b =>
+      '<tr' + (b.h >= 2 || b.hr > 0 ? ' class="hot"' : '') + '><td>' + b.o + '</td><td><b>' + esc(b.name) + '</b> <span style="color:var(--muted);font-size:11px">' + esc(b.pos) + '</span></td>' +
+      '<td>' + b.ab + '</td><td>' + b.h + '</td><td>' + b.rbi + '</td><td>' + b.r + '</td><td>' + b.hr + '</td><td>' + b.bb + '</td><td>' + b.kk + '</td><td>' + esc(b.avg) + '</td></tr>'
+    ).join('') + (box.batTotal ? '<tr><td></td><td><b>팀 합계</b></td><td>' + box.batTotal.ab + '</td><td>' + box.batTotal.hit + '</td><td>' + box.batTotal.rbi + '</td><td>' + box.batTotal.run + '</td><td colspan="4"></td></tr>' : '');
+    /* 투수 (투구수는 문자중계에서 집계 — 없으면 —) */
+    const pc = (kt.pitchCounts && kt.pitchCounts.byName) || {};
+    document.getElementById('pitBox').innerHTML = box.pitchers.map(p =>
+      '<tr' + (p.wls === '승' || p.wls === '세' ? ' class="hot"' : '') + '><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.inn) + '</td><td>' + (pc[p.name] != null ? pc[p.name] : '—') + '</td><td>' + p.h + '</td><td>' + p.r + '</td><td>' + p.er + '</td><td>' + p.kk + '</td><td>' + ({'승':'승리','패':'패전','세':'세이브','홀':'홀드'}[p.wls] || '—') + '</td></tr>'
+    ).join('');
+    /* 주요 기록 */
+    document.getElementById('keyRec').innerHTML = (box.keys || []).map(k =>
+      '<li><span class="k">' + esc(k.how) + '</span><span>' + esc(k.result) + '</span></li>').join('') || '<li>기록 없음</li>';
+  }
+
+  /* 시즌 결과 확률 (topN위 이내 마감 확률) — 피타고리안 70%+실제 30% 블렌드,
+     리그평균 15% 회귀, 잔여 상대 난이도 log5 반영 몬테카를로 4,000회 */
+  function kboPsProb(st, py, sc, topN){
+    try{
+      if(!st || st.length < 10) return null;
+      const pyMap = {}; ((py && py.teams) || []).forEach(t => { pyMap[t.name] = t.exp; });
+      const T = st.map(t => {
+        const played = t.w + t.l + t.d;
+        const rem = Math.max(0, 144 - played);
+        const act = t.w / Math.max(1, t.w + t.l);
+        const exp = pyMap[t.name] != null ? pyMap[t.name] : act;
+        const str = (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15;
+        const e = sc && sc.teams ? sc.teams.find(x => x.name === t.name) : null;
+        const opp = e && e.sampleN ? e.oppWra : 0.5;
+        const p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp);
+        return { name: t.name, w: t.w, l: t.l, rem: rem, p: p };
+      });
+      const N = 4000; let cnt = 0;
+      for(let i = 0; i < N; i++){
+        const fin = [];
+        for(const t of T){
+          let w = t.w, l = t.l;
+          for(let g = 0; g < t.rem; g++){ if(Math.random() < t.p) w++; else l++; }
+          fin.push({ name: t.name, pct: w / Math.max(1, w + l) + Math.random() * 1e-6 });
+        }
+        fin.sort((a, b) => b.pct - a.pct);
+        for(let r = 0; r < topN; r++) if(fin[r].name === 'KT'){ cnt++; break; }
+      }
+      return 100 * cnt / N;
+    }catch(e){ return null; }
+  }
+  function probFmt(p){ return p == null ? null : (p > 99 ? '99%+' : (p < 1 ? '<1%' : Math.round(p) + '%')); }
+
+  /* KBO 포스트시즌 대진 시뮬레이션 — 정규시즌 결과(위와 동일한 팀 전력 모델) + PS 브래킷 규정을 몬테카를로 3,000회로 결합.
+     정규시즌 중에는 잔여 경기로 최종 순위를 뽑고, 정규시즌이 끝나면 실제 순위로 대진을 고정한다.
+     포스트시즌 경기가 들어오면(ps.rounds) 해당 라운드는 실제 참가팀·현재 시리즈 전적에서 이어서 시뮬레이션하므로
+     시리즈가 진행될수록 확률이 자동으로 현실에 수렴한다.
+     대진: 4위·5위(4위 1승만 필요·5위 2연승 필요) → 준PO(5전3선) → PO(5전3선) → KS(7전4선, 1위 직행) */
+  const PS_ORDER = ['WC', 'SPO', 'PO', 'KS'];
+  const PS_META = {
+    WC:  { name: '와일드카드 결정전', short: '와일드카드', fmt: '4위 1승 선점' },
+    SPO: { name: '준플레이오프', short: '준PO', fmt: '5전 3선승', need: 3 },
+    PO:  { name: '플레이오프', short: 'PO', fmt: '5전 3선승', need: 3 },
+    KS:  { name: '한국시리즈', short: '한국시리즈', fmt: '7전 4선승', need: 4 }
+  };
+  function log5(a, b){ return (a - a * b) / (a + b - 2 * a * b) || 0.5; }
+  function seriesWin(need, pA, a, b){ a = a || 0; b = b || 0; while(a < need && b < need){ if(Math.random() < pA) a++; else b++; } return a === need; }
+  function wcWin(pHi, a, b){ a = a || 0; b = b || 0; while(a < 1 && b < 2){ if(Math.random() < pHi) a++; else b++; } return a >= 1; } // 4위 1승 vs 5위 2승
+  // 현재 전적에서 A가 시리즈를 가져갈 정확한 확률 (A는 needA승, B는 needB승 필요)
+  function seriesProb(needA, needB, a, b, p){
+    if(a >= needA) return 1;
+    if(b >= needB) return 0;
+    return p * seriesProb(needA, needB, a + 1, b, p) + (1 - p) * seriesProb(needA, needB, a, b + 1, p);
+  }
+  function psStandings(st){ return st.slice().sort((a, b) => (a.rank || 99) - (b.rank || 99)); }
+  function psSeasonOver(st){ return st.every(t => (t.w + t.l + t.d) >= 144); }
+  function psTeams(st, py, sc){
+    const pyMap = {}; ((py && py.teams) || []).forEach(t => { pyMap[t.name] = t.exp; });
+    return psStandings(st).map(t => {
+      const played = t.w + t.l + t.d;
+      const rem = Math.max(0, 144 - played);
+      const act = t.w / Math.max(1, t.w + t.l);
+      const exp = pyMap[t.name] != null ? pyMap[t.name] : act;
+      const ro = window.__roster;
+      const str = (ro && ro.full && ro.full[t.name] != null) ? ro.full[t.name] // 선수별 WAR 기반 전력
+        : (0.7 * exp + 0.3 * act) * 0.85 + 0.5 * 0.15; // 전력(리그평균 회귀) — 시리즈 승률 산출에 사용
+      const e = sc && sc.teams ? sc.teams.find(x => x.name === t.name) : null;
+      const opp = e && e.sampleN ? e.oppWra : 0.5;
+      const p = (str * (1 - opp)) / (str * (1 - opp) + (1 - str) * opp); // 잔여 일정 난이도 반영 — 순위 시뮬레이션용
+      return { name: t.name, w: t.w, l: t.l, rem: rem, p: p, str: str };
+    });
+  }
+  function kboKsSim(st, py, sc, ps){
+    try{
+      if(!st || st.length < 10) return null;
+      const T = psTeams(st, py, sc);
+      const over = psSeasonOver(st);
+      const R = (ps && ps.rounds) || {};
+      const N = 3000; let ksCnt = 0, champCnt = 0, directCnt = 0; const oppCnt = {};
+      for(let i = 0; i < N; i++){
+        let fin;
+        if(over) fin = T; // 정규시즌 종료 — 공식 순위(타이브레이크 포함) 그대로
+        else {
+          fin = T.map(t => {
+            let w = t.w, l = t.l;
+            for(let g = 0; g < t.rem; g++){ if(Math.random() < t.p) w++; else l++; }
+            return { name: t.name, str: t.str, pct: w / Math.max(1, w + l) + Math.random() * 1e-6 };
+          }).sort((a, b) => b.pct - a.pct);
+        }
+        const seedOf = nm => { const k = fin.findIndex(t => t.name === nm); return k < 0 ? 99 : k; };
+        const team = nm => fin.find(t => t.name === nm) || { name: nm, str: 0.5 };
+        const play = (code, hi, lo) => {
+          const r = R[code];
+          let a = 0, b = 0;
+          if(r && r.teams && r.teams.length === 2){ // 실제 대진·전적에서 이어서
+            let x = team(r.teams[0]), y = team(r.teams[1]);
+            if(seedOf(x.name) > seedOf(y.name)){ const z = x; x = y; y = z; }
+            hi = x; lo = y; a = r.wins[hi.name] || 0; b = r.wins[lo.name] || 0;
+          }
+          const p = log5(hi.str, lo.str);
+          const hiWins = code === 'WC' ? wcWin(p, a, b) : seriesWin(PS_META[code].need, p, a, b);
+          return { w: hiWins ? hi : lo, hi: hi, lo: lo };
+        };
+        const wc = play('WC', fin[3], fin[4]).w;
+        const spo = play('SPO', fin[2], wc).w;
+        const po = play('PO', fin[1], spo).w;
+        const ks = play('KS', fin[0], po);
+        if(ks.hi.name === 'KT' || ks.lo.name === 'KT'){
+          ksCnt++;
+          const opp = ks.hi.name === 'KT' ? ks.lo.name : ks.hi.name;
+          oppCnt[opp] = (oppCnt[opp] || 0) + 1;
+          if(fin[0].name === 'KT') directCnt++;
+        }
+        if(ks.w.name === 'KT') champCnt++;
+      }
+      const opponents = Object.entries(oppCnt).map(([name, c]) => ({ name, pct: 100 * c / N })).sort((a, b) => b.pct - a.pct);
+      return { ksProb: 100 * ksCnt / N, champProb: 100 * champCnt / N, directProb: 100 * directCnt / N, opponents, n: N };
+    }catch(e){ return null; }
+  }
+
+  /* ---------- 경기차 전망 (시즌 전체 기준 + 아시안게임 공백 보정, 몬테카를로) ----------
+     팀 전력 = 시즌 전체(피타고리안 70%·승률 30%)를 리그평균으로 30% 회귀 — tools/predictor 백테스트(455경기)에서 가장 정확했던 설정.
+     아시안게임 차출(9/14~) 기간 경기가 시즌 성적에 섞여 있으므로 그 몫(agN/경기수 × 공백 영향)을 되돌려 '완전체' 전력을 만들고,
+     복귀일(adj.ret) 전 경기만 공백 전력으로 굴린다. 공백 영향은 선수별 기록으로 추정한 값(agAdj, tools/predictor ag --write). */
+  const GB_REG = 0.3, GB_N = 4000;
+  let gbRaf = 0; // 재생 애니메이션 프레임 (재렌더 시 취소)
+  function gbStrengths(st, py, adj){
+    // 선수 단위 전력(roster: 선수별 WAR 합산, scripts/roster.js)이 있으면 그걸 쓴다 — 결장(아시안게임)도 선수 단위로 반영돼 있음.
+    // adj === null 이면 '공백 없음' 비교용(Sa = S).
+    const ro = window.__roster;
+    if(ro && ro.full && ro.full.KT != null){
+      const S = Object.assign({}, ro.full), Sa = adj === null ? Object.assign({}, ro.full) : Object.assign({}, ro.abs);
+      return { S, Sa, ret: ro.ret, roster: true };
+    }
+    const S = {}, Sa = {};
+    ((py && py.teams) || []).forEach(t => {
+      const base = (0.7 * t.exp + 0.3 * t.act) * (1 - GB_REG) + 0.5 * GB_REG;
+      const a = adj && adj.teams && adj.teams[t.name];
+      const row = st.find(x => x.name === t.name), n = row ? row.w + row.l + row.d : 0;
+      if(a && n && t.agN != null){
+        S[t.name] = base - a.delta * (1 - GB_REG) * (t.agN / n); // 공백 중 경기 몫을 되돌린 완전체
+        Sa[t.name] = S[t.name] + a.delta * (1 - GB_REG);           // 공백 중 전력
+      } else { S[t.name] = base; Sa[t.name] = base; }
+    });
+    return { S, Sa, ret: adj && adj.ret, roster: false };
+  }
+  function gbForecast(st, py, sc, rivName, adj){
+    const league = sc && sc.league;
+    if(!league || !py || !py.teams || !py.teams.length) return null;
+    const { S, Sa, ret, roster } = gbStrengths(st, py, adj);
+    const me = st.find(t => t.name === 'KT'), rv = st.find(t => t.name === rivName);
+    if(!me || !rv || S.KT == null || S[rivName] == null) return null;
+    const str = (t, d) => { const m = ret && d < ret ? Sa : S; return m[t] != null ? m[t] : .5; };
+    const games = league.filter(g => g[1] === 'KT' || g[2] === 'KT' || g[1] === rivName || g[2] === rivName);
+    const dates = [...new Set(games.map(g => g[0]))];
+    const cnt = n => games.filter(g => g[1] === n || g[2] === n).length;
+    const unsetK = Math.max(0, 144 - (me.w + me.l + me.d) - cnt('KT'));
+    const unsetR = Math.max(0, 144 - (rv.w + rv.l + rv.d) - cnt(rivName));
+    const cols = dates.length + 1; // 마지막 칸 = 미편성분까지 포함한 시즌 최종
+    const buf = []; for(let c = 0; c < cols; c++) buf.push(new Float32Array(GB_N));
+    const win = new Uint8Array(GB_N); // 시뮬레이션별 KT 1위 여부
+    let first = 0;
+    for(let i = 0; i < GB_N; i++){
+      let kw = me.w, kl = me.l, rw = rv.w, rl = rv.l, di = 0;
+      for(let gi = 0; gi < games.length; gi++){
+        const [d, a, h] = games[gi];
+        const hw = Math.random() < log5(str(h, d), str(a, d)) + 0.02;
+        if(h === 'KT'){ if(hw) kw++; else kl++; } else if(a === 'KT'){ if(hw) kl++; else kw++; }
+        if(h === rivName){ if(hw) rw++; else rl++; } else if(a === rivName){ if(hw) rl++; else rw++; }
+        if(gi === games.length - 1 || games[gi + 1][0] !== d){ buf[di][i] = ((kw - rw) + (rl - kl)) / 2; di++; }
+      }
+      for(let g = 0; g < unsetK; g++){ if(Math.random() < log5(S.KT, .5)) kw++; else kl++; }
+      for(let g = 0; g < unsetR; g++){ if(Math.random() < log5(S[rivName], .5)) rw++; else rl++; }
+      buf[cols - 1][i] = ((kw - rw) + (rl - kl)) / 2;
+      if(kw / (kw + kl) > rw / (rw + rl)){ first++; win[i] = 1; }
+    }
+    // 재생용: 4,000개 경로 전체를 한 배열에 (시뮬레이션 i의 날짜 c 경기차 = P[i*cols + c])
+    const P = new Float32Array(GB_N * cols);
+    for(let c = 0; c < cols; c++) for(let i = 0; i < GB_N; i++) P[i * cols + c] = buf[c][i];
+    const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
+    const pts = buf.map(col => { const s = Array.from(col).sort((x, y) => x - y); return { p10: q(s, .1), p25: q(s, .25), p50: q(s, .5), p75: q(s, .75), p90: q(s, .9) }; });
+    return { dates, pts, P, cols, win, n: GB_N, now: ((me.w - rv.w) + (rv.l - me.l)) / 2, first: 100 * first / GB_N, unsetK, unsetR, S, Sa, ret, roster };
+  }
+  function renderGbFan(st, py, sc, rivName){
+    const box = document.getElementById('gbFan');
+    const adj = window.__agAdj || (window.__roster ? {} : null);
+    const r = gbForecast(st, py, sc, rivName, adj);
+    if(!box || !r || !r.dates.length){ if(box) box.hidden = true; return; }
+    const raw = adj ? gbForecast(st, py, sc, rivName, null) : null; // 보정 전 비교용
+    // 넓은 화면은 16:9, 폰(폭 600px 미만)은 5:4로 그려 글자가 너무 작아지지 않게
+    const narrow = innerWidth < 640;   // 탭 안에 숨어 있으면 부모 폭이 0이라 화면 폭으로 판단
+    const W = narrow ? 600 : 960, H = narrow ? 480 : 540, L = narrow ? 50 : 70, R = narrow ? 128 : 210, T = 34, B = 58; // 오른쪽 여백 = 시즌 끝 분포 막대
+    const xs = ['지금'].concat(r.dates.map(d => +d.slice(5, 7) + '/' + +d.slice(8)), ['시즌 끝']);
+    const first = { p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now };
+    const series = [first].concat(r.pts);
+    const lo = Math.min(-1, ...series.map(p => p.p10)) - 0.5, hi = Math.max(1, ...series.map(p => p.p90)) + 0.5;
+    const X = i => L + (W - L - R) * i / (series.length - 1);
+    const Y = v => T + (H - T - B) * (hi - v) / (hi - lo);
+    const band = (a, b) => series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[a]).toFixed(1)).join('') +
+      series.slice().reverse().map((p, j) => 'L' + X(series.length - 1 - j).toFixed(1) + ' ' + Y(p[b]).toFixed(1)).join('') + 'Z';
+    const sg = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+    let g = '';
+    // 영역: 위 = KT 앞섬, 아래 = 경쟁팀 앞섬
+    g += '<rect class="zk" x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (Y(0) - T).toFixed(1) + '"/>';
+    g += '<rect class="zr" x="' + L + '" y="' + Y(0).toFixed(1) + '" width="' + (W - L - R) + '" height="' + (H - B - Y(0)).toFixed(1) + '"/>';
+    g += '<text class="zt k" x="' + (L + 12) + '" y="' + (T + 22) + '">▲ KT가 앞섬</text>';
+    g += '<text class="zt r" x="' + (L + 12) + '" y="' + (H - B - 12) + '">▼ ' + esc(rivName) + '이(가) 앞섬</text>';
+    for(let v = Math.ceil(lo); v <= Math.floor(hi); v++){
+      if(v !== 0) g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '"/>';
+      g += '<text class="ytk" x="' + (L - 10) + '" y="' + (Y(v) + 5).toFixed(1) + '">' + (v > 0 ? '+' + v : v < 0 ? '−' + (-v) : '0') + '</text>';
+    }
+    g += '<text class="yttl" x="16" y="' + ((T + H - B) / 2) + '" transform="rotate(-90 16 ' + ((T + H - B) / 2) + ')">KT 기준 경기차</text>';
+    g += '<line class="zero" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>';
+    g += '<text class="zl" x="' + (W - R - 8) + '" y="' + (Y(0) - 7).toFixed(1) + '">동률</text>';
+    xs.forEach((t, i) => { if(narrow && i % 2 && i !== xs.length - 1) return; g += '<text class="xtk' + (i === 0 || i === xs.length - 1 ? ' em' : '') + '" x="' + X(i).toFixed(1) + '" y="' + (H - B + 26) + '">' + t + '</text>'; });
+    if(r.unsetK || r.unsetR){
+      const xm = (X(xs.length - 2) + X(xs.length - 1)) / 2;
+      g += '<line class="sep" x1="' + xm.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '"/>';
+      g += '<text class="sept" x="' + (xm + 6).toFixed(1) + '" y="' + (T + 14) + '">미편성 경기 포함</text>';
+    }
+    // 시즌 끝 분포 막대 (B안) — 가상 시즌마다 최종 경기차가 몇 번 나왔나
+    const finals = {}; for(let i = 0; i < r.n; i++){ const v = r.P[i * r.cols + r.cols - 1]; finals[v] = (finals[v] || 0) + 1; }
+    const hx0 = X(series.length - 1) + (narrow ? 44 : 64), hw = W - hx0 - (narrow ? 26 : 34);
+    const hMax = Math.max(...Object.values(finals));
+    const bh = Math.max(4, Math.min(18, (Y(0) - Y(0.5)) * 0.8));
+    g += '<text class="htl" x="' + hx0 + '" y="' + (T - 12) + '">시즌 끝 분포</text>';
+    g += '<line class="hax" x1="' + hx0 + '" x2="' + hx0 + '" y1="' + T + '" y2="' + (H - B) + '"/>';
+    const hist = Object.keys(finals).map(Number).filter(v => v >= lo && v <= hi).sort((a, b) => b - a).map(v => ({ v, c: finals[v] }));
+    hist.forEach((h, i) => {
+      const w = hw * h.c / hMax;
+      g += '<rect class="hb ' + (h.v > 0 ? 'k' : h.v < 0 ? 'r' : 't') + '" id="gbH' + i + '" x="' + hx0 + '" y="' + (Y(h.v) - bh / 2).toFixed(1) + '" height="' + bh.toFixed(1) + '" width="' + w.toFixed(1) + '" rx="2"/>' +
+           '<text class="hp" id="gbHt' + i + '" x="' + (hx0 + w + 4).toFixed(1) + '" y="' + (Y(h.v) + 4).toFixed(1) + '">' + (h.c / r.n >= 0.02 ? Math.round(100 * h.c / r.n) + '%' : '') + '</text>';
+    });
+    g += '<g id="gbFanG" class="fan"><path class="b80" d="' + band('p10', 'p90') + '"/><path class="b50" d="' + band('p25', 'p75') + '"/>';
+    g += '<path class="med" d="' + series.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.p50).toFixed(1)).join('') + '"/>';
+    series.forEach((p, i) => { g += '<circle class="dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(p.p50).toFixed(1) + '" r="' + (i === 0 || i === series.length - 1 ? 6 : 3.5) + '"/>'; });
+    const last = r.pts[r.pts.length - 1];
+    g += '<text class="lbl" x="' + (X(0) + 10) + '" y="' + (Y(r.now) - 14).toFixed(1) + '">지금 ' + sg(r.now) + '</text>';
+    g += '<text class="lbl end" x="' + (X(series.length - 1) + 12) + '" y="' + (Y(last.p50) + 5).toFixed(1) + '">' + sg(last.p50) + '</text></g>';
+    g += '<line class="hov" id="gbHov" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" visibility="hidden"/>';
+    const svg = document.getElementById('gbSvg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = g;
+    hist.forEach((h, i) => { h.el = document.getElementById('gbH' + i); h.tx = document.getElementById('gbHt' + i); });
+    cancelAnimationFrame(gbRaf);
+    const cvOld = document.getElementById('gbCv'); if(cvOld) cvOld.classList.remove('on');
+
+    const fmt = v => v > 0 ? 'KT ' + Math.abs(v).toFixed(1) + '경기 앞섬' : v < 0 ? esc(rivName) + ' ' + Math.abs(v).toFixed(1) + '경기 앞섬' : '동률';
+    document.getElementById('gbSum').innerHTML =
+      '<div><b>' + sg(r.now) + '</b><span>지금 경기차</span></div>' +
+      '<div><b>' + sg(last.p50) + '</b><span>시즌 끝 예상 (80%: ' + sg(last.p10) + ' ~ ' + sg(last.p90) + ')</span></div>' +
+      '<div class="k"><b>' + probFmt(r.first) + '</b><span>KT 정규시즌 1위</span></div>';
+    document.getElementById('gbLegend').innerHTML =
+      '<span><i class="med"></i>가장 가능성 높은 흐름 (중앙값)</span>' +
+      '<span><i class="b50"></i>가상 시즌 10번 중 5번이 이 안</span>' +
+      '<span><i class="b80"></i>10번 중 8번이 이 안</span>';
+    // 아시안게임 보정 상세
+    const agBox = document.getElementById('gbAgBox');
+    const ro = window.__roster;
+    if(r.roster && ro && raw){
+      const outs = ['KT', rivName].flatMap(t => ((ro.teams[t] && ro.teams[t].out) || []).map(o => Object.assign({ team: t }, o)));
+      const lost = t => ro.teams[t] ? ((ro.abs[t] - ro.full[t]) * 1000).toFixed(0) + '리' : '-';
+      document.getElementById('gbAg').innerHTML =
+        '<p>대표팀 차출 선수는 복귀(' + (ro.ret ? psMd(ro.ret) : '-') + ' 가정) 전 경기에서 그 선수의 몫을 대체선수 수준(WAR 0)으로 바꿔 계산했습니다. ' +
+        '시즌 기록은 선수별 비율(타석·이닝당 WAR)로 쓰기 때문에 공백 기간 성적이 섞여도 완전체 전력이 따로 흔들리지 않습니다.</p>' +
+        '<table class="gbag"><thead><tr><th>선수</th><th>팀</th><th>시즌 기록</th><th>WAR</th><th>경기당 손실</th></tr></thead><tbody>' +
+        outs.sort((a, b) => b.pg - a.pg).map(o => '<tr><td>' + esc(o.n) + '</td><td>' + esc(o.team) + '</td><td>' + esc(o.s) + '</td><td>' + o.war.toFixed(2) + '</td><td>−' + (o.pg * 1000).toFixed(1) + '리</td></tr>').join('') +
+        '</tbody></table>' +
+        '<p>공백 중 전력 변화: KT <b>' + lost('KT') + '</b> · ' + esc(rivName) + ' <b>' + lost(rivName) + '</b> (1리 = 승률 .001) — ' +
+        'KT 1위 확률 공백 미반영 <b>' + probFmt(raw.first) + '</b> → 반영 <b>' + probFmt(r.first) + '</b>.</p>';
+      agBox.hidden = !outs.length;
+    } else if(adj && adj.teams && raw){
+      const rows = (adj.players || []).filter(p => p.team === 'KT' || p.team === rivName);
+      const tm = t => adj.teams[t] ? (adj.teams[t].delta * 1000).toFixed(0) + '리' : '영향 없음';
+      document.getElementById('gbAg').innerHTML =
+        '<p>대표팀 소집(' + psMd(adj.leave) + ')부터 복귀(' + psMd(adj.ret) + ' 가정)까지 빠진 선수의 시즌 기록으로 "팀이 경기당 잃는 점수"를 추정해, ' +
+        '① 이미 치른 공백 기간 경기가 시즌 성적을 끌어내린 몫은 되돌리고 ② 복귀 전 남은 경기만 공백 전력으로 계산했습니다.</p>' +
+        '<table class="gbag"><thead><tr><th>선수</th><th>팀</th><th>시즌 기록</th><th>경기당 손실</th></tr></thead><tbody>' +
+        rows.map(p => '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.team) + '</td><td>' + esc(p.line) + '</td><td>−' + p.runs.toFixed(2) + '점</td></tr>').join('') +
+        '</tbody></table>' +
+        '<p>공백 중 승률 변화: KT <b>' + tm('KT') + '</b> · ' + esc(rivName) + ' <b>' + tm(rivName) + '</b> (1리 = .001) — ' +
+        'KT 1위 확률 보정 전 <b>' + probFmt(raw.first) + '</b> → 보정 후 <b>' + probFmt(r.first) + '</b>.</p>' +
+        '<p class="muted">수비·주루 가치는 공개 기록만으로 추정이 어려워 빠져 있습니다(수비형 선수는 과소평가 가능).</p>';
+      agBox.hidden = false;
+    } else agBox.hidden = true;
+    // 선수별 WAR 근거
+    const roBox = document.getElementById('gbRoBox');
+    if(r.roster && ro){
+      const card = t => { const x = ro.teams[t]; if(!x) return '';
+        return '<div class="roc"><p><b>' + esc(t) + '</b> 전력 ' + ro.full[t].toFixed(3).slice(1) + ' · 타자 WAR ' + x.hitWar.toFixed(1) + ' + 투수 WAR ' + x.pitWar.toFixed(1) + ' (' + x.nPlayers + '명)</p><ol>' +
+          x.top.map(p => '<li><span>' + esc(p.n) + ' <small>' + (p.t === 'P' ? '투' : '타') + '</small></span><span class="w">' + p.war.toFixed(2) + '</span><small class="d">' + esc(p.s) + '</small></li>').join('') + '</ol></div>'; };
+      document.getElementById('gbRo').innerHTML =
+        '<p>팀 전력은 <b>현재 로스터 전 선수의 WAR</b>(타격·수비·주루·투구를 합친 대체선수 대비 승리 기여)로 계산했습니다. 선수마다 타석·이닝당 WAR에 출전 비중을 곱해 더하고(표본이 적은 선수는 대체선수 쪽으로 수축), ' +
+        '10개 팀 실제 득실 성과에 맞춰 격차 크기만 보정(×' + ro.k + ')했습니다. 경기별 선발 로테이션과 부상자 명단은 공개 데이터가 없어 빠져 있습니다.</p>' +
+        '<div class="rogrid">' + card('KT') + card(rivName) + '</div>';
+      roBox.hidden = false;
+    } else roBox.hidden = true;
+    document.getElementById('gbNote').textContent =
+      (r.roster ? '선수별 WAR을 합산한 팀 전력으로' : '시즌 전체 득실점·승률로 팀 전력을 잡고(올 시즌 455경기 사후 채점에서 가장 정확했던 설정)') + ' 리그 남은 일정 전체를 ' + GB_N.toLocaleString() + '번 가상으로 치렀습니다.' +
+      (r.unsetK || r.unsetR ? ' 아직 날짜가 안 잡힌 경기(KT ' + r.unsetK + ' · ' + rivName + ' ' + r.unsetR + ')는 "시즌 끝"에 리그 평균 상대로 포함.' : '');
+
+    // 호버: 날짜별 분포
+    const tip = document.getElementById('gbTip'), hov = document.getElementById('gbHov');
+    svg.onmousemove = svg.onclick = e => {
+      const pt = svg.getBoundingClientRect(), sx = (e.clientX - pt.left) * W / pt.width;
+      const i = Math.max(0, Math.min(series.length - 1, Math.round((sx - L) / (W - L - R) * (series.length - 1))));
+      const p = series[i];
+      hov.setAttribute('x1', X(i)); hov.setAttribute('x2', X(i)); hov.setAttribute('visibility', 'visible');
+      tip.innerHTML = '<b>' + (i === 0 ? '지금' : i === series.length - 1 ? '시즌 끝' : xs[i] + ' 경기 후') + '</b><br>' + fmt(p.p50) +
+        (i ? '<br><small>10번 중 5번: ' + sg(p.p25) + ' ~ ' + sg(p.p75) + '<br>10번 중 8번: ' + sg(p.p10) + ' ~ ' + sg(p.p90) + '</small>' : '');
+      tip.hidden = false;
+      const px = X(i) / W * pt.width;
+      tip.style.left = Math.min(Math.max(0, px - tip.offsetWidth / 2), pt.width - tip.offsetWidth) + 'px';
+      tip.style.top = '8px';
+    };
+    svg.onmouseleave = () => { tip.hidden = true; hov.setAttribute('visibility', 'hidden'); };
+
+    // ▶ 가상 시즌 재생 — 4,000개 가상 시즌을 전부 캔버스에 겹쳐 그린다.
+    // 처음 30개는 한 줄씩 또렷하게, 이후 점점 빨라지며 아주 옅게 누적 → 많이 지나간 경로가 진해져 띠 모양이 드러난다.
+    // 동시에 오른쪽 '시즌 끝 분포' 막대가 한 시즌 끝날 때마다 자라고, 카운터의 1위 확률이 수렴한다.
+    const btn = document.getElementById('gbPlay'), cntEl = document.getElementById('gbCount');
+    const fanG = document.getElementById('gbFanG'), cv = document.getElementById('gbCv');
+    const N = r.n, cols = r.cols;
+    const setBars = cnt => hist.forEach(h => {
+      const c = cnt[h.v] || 0, w = hMax ? hw * c / hMax : 0;
+      h.el.setAttribute('width', w.toFixed(1));
+      h.tx.setAttribute('x', (hx0 + w + 4).toFixed(1));
+      h.tx.textContent = cnt._n && c / cnt._n >= 0.02 ? Math.round(100 * c / cnt._n) + '%' : '';
+    });
+    const all = { _n: N }; hist.forEach(h => { all[h.v] = h.c; });
+    btn.onclick = () => {
+      cancelAnimationFrame(gbRaf);
+      const rect = svg.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      cv.style.height = rect.height + 'px';
+      cv.width = Math.round(rect.width * dpr); cv.height = Math.round(rect.height * dpr);
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+      ctx.lineJoin = 'round';
+      const tk = getComputedStyle(document.documentElement), cK = tk.getPropertyValue('--accent').trim() || '#e0122f', cR = tk.getPropertyValue('--rv').trim() || '#2f67d0', cN = tk.getPropertyValue('--neu').trim() || '#8a8a94';
+      fanG.classList.add('off'); cv.classList.add('on');
+      const cnt = { _n: 0 };
+      setBars(cnt);
+      let n = 0, win = 0, last = 0;
+      const draw = () => {
+        const i = n, end = r.P[i * cols + cols - 1];
+        ctx.strokeStyle = end > 0 ? cK : end < 0 ? cR : cN;
+        ctx.globalAlpha = n < 30 ? 0.6 : (end < 0 ? 0.09 : 0.045);
+        ctx.lineWidth = n < 30 ? 1.8 : 1.1;
+        ctx.beginPath();
+        ctx.moveTo(X(0), Y(r.now));
+        for(let c = 0; c < cols; c++) ctx.lineTo(X(c + 1), Y(r.P[i * cols + c]));
+        ctx.stroke();
+        cnt[end] = (cnt[end] || 0) + 1; cnt._n++;
+        if(r.win[i]) win++;
+        n++;
+      };
+      const finish = () => {
+        setBars(all);
+        cntEl.textContent = '가상 시즌 ' + N.toLocaleString() + '개 완료 · KT 1위 ' + win.toLocaleString() + '번 (' + probFmt(100 * win / N) + ') — 이 결과를 요약한 게 띠와 선';
+        setTimeout(() => { cv.classList.remove('on'); fanG.classList.remove('off'); }, 700);
+        btn.textContent = '↺ 다시 재생';
+      };
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ while(n < N) draw(); finish(); return; }
+      const frame = t => {
+        if(n < 30){ if(t - last >= 70){ draw(); last = t; } }                    // 처음엔 한 줄씩
+        else { const k = Math.min(N - n, Math.ceil(n * 0.09)); for(let j = 0; j < k; j++) draw(); } // 점점 가속
+        setBars(cnt);
+        cntEl.textContent = '가상 시즌 ' + n.toLocaleString() + ' / ' + N.toLocaleString() + ' · KT 1위 ' + win.toLocaleString() + '번 (' + probFmt(100 * win / Math.max(1, n)) + ')';
+        if(n < N) gbRaf = requestAnimationFrame(frame); else finish();
+      };
+      gbRaf = requestAnimationFrame(frame);
+    };
+    box.hidden = false;
+  }
+
+  /* ---------- 아시안게임 한국 경기 배너 ----------
+     요청에 따라 지정한 날(AG_DAY)에만 KT 배너 자리(바로 위)에 띄운다. 날짜가 지나면 자동으로 사라지고 KT 배너가 원래 자리로.
+     영상은 넣지 않는다(저작권) — 문자중계·중계 페이지 링크만. */
+  const AG_DAY = '2026-09-25';
+  function renderAg(ag, today){
+    const el = document.getElementById('agBanner');
+    if(!el) return;
+    const g = ag && ag.games && ag.games.find(x => x.date === today);
+    if(today !== AG_DAY || !g){ el.hidden = true; return; }
+    const kr = g.home === '대한민국' ? 'h' : 'a';
+    const opp = (n => n === '차이니스 타이베이' ? '대만' : n)(kr === 'h' ? g.away : g.home);
+    const krS = kr === 'h' ? g.hs : g.as, opS = kr === 'h' ? g.as : g.hs;
+    const live = g.code === 'STARTED' || g.code === 'LIVE', done = g.code === 'RESULT', cancel = g.code === 'CANCEL';
+    document.getElementById('agKicker').textContent = 'Asian Games · ' + (g.round || 'Team Korea');
+    document.getElementById('agMatch').innerHTML = (live || done)
+      ? '대한민국 <span class="live-score">' + krS + ' : ' + opS + '</span> ' + esc(opp)
+      : '대한민국 <span class="at">vs</span> ' + esc(opp);
+    const krSp = kr === 'h' ? g.hp : g.ap, opSp = kr === 'h' ? g.ap : g.hp;
+    let d;
+    if(done) d = '<b>' + (krS > opS ? '승리' : krS < opS ? '패배' : '무승부') + '</b>' + (g.wp || g.lp ? ' · 승 ' + esc(g.wp || '-') + ' 패 ' + esc(g.lp || '-') : '');
+    else if(live) d = '<b>' + esc(g.status || '경기 중') + '</b> · ' + esc(g.stadium || '');
+    else if(cancel) d = '경기 취소';
+    else d = '오늘 ' + esc(g.time || '') + ' · ' + esc(g.stadium || '') + ((krSp || opSp) ? ' · 선발 <b>' + esc(krSp || '미정') + '</b> vs ' + esc(opSp || '미정') : '');
+    document.getElementById('agDetail').innerHTML = d;
+    const vs = x => { const n = x.home === '대한민국' ? x.away : x.home; return n === '차이니스 타이베이' ? '대만' : n; };
+    const sc = x => x.home === '대한민국' ? [x.hs, x.as] : [x.as, x.hs];
+    const prev = ag.games.filter(x => x.date < today && x.code === 'RESULT')
+      .map(x => { const [a, b] = sc(x); return esc(vs(x)) + ' ' + a + ':' + b + (a > b ? ' 승' : a < b ? ' 패' : ' 무'); });
+    const next = ag.games.find(x => x.date > today);
+    document.getElementById('agSub').innerHTML =
+      (prev.length ? '지난 경기 ' + prev.join(' · ') : '') +
+      (next ? (prev.length ? '<br>' : '') + '다음 ' + psMd(next.date) + ' ' + esc(next.time || '') + ' ' + (/^S\d$/.test(vs(next)) ? esc(next.round || '') : esc(vs(next)) + '전') : '') +
+      '<br>KT 대표 박영현 · 소형준 · 오원석';
+    document.getElementById('agRelay').href = 'https://m.sports.naver.com/game/' + encodeURIComponent(g.id);
+    el.hidden = false;
+  }
+
+  /* ---------- 정규시즌 1위 경우의 수 ----------
+     가로 = KT 남은 경기 승수, 세로 = 경쟁팀 남은 경기 승수. 칸마다 최종 승률을 비교해 KT 1위 / 1위 결정전 / 경쟁팀 1위.
+     두 팀 맞대결이 남아 있으면 그 경기는 한쪽만 이기므로 나올 수 없는 조합이 생긴다 → 맞대결 h승을 따로 펼쳐 정확히 계산.
+     확률은 팀 전력(psTeams의 p, 잔여 일정 난이도 반영)으로 이항분포, 맞대결은 log5. 무승부는 없다고 가정. */
+  function binom(n, p){
+    const out = []; let c = 1;
+    for(let k = 0; k <= n; k++){ out.push(c * Math.pow(p, k) * Math.pow(1 - p, n - k)); c = c * (n - k) / (k + 1); }
+    return out;
+  }
+  function renderOdds(st, py, sc){
+    const box = document.getElementById('psOdds');
+    if(!box) return;
+    const order = psStandings(st);
+    const me = order.find(t => t.name === 'KT');
+    const T = {}; psTeams(st, py, sc).forEach(t => { T[t.name] = t; });
+    const others = order.filter(t => t.name !== 'KT');
+    const riv = others[0];
+    const rem = t => Math.max(0, 144 - (t.w + t.l + t.d));
+    const pct = (w, l) => w / Math.max(1, w + l);
+    const rk = rem(me), rr = rem(riv);
+    if(!me || !riv || (rk === 0 && rr === 0)){ box.hidden = true; return; }
+    const mine = (sc && sc.mine) || [];
+    const k = Math.min(rk, rr, mine.filter(g => g.away === riv.name || g.home === riv.name).length); // 남은 맞대결
+
+    // 칸 결과: 1 = KT 1위, 0 = 결정전, -1 = 경쟁팀 1위
+    const res = (x, y) => {
+      const a = pct(me.w + x, me.l + rk - x), b = pct(riv.w + y, riv.l + rr - y);
+      return Math.abs(a - b) < 1e-9 ? 0 : (a > b ? 1 : -1);
+    };
+    // 칸 확률 (맞대결 h승 분리)
+    const P = []; for(let x = 0; x <= rk; x++){ P.push(new Array(rr + 1).fill(0)); }
+    const hK = binom(k, log5(T.KT.str, T[riv.name].str));
+    const aK = binom(rk - k, T.KT.p), bR = binom(rr - k, T[riv.name].p);
+    for(let h = 0; h <= k; h++) for(let a = 0; a <= rk - k; a++) for(let b = 0; b <= rr - k; b++)
+      P[h + a][(k - h) + b] += hK[h] * aK[a] * bR[b];
+    const feasible = (x, y) => { for(let h = 0; h <= k; h++){ if(x - h >= 0 && x - h <= rk - k && y - (k - h) >= 0 && y - (k - h) <= rr - k) return true; } return false; };
+
+    let pWin = 0, pTie = 0, pLose = 0, anyWin = false, anyLose = false, anyTie = false;
+    for(let x = 0; x <= rk; x++) for(let y = 0; y <= rr; y++){
+      if(!feasible(x, y)) continue;
+      const r = res(x, y);
+      if(r > 0){ pWin += P[x][y]; anyWin = true; } else if(r === 0){ pTie += P[x][y]; anyTie = true; } else { pLose += P[x][y]; anyLose = true; }
+    }
+    // 이미 확정(전부 KT 1위)이거나 불가능(전부 경쟁팀)이면 표가 의미 없음
+    if(!anyLose || !anyWin){ box.hidden = true; return; }
+
+    const LBL = { 1: 'KT 1위', 0: '1위 결정전', '-1': esc(riv.name) + ' 1위' };
+    let html = '<div class="oy"></div>';
+    for(let x = 0; x <= rk; x++) html += '<div class="ox">' + x + '</div>';
+    for(let y = rr; y >= 0; y--){
+      html += '<div class="oy">' + y + '</div>';
+      for(let x = 0; x <= rk; x++){
+        if(!feasible(x, y)){ html += '<div class="oc na" data-x="' + x + '" data-y="' + y + '" data-na="1"></div>'; continue; }
+        const r = res(x, y);
+        html += '<div class="oc ' + (r > 0 ? 'w' : r === 0 ? 't' : 'l') + '" data-x="' + x + '" data-y="' + y + '">' + (r === 0 ? '=' : '') + '</div>'; // 결정전은 색 + '=' 기호
+      }
+    }
+    const grid = document.getElementById('oddsGrid');
+    grid.style.gridTemplateColumns = '22px repeat(' + (rk + 1) + ',1fr)';
+    grid.innerHTML = html;
+    document.getElementById('oddsAxis').innerHTML = '<span>가로 → KT 남은 ' + rk + '경기 중 승수</span><span>세로 ↑ ' + esc(riv.name) + ' 남은 ' + rr + '경기 중 승수</span>';
+    document.getElementById('oddsSum').style.gridTemplateColumns = 'repeat(' + (anyTie ? 3 : 2) + ',1fr)';
+    document.getElementById('oddsSum').innerHTML =
+      '<div><b>' + probFmt(100 * pWin) + '</b><span>KT 1위</span></div>' +
+      (anyTie ? '<div><b>' + probFmt(100 * pTie) + '</b><span>1위 결정전</span></div>' : '') +
+      '<div><b>' + probFmt(100 * pLose) + '</b><span>' + esc(riv.name) + ' 1위</span></div>';
+    document.getElementById('oddsLegend').innerHTML =
+      '<span><i class="w"></i>KT 1위</span>' + (anyTie ? '<span><i class="t"></i>1위 결정전 (승률 동률)</span>' : '') + '<span><i class="l"></i>' + esc(riv.name) + ' 1위</span>' +
+      (k > 0 ? '<span><i class="na"></i>나올 수 없는 조합</span>' : '');
+
+    const third = others[1];
+    const thirdAlive = third && pct(third.w + rem(third), third.l) >= pct(me.w, me.l + rk);
+    const unset = rk - mine.length;
+    document.getElementById('oddsNote').textContent =
+      '칸 하나가 "KT가 남은 경기에서 x승, ' + riv.name + '이(가) y승" 한 경우입니다. 무승부 없이 계산했고, 승률이 같으면 1위 결정전입니다' + (anyTie ? '' : '(이번엔 승률이 정확히 같아지는 조합이 없음)') + '.' +
+      (k ? ' 남은 맞대결 ' + k + '경기는 한 팀만 이길 수 있어 일부 조합은 나올 수 없습니다.' : '') +
+      (unset > 0 ? ' KT의 미편성 ' + unset + '경기는 상대 미정이라 맞대결이 아닌 경기로 계산했습니다.' : '') +
+      (thirdAlive ? ' ' + third.name + '도 산술적으로 1위 가능성이 있지만 표는 상위 두 팀만 비교합니다.' : '') +
+      ' 확률은 팀 전력 모델 기준 추정치입니다.';
+
+    // 호버·탭 툴팁
+    const tip = document.getElementById('oddsTip');
+    const show = e => {
+      const c = e.target.closest('.oc');
+      if(!c){ tip.hidden = true; return; }
+      const x = +c.dataset.x, y = +c.dataset.y;
+      const a = pct(me.w + x, me.l + rk - x), b = pct(riv.w + y, riv.l + rr - y);
+      tip.innerHTML = c.dataset.na
+        ? 'KT ' + x + '승 · ' + esc(riv.name) + ' ' + y + '승<br><small>맞대결 때문에 나올 수 없는 조합</small>'
+        : '<b>' + LBL[res(x, y)] + '</b><br>KT ' + x + '승 ' + (rk - x) + '패 → 승률 ' + a.toFixed(3).slice(1) +
+          '<br>' + esc(riv.name) + ' ' + y + '승 ' + (rr - y) + '패 → 승률 ' + b.toFixed(3).slice(1) +
+          '<br><small>이 조합이 나올 확률 ' + (100 * P[x][y] < 0.1 ? '0.1% 미만' : (100 * P[x][y]).toFixed(1) + '%') + '</small>';
+      const gr = grid.getBoundingClientRect(), cr = c.getBoundingClientRect();
+      tip.hidden = false;
+      const left = Math.min(Math.max(0, cr.left - gr.left + cr.width / 2 - tip.offsetWidth / 2), gr.width - tip.offsetWidth);
+      tip.style.left = left + 'px';
+      tip.style.top = (cr.top - gr.top - tip.offsetHeight - 8) + 'px';
+    };
+    // 속성 대입 — 재렌더(폴링) 때마다 최신 데이터를 가진 핸들러로 교체된다
+    grid.onmouseover = show;
+    grid.onclick = show;
+    grid.onmouseleave = () => { tip.hidden = true; };
+    box.hidden = false;
+    renderGbFan(st, py, sc, riv.name);
+  }
+
+  /* ---------- 가을야구 (카운트다운 · 대진표 · 시리즈 · KS 예측) ---------- */
+  function psDday(from, to){ return Math.round((Date.parse(to + 'T00:00:00') - Date.parse(from + 'T00:00:00')) / 86400000); }
+  function psMd(d){ return d ? d.slice(5).replace('-', '.') : ''; }
+  function psPct(p){ return p >= 100 ? '확정' : (p <= 0 ? '0%' : probFmt(p)); } // 시뮬레이션상 확정/탈락은 99%+·<1% 대신 명확히
+  function renderPs(st, py, sc, ps, today){
+    const sec = document.getElementById('psSec');
+    if(!sec || !st || st.length < 10) return;
+    const R = (ps && ps.rounds) || {};
+    const over = psSeasonOver(st);
+    const order = psStandings(st);
+    const seed = order.slice(0, 5).map(t => t.name);
+    const seedNo = nm => { const k = order.findIndex(t => t.name === nm); return k < 0 ? 99 : k + 1; };
+    const strMap = {}; psTeams(st, py, sc).forEach(t => { strMap[t.name] = t.str; });
+    const played = r => r.games.filter(g => g.code === 'RESULT');
+
+    // 라운드 승자 (미결이면 null)
+    const winnerOf = code => {
+      const r = R[code];
+      if(!r || !r.teams || r.teams.length < 2) return null;
+      const [a, b] = r.teams;
+      if(code === 'WC'){
+        const hi = seedNo(a) < seedNo(b) ? a : b, lo = hi === a ? b : a;
+        if((r.wins[hi] || 0) >= 1) return hi;
+        if((r.wins[lo] || 0) >= 2) return lo;
+        if(played(r).length >= 2) return hi; // 2경기 후 5위가 2승 못 하면 4위 진출(무승부 포함)
+        return null;
+      }
+      const need = PS_META[code].need;
+      return (r.wins[a] || 0) >= need ? a : ((r.wins[b] || 0) >= need ? b : null);
+    };
+    // 라운드 참가팀 [상위시드, 하위시드] — 실데이터 우선, 없으면 순위·이전 라운드 승자로 채움
+    const PREV = { SPO: 'WC', PO: 'SPO', KS: 'PO' };
+    const HI = { WC: 3, SPO: 2, PO: 1, KS: 0 };
+    const pairOf = code => {
+      const r = R[code];
+      if(r && r.teams && r.teams.length === 2){
+        const [a, b] = r.teams;
+        return seedNo(a) <= seedNo(b) ? [a, b] : [b, a];
+      }
+      if(code === 'WC') return [seed[3], seed[4]];
+      return [seed[HI[code]], winnerOf(PREV[code])];
+    };
+
+    // KT 상태
+    const allG = [];
+    PS_ORDER.forEach(code => { if(R[code]) R[code].games.forEach(g => allG.push(Object.assign({ round: code }, g))); });
+    const ktNext = allG.filter(g => (g.home === 'KT' || g.away === 'KT') && g.code !== 'RESULT' && g.code !== 'CANCEL')
+      .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
+    let ktOut = null;
+    PS_ORDER.forEach(code => { const p = pairOf(code), w = winnerOf(code); if(w && w !== 'KT' && p.indexOf('KT') >= 0) ktOut = code; });
+    if(over && seedNo('KT') > 5) ktOut = 'REG';
+    const champ = winnerOf('KS');
+    const ktSeed = seedNo('KT');
+
+    // ① 카운트다운
+    let big = '', lbl = '', hd = '', dt = '';
+    if(champ === 'KT'){
+      big = '🏆'; lbl = 'Champion'; hd = '2026 한국시리즈 우승';
+      dt = 'kt wiz 통산 두 번째 우승 (2021 · 2026)';
+    } else if(ktOut){
+      big = '—'; lbl = 'Season over';
+      hd = ktOut === 'REG' ? '정규시즌 ' + ktSeed + '위로 시즌 마감' : PS_META[ktOut].name + '에서 시즌 마감';
+      dt = '정규시즌 ' + ktSeed + '위' + (champ ? ' · 우승 ' + esc(champ) : ' · 남은 가을야구는 아래 대진표에서');
+    } else if(ktNext){
+      const d = psDday(today, ktNext.date);
+      const no = played(R[ktNext.round]).filter(g => (g.date + g.time) < (ktNext.date + ktNext.time)).length + 1;
+      const opp = ktNext.home === 'KT' ? ktNext.away : ktNext.home;
+      const live = ktNext.code === 'STARTED' || ktNext.code === 'LIVE';
+      big = live ? 'LIVE' : (d <= 0 ? 'D-DAY' : 'D-' + d);
+      lbl = PS_META[ktNext.round].short + ' ' + no + '차전';
+      hd = 'vs ' + esc(opp) + ' · ' + fmtDate(ktNext.date) + ' ' + esc(ktNext.time || '');
+      dt = esc(ktNext.stadium || '') + (ktNext.home === 'KT' ? ' (홈)' : ' (원정)') +
+        ((ktNext.ap || ktNext.hp) ? '<br>선발 ' + esc(ktNext.ap || '미정') + ' vs ' + esc(ktNext.hp || '미정') : '');
+    } else if(over && ktSeed === 1){
+      big = 'KS'; lbl = '직행 확정'; hd = '한국시리즈 직행 — 상대를 기다리는 중';
+      const cur = PS_ORDER.filter(c => R[c] && R[c].games.length && !winnerOf(c)).pop();
+      dt = cur ? PS_META[cur].name + ' 진행 중 · ' + pairOf(cur).map(n => esc(n) + ' ' + (R[cur].wins[n] || 0)).join(' : ')
+               : '포스트시즌 일정 발표 전 — 일정이 나오면 자동으로 카운트다운이 시작됩니다';
+    } else if(over){
+      big = ktSeed + '위'; lbl = '정규시즌 종료'; hd = '가을야구 일정 발표 대기';
+      dt = '포스트시즌 경기가 편성되면 자동으로 카운트다운이 시작됩니다';
+    } else {
+      const me = st.find(t => t.name === 'KT');
+      const left = me ? 144 - (me.w + me.l + me.d) : 0;
+      const mine = (sc && sc.mine) || [];
+      const last = mine.length ? mine[mine.length - 1].date : null;
+      big = String(left); lbl = '정규시즌 남은 경기';
+      hd = '현재 ' + ktSeed + '위 · ' + (ktSeed === 1 ? '1위로 끝내면 한국시리즈 직행' : ktSeed <= 5 ? '가을야구 진출권' : '가을야구 도전 중');
+      dt = last ? '편성된 마지막 경기 ' + fmtDate(last) + ' (D-' + Math.max(0, psDday(today, last)) + ')' +
+        (left > mine.length ? ' · 미편성 ' + (left - mine.length) + '경기 별도' : '') : '';
+    }
+    if(!over && !Object.keys(R).length) renderOdds(st, py, sc); else document.getElementById('psOdds').hidden = true;
+
+    document.getElementById('psHero').innerHTML =
+      '<div class="big">' + big + '</div><div><p class="lbl">' + esc(lbl) + '</p><p class="hd">' + hd + '</p><p class="dt">' + dt + '</p></div>';
+
+    // ② 대진표
+    document.getElementById('psBracket').innerHTML = PS_ORDER.map(code => {
+      const r = R[code], pair = pairOf(code), w = winnerOf(code);
+      const hasKT = pair.indexOf('KT') >= 0;
+      const tbd = { SPO: 'WC 승자', PO: '준PO 승자', KS: 'PO 승자' }[code];
+      const row = nm => {
+        if(!nm) return '<div class="pst tbd"><i></i><b>' + tbd + '</b><em></em></div>';
+        const cls = (w ? (w === nm ? ' win' : ' lose') : '') + (nm === 'KT' ? ' kt' : '');
+        return '<div class="pst' + cls + '"><i>' + seedNo(nm) + '위</i><b>' + esc(nm) + '</b><em>' + (r && r.games.length ? (r.wins[nm] || 0) : '') + '</em></div>';
+      };
+      let foot;
+      if(w) foot = code === 'KS' ? '🏆 <b>' + esc(w) + '</b> 우승' : '<b>' + esc(w) + '</b> 진출';
+      else if(r && r.games.length){
+        const nx = r.games.find(g => g.code !== 'RESULT' && g.code !== 'CANCEL');
+        foot = nx ? '다음 ' + (played(r).length + 1) + '차전 ' + psMd(nx.date) + ' ' + esc(nx.time || '') : '진행 중';
+        if(hasKT && pair[0] && pair[1]){
+          const opp = pair[0] === 'KT' ? pair[1] : pair[0];
+          const p = log5(strMap.KT || .5, strMap[opp] || .5);
+          const isHi = pair[0] === 'KT';
+          const needK = code === 'WC' ? (isHi ? 1 : 2) : PS_META[code].need;
+          const needO = code === 'WC' ? (isHi ? 2 : 1) : PS_META[code].need;
+          foot += ' · KT 시리즈 승리 <b>' + probFmt(100 * seriesProb(needK, needO, r.wins.KT || 0, r.wins[opp] || 0, p)) + '</b>';
+        }
+      } else foot = over ? '일정 발표 전' : '정규시즌 종료 후';
+      return '<div class="psnode' + (hasKT ? ' kt' : '') + (code === 'KS' ? ' ks' : '') + '">' +
+        '<p class="psr">' + PS_META[code].short + '<small>' + PS_META[code].fmt + '</small></p>' +
+        row(pair[0]) + row(pair[1]) + '<p class="psf">' + foot + '</p></div>';
+    }).join('');
+    document.getElementById('psBracketNote').textContent = over
+      ? '정규시즌 최종 순위 기준 대진 · 경기 결과는 자동 반영'
+      : '현재 순위 기준 예상 대진 — 정규시즌이 끝나면 확정됩니다';
+
+    // ③ 시리즈 경기 (KT가 뛴 가장 최근 라운드, 없으면 가장 최근 라운드)
+    const focus = PS_ORDER.filter(c => R[c] && R[c].games.length && R[c].teams.indexOf('KT') >= 0).pop() ||
+                  PS_ORDER.filter(c => R[c] && R[c].games.length).pop();
+    const gbox = document.getElementById('psGamesBox');
+    if(focus){
+      let n = 0;
+      document.getElementById('psGamesHead').textContent = PS_META[focus].name + ' 경기';
+      document.getElementById('psGames').innerHTML = R[focus].games.map(g => {
+        const done = g.code === 'RESULT', cancel = g.code === 'CANCEL';
+        if(!cancel) n++;
+        const ktSide = g.home === 'KT' ? 'h' : (g.away === 'KT' ? 'a' : '');
+        const ktWin = done && ktSide && (ktSide === 'h' ? g.hs > g.as : g.as > g.hs);
+        const ktLose = done && ktSide && (ktSide === 'h' ? g.hs < g.as : g.as < g.hs);
+        const score = done ? esc(g.away) + ' ' + g.as + ' : ' + g.hs + ' ' + esc(g.home)
+                    : cancel ? esc(g.away) + ' vs ' + esc(g.home) + ' (취소)' : esc(g.away) + ' vs ' + esc(g.home);
+        const sub = fmtDate(g.date) + ' ' + esc(g.time || '') + ' · ' + esc(g.stadium || '') +
+          (done && (g.wp || g.lp) ? ' · 승 ' + esc(g.wp || '-') + ' 패 ' + esc(g.lp || '-') :
+           (!done && !cancel && (g.ap || g.hp) ? ' · 선발 ' + esc(g.ap || '미정') + ' vs ' + esc(g.hp || '미정') : ''));
+        const tag = ktWin ? '승' : ktLose ? '패' : g.tie ? '무' : done ? '종료' : cancel ? '' : '예정';
+        return '<li><span class="gn">' + (cancel ? '—' : n + '차전') + '</span>' +
+          '<span class="gm">' + score + '<small>' + sub + '</small></span>' +
+          '<span class="gs' + (ktWin ? ' w' : ktLose ? ' l' : '') + '">' + tag + '</span></li>';
+      }).join('');
+      gbox.hidden = false;
+    } else gbox.hidden = true;
+
+    // ④ KS 예측
+    const sim = kboKsSim(st, py, sc, ps);
+    if(sim){
+      document.getElementById('ksReach').textContent = psPct(sim.ksProb);
+      document.getElementById('ksChamp').textContent = psPct(sim.champProb);
+      const h2h = (py && py.h2h && py.h2h.KT) || {};
+      document.getElementById('ksOppBody').innerHTML = sim.opponents.length
+        ? sim.opponents.slice(0, 5).map(o => {
+            const h = h2h[o.name];
+            return '<tr><td>' + esc(o.name) + '</td><td>' + (h ? h.w + '승 ' + h.l + '패' + (h.d ? ' ' + h.d + '무' : '') : '—') + '</td>' +
+              '<td><span class="pybar"><i style="width:' + Math.max(3, Math.round(o.pct)) + '%"></i></span>' + psPct(o.pct) + '</td></tr>';
+          }).join('')
+        : '<tr><td colspan="3" style="color:var(--muted)">KS 진출 가능성이 희박해 상대 예측이 어렵습니다</td></tr>';
+      document.getElementById('ksNote').innerHTML =
+        (sim.directProb > 0.5 && sim.directProb < 99.5 ? '1위 직행으로 KS에 가는 경우 <b>' + probFmt(sim.directProb) + '</b>, 와일드카드부터 올라가는 경우 <b>' + probFmt(Math.max(0, sim.ksProb - sim.directProb)) + '</b>. ' : '') +
+        '대진: 4위·5위(4위 1승·5위 2연승 필요) → 준PO(5전3선) → PO(5전3선) → 한국시리즈(7전4선, 1위 직행). 팀 전력은 피타고리안·실제 승률 블렌드, ' +
+        (Object.keys(R).length ? '진행 중인 시리즈는 현재 전적에서 이어서 ' : '') + '시뮬레이션 ' + sim.n.toLocaleString() + '회 기준.';
+    }
+    document.getElementById('psSub').textContent = Object.keys(R).length
+      ? '포스트시즌 진행 중 — 실제 시리즈 전적이 매 경기 자동 반영됩니다'
+      : over ? '정규시즌 종료 — 포스트시즌 대진 확정' : '정규시즌 막바지 — 현재 순위 기준 예상 대진과 확률';
+    sec.style.display = 'block';
+  }
+
+  /* ---------- 매직넘버 트래커 ---------- */
+  function computeMagic(st){
+    if(!st || st.length < 10) return null;
+    const SEASON = 144;
+    const kt = st.find(t => t.name === 'KT'); if(!kt) return null;
+    const g = t => t.w + t.l + t.d, rem = t => Math.max(0, SEASON - g(t));
+    /* KT 제외 9팀을 '최고 가능 승률'(잔여 전승 가정) 내림차순으로 정렬 */
+    const others = st.filter(t => t.name !== 'KT')
+      .map(t => ({t, maxW: t.w + rem(t), denom: t.w + t.l + rem(t)}))
+      .sort((a, b) => (b.maxW / b.denom) - (a.maxW / a.denom));
+    /* KT 최악 승률 분모(잔여 전패 가정). 무승부가 나오면 분모가 줄어 유리해질 뿐이라 진짜 보장값. */
+    const denomKt = kt.w + kt.l + rem(kt);
+    /* o의 최고 가능 승률을 확실히 넘는 데 필요한 추가 승수.
+       동률 시 상대전적 타이브레이크에 기대지 않도록 '엄격히 초과'를 요구하고,
+       부동소수점 경계 오차를 피하려고 정수 교차곱으로 계산 */
+    const magicVs = o => Math.max(0, Math.floor((o.maxW * denomKt - kt.w * o.denom) / o.denom) + 1);
+    /* 1위 매직넘버 = 최고 가능 승률이 가장 높은 팀(rival)을 넘어서는 승수.
+       넘어서면 9팀 전부가 확정적으로 아래 → 정규시즌 1위 확정 */
+    const rival = others[0];
+    const chMagic = magicVs(rival);
+    /* PS 매직넘버 = 5번째로 높은 팀(threat)을 넘어서는 승수.
+       넘어서면 최소 5팀이 확정적으로 아래 → 5위 이내 확정 (KT 순위 무관) */
+    const threat = others[4];
+    const psMagic = magicVs(threat);
+    const remKt = rem(kt);
+    const chLit = chMagic > 0 && chMagic <= remKt, chClinched = chMagic === 0;
+    const lit = psMagic > 0 && psMagic <= remKt, clinched = psMagic === 0;
+    const r1 = st[0], r2 = st[1], r5 = st[4];
+    const gb = t => Math.abs(((t.w - t.l) - (kt.w - kt.l)) / 2).toFixed(1);
+    return {kt, remKt, remOf: rem, rival, chMagic, chLit, chClinched,
+      threat, psMagic, lit, clinched, r1, r2, r5, st, gb};
+  }
+
+  function renderMagicBanner(st){
+    const m = computeMagic(st), sec = document.getElementById('magicBanner');
+    if(!m){ return; }
+    sec.classList.toggle('clinch', m.chClinched);
+    const $ = id => document.getElementById(id);
+    const R = m.rival.t;
+    if(m.chClinched){
+      $('mbKicker').textContent = 'Pennant Clinched';
+      $('mbNum').textContent = '🏆';
+      $('mbHead').innerHTML = '<b>정규시즌 1위 확정!</b> kt wiz가 페넌트레이스 우승을 확정했습니다.';
+      $('mbEx').textContent = '남은 ' + m.remKt + '경기 결과와 상관없이 어떤 팀도 kt를 앞지를 수 없습니다.';
+    } else if(m.chLit){
+      $('mbKicker').textContent = '정규시즌 1위 매직넘버';
+      $('mbNum').textContent = m.chMagic;
+      $('mbHead').innerHTML = '정규시즌 1위까지 <b>' + m.chMagic + '승</b> — kt가 ' + m.chMagic + '승만 더 하면 페넌트레이스 우승 확정입니다.';
+      $('mbEx').innerHTML = '가장 위협적인 ' + esc(R.name) + '(' + R.w + '승)이 남은 ' +
+        m.remOf(R) + '경기를 <b>전부 이겨도</b> 최대 ' + m.rival.maxW + '승. kt(' + m.kt.w + '승)가 <b>' +
+        m.chMagic + '승</b>을 보태 ' + (m.kt.w + m.chMagic) + '승이 되면, 다른 팀 경기 결과와 상관없이 1위가 확정됩니다.';
+    } else if(m.kt.rank === 1){
+      $('mbKicker').textContent = 'Pennant Race';
+      $('mbNum').textContent = '+' + m.gb(m.r2) + 'G';
+      $('mbHead').innerHTML = '<b>1위 수성 중</b> — 2위 ' + esc(m.r2.name) + '에 ' + m.gb(m.r2) + '경기 앞서 있습니다.';
+      $('mbEx').textContent = '1위 확정에 필요한 승수(' + m.chMagic + ')가 아직 남은 경기(' + m.remKt + ')보다 많아 매직넘버는 점등 전입니다. 매직넘버는 "2위가 남은 경기를 전부 이겨도 못 따라오는" 시점부터 켜집니다.';
+    } else if(m.kt.rank > 5 && m.r5){
+      /* 5위 밖: 가을야구(5강) 확률 중심 표시 */
+      const aux = window.__aux || {};
+      const prob = kboPsProb(m.st, aux.py, aux.sc, 5);
+      const probTxt = probFmt(prob);
+      if(probTxt){
+        $('mbKicker').textContent = '가을야구 추격전';
+        $('mbNum').textContent = probTxt;
+        $('mbHead').innerHTML = '가을야구 확률 <b>' + probTxt + '</b> — 마지노선 5위 ' + esc(m.r5.name) + '까지 ' + m.gb(m.r5) + '경기 차입니다.';
+        $('mbEx').textContent = '피타고리안 전력(70%)+실제 승률(30%) 블렌드, 잔여 상대 난이도 반영 몬테카를로 4,000회 시뮬레이션. 1위 ' + m.r1.name + '와는 ' + m.gb(m.r1) + '경기 차, kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
+      }else{
+        $('mbKicker').textContent = 'Chase Mode';
+        $('mbNum').textContent = m.gb(m.r1) + 'G';
+        $('mbHead').innerHTML = '1위 ' + esc(m.r1.name) + '까지 <b>' + m.gb(m.r1) + '경기</b> — 먼저 선두를 따라잡아야 합니다.';
+        $('mbEx').textContent = 'kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
+      }
+    } else {
+      $('mbKicker').textContent = 'Chase Mode';
+      $('mbNum').textContent = m.gb(m.r1) + 'G';
+      $('mbHead').innerHTML = '1위 ' + esc(m.r1.name) + '까지 <b>' + m.gb(m.r1) + '경기</b> — 먼저 선두를 따라잡아야 합니다.';
+      $('mbEx').textContent = 'kt가 남은 ' + m.remKt + '경기를 전부 이기면 최대 ' + (m.kt.w + m.remKt) + '승입니다.';
+    }
+    const auxC = window.__aux || {};
+    const champTxt = m.kt.rank <= 5 && !m.chClinched ? probFmt(kboPsProb(m.st, auxC.py, auxC.sc, 1)) : null;
+    $('mbChips').innerHTML = [
+      '<span>남은 경기 <b>' + m.remKt + '</b></span>',
+      '<span>현재 <b>' + m.kt.rank + '위</b></span>',
+      m.kt.rank === 1 ? '<span>2위 ' + esc(m.r2.name) + ' <b>+' + m.gb(m.r2) + 'G</b></span>'
+                      : '<span>1위 ' + esc(m.r1.name) + ' <b>' + m.gb(m.r1) + 'G</b></span>' +
+                        (m.kt.rank > 5 && m.r5 ? '<span>5위 ' + esc(m.r5.name) + ' <b>' + m.gb(m.r5) + 'G</b></span>' : ''),
+      champTxt ? '<span>정규시즌 1위 확률 <b>' + champTxt + '</b></span>' : '',
+      m.clinched ? '<span>가을야구 확정 🎉</span>' : (m.lit ? '<span>PS 매직 <b>' + m.psMagic + '</b></span>' : '')
+    ].filter(Boolean).join('');
+  }
+
+  function renderMagic(st){
+    const m = computeMagic(st); if(!m) return;
+    const row = document.getElementById('magicRow'), note = document.getElementById('magicNote');
+    row.style.display = 'grid'; note.style.display = 'block';
+    const items = [
+      {v: m.remKt, l: '남은 경기', red: false},
+      {v: m.kt.rank + '위', l: '현재 순위', red: true},
+      {v: m.chLit || m.chClinched ? m.chMagic : '—', l: '1위 매직넘버', red: true},
+      {v: m.lit || m.clinched ? m.psMagic : '—', l: 'PS 매직넘버', red: false},
+      /* KT가 1위면 자기 자신과의 게임차(0.0) 대신 2위와의 리드를 보여준다 */
+      m.kt.name === m.r1.name
+        ? {v: '+' + m.gb(m.r2), l: '2위 ' + m.r2.name + ' 리드', red: false}
+        : {v: m.gb(m.r1), l: '1위 ' + m.r1.name + ' 게임차', red: false}
+    ];
+    row.innerHTML = items.map(i => '<div class="m"><b class="' + (i.red ? 'red' : '') + '">' + i.v + '</b><span>' + esc(i.l) + '</span></div>').join('');
+    note.innerHTML = m.chClinched ? '<b>정규시즌 1위 확정</b> — 남은 경기 결과와 무관하게 페넌트레이스 우승이 보장됩니다.'
+      : m.chLit ? '1위 매직넘버 <b>' + m.chMagic + '</b> — 최대 경쟁자 ' + esc(m.rival.t.name) + '이 남은 ' + m.remOf(m.rival.t) + '경기를 전승해도, kt가 <b>' + m.chMagic + '승</b>만 더 거두면 정규시즌 1위가 확정됩니다.'
+      : '1위 매직넘버 점등 전 — 확정에 필요한 승수(' + m.chMagic + ')가 남은 경기 수보다 많습니다.';
+  }
+  /* 첫 페인트용 시드 순위 — 라이브 데이터가 도착하면 곧바로 대체됨 */
+  renderMagicBanner([
+    {name:'KT',rank:1,w:59,l:36,d:2},{name:'삼성',rank:2,w:59,l:38,d:2},{name:'LG',rank:3,w:55,l:44,d:1},
+    {name:'두산',rank:4,w:52,l:45,d:4},{name:'KIA',rank:5,w:52,l:46,d:2},{name:'한화',rank:6,w:46,l:49,d:3},
+    {name:'NC',rank:7,w:43,l:50,d:2},{name:'롯데',rank:8,w:43,l:54,d:2},{name:'SSG',rank:9,w:38,l:60,d:4},
+    {name:'키움',rank:10,w:38,l:63,d:2}
+  ]);
+
+  /* ---------- 승리 축하 모드 ---------- */
+  let celebrated = false;
+  function celebrate(games){
+    if(celebrated || reduce) return;
+    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    if(!g) return;
+    const done = g.code === 'RESULT' || g.code === 'ENDED';
+    const ktWin = done && ((g.home === 'KT' && g.hs > g.as) || (g.away === 'KT' && g.as > g.hs));
+    if(!ktWin) return;
+    celebrated = true;
+    const banner = document.querySelector('.ktbanner:not(.agbanner)');
+    const wrap = banner.querySelector('.wrap');
+    const badge = document.createElement('div');
+    badge.className = 'winbadge'; badge.textContent = 'WIZ WIN';
+    wrap.insertBefore(badge, wrap.firstChild);
+    /* 콘텐츠 중앙 골드·레드 버스트 (6초, 1회) */
+    const cv = document.createElement('canvas');
+    cv.className = 'celebrate-cv'; banner.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const W = cv.width = banner.offsetWidth * devicePixelRatio;
+    const H = cv.height = banner.offsetHeight * devicePixelRatio;
+    const COLORS = ['#ff4a5f','#ffffff','#9d9d9d'];
+    const ps = Array.from({length: 90}, () => {
+      const a = -Math.PI/2 + (Math.random() - .5) * 2.4;   // 위쪽 부채꼴로 발사
+      const v = (.25 + Math.random() * .55) * H * .0022;
+      return { x: W/2, y: H * .78, vx: Math.cos(a) * v * 1.4, vy: Math.sin(a) * v,
+        r: (2.5 + Math.random() * 4.5) * devicePixelRatio, rot: Math.random() * Math.PI,
+        vr: (Math.random() - .5) * .16, c: COLORS[Math.floor(Math.random() * COLORS.length)],
+        delay: Math.random() * 500 };
+    });
+    const t0 = performance.now(), DUR = 6000, G = H * .0000024;
+    (function draw(t){
+      const el = t - t0;
+      ctx.clearRect(0, 0, W, H);
+      if(el >= DUR){ cv.remove(); return; }
+      ctx.globalAlpha = el > DUR * .72 ? Math.max(0, 1 - (el - DUR * .72) / (DUR * .28)) : 1;
+      for(const p of ps){
+        if(el < p.delay) continue;
+        p.vy += G * 16; p.x += p.vx * 16; p.y += p.vy * 16; p.rot += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+        ctx.restore();
+      }
+      requestAnimationFrame(draw);
+    })(t0);
+  }
+
+  /* ---------- wiz TV ---------- */
+  function renderYT(vids){
+    if(!vids || !vids.length) return;
+    document.getElementById('ytSec').style.display = 'block';
+    document.getElementById('ytGrid').innerHTML = vids.map(v =>
+      '<a href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener">' +
+      '<span class="th"><img loading="lazy" src="https://i.ytimg.com/vi/' + esc(v.id) + '/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.closest(&quot;a&quot;).style.display=&quot;none&quot;"></span>' +
+      '<span class="ti">' + esc(v.title) + '<span>' + esc(v.pub || '') + ' · kt wiz 공식</span></span></a>'
+    ).join('');
+  }
+
+  /* ---------- 지난 경기 (동적) ---------- */
+  const DOW = ['일','월','화','수','목','금','토'];
+  function fmtDate(d){ const dt = new Date(d + 'T00:00:00'); return d.slice(5).replace('-','. ') + ' (' + DOW[dt.getDay()] + ')'; }
+  function renderLastGame(lg){
+    if(!lg) return;
+    document.getElementById('lgKicker').textContent = 'Last game · ' + fmtDate(lg.date) + ' ' + lg.stadium;
+    const box = document.getElementById('lastGameBox');
+    const rTxt = lg.r === 'W' ? 'WIN' : (lg.r === 'L' ? 'LOSE' : 'DRAW');
+    const oppSc = lg.op, ktSc = lg.my;
+    const ktWon = lg.r === 'W';
+    const matchup =
+      '<div class="matchup">' +
+        '<div class="t' + (!ktWon && lg.r==='L' ? ' w' : '') + '"><div class="nm">' + esc(lg.opp) + '</div><div class="sc">' + oppSc + '</div></div>' +
+        '<div class="vs">FINAL</div>' +
+        '<div class="t' + (ktWon ? ' w' : '') + '">' + (ktWon ? '<span class="wbadge">WIN</span>' : '') + '<div class="nm">kt wiz</div><div class="sc">' + ktSc + '</div></div>' +
+      '</div>';
+    const winP = (lg.pitchers || []).find(p => p.wls === '승');
+    const saveP = (lg.pitchers || []).find(p => p.wls === '세');
+    const metaBits = [];
+    metaBits.push('<b>' + (lg.r === 'W' ? 'kt 승리' : lg.r === 'L' ? '아쉬운 패배' : '무승부') + '</b> · ' + esc(lg.opp) + '전 ' + ktSc + '-' + oppSc);
+    if(lg.starter) metaBits.push('kt 선발 ' + esc(lg.starter));
+    const meta = '<div class="meta">' + metaBits.join('<br>') + '</div>';
+    let body = '';
+    const hasKeys = (lg.keys || []).length, hasPit = (lg.pitchers || []).length;
+    if(hasKeys || hasPit){
+      body = '<div class="lg-body">';
+      if(hasKeys){
+        body += '<div class="lg-col"><h4>주요 기록</h4><ul class="key-plays">' +
+          lg.keys.map(k => '<li><span class="inn">' + esc(k.how) + '</span><span>' + esc(k.result) + '</span></li>').join('') +
+          '</ul></div>';
+      }
+      if(hasPit){
+        body += '<div class="lg-col"><h4>투수 기록</h4><div class="pit">' +
+          lg.pitchers.slice(0,4).map(p => '<div class="p"><b>' + esc(p.name) + (p.wls ? ' (' + ({'승':'승','패':'패','세':'세','홀':'홀'}[p.wls]||p.wls) + ')' : '') + '</b><span>' + esc(p.inn) + '이닝 ' + p.r + '실점 · 탈삼진 ' + p.kk + '</span></div>').join('') +
+          '</div></div>';
+      }
+      body += '</div>';
+    }
+    box.innerHTML = '<div class="lg-hero">' + matchup + meta + '</div>' + body;
+    // 지난 경기 선발 라인업 패널 (수집된 경우에만 표시)
+    if((lg.lineup || []).length >= 9){
+      document.getElementById('lgluWhen').textContent =
+        fmtDate(lg.date) + ' vs ' + lg.opp + ' · ' + ktSc + '-' + oppSc + ' ' + (lg.r === 'W' ? '승' : lg.r === 'L' ? '패' : '무');
+      document.getElementById('lgluSp').innerHTML = lg.spLine ?
+        '선발 <b>' + esc(lg.spLine.name) + '</b> — ' + esc(lg.spLine.inn) + '이닝 ' + lg.spLine.r + '실점' : '';
+      document.getElementById('lgluList').innerHTML =
+        lg.lineup.map(b => '<li><b>' + esc(b.name) + '</b><span class="ps">' + esc(b.pos || '') + '</span></li>').join('');
+      document.getElementById('lgluBox').style.display = '';
+    }
+  }
+
+  /* ---------- 오늘 경기 가능 여부 (날씨) ---------- */
+  function playability(pp, code, at){
+    // pp: 경기 시간대 강수확률(%), code: WMO, at: 경기 시간대 체감온도(°C)
+    if(pp == null && at == null) return null;
+    if(pp != null && (code >= 95 || pp >= 70)) return { s: 'bad', t: '우천 취소 가능성 높음', d: '강수확률 ' + pp + '% — 경기 강행 여부 확인 필요' };
+    if(at != null && at >= 35) return { s: 'bad', t: '폭염 취소 가능성', d: '경기 시간대 체감온도 ' + at + '° — KBO 혹서 취소 검토 기준' };
+    if(pp != null && pp >= 40) return { s: 'warn', t: '우천 변수 있음', d: '강수확률 ' + pp + '% — 지연·중단 가능성' };
+    if(at != null && at >= 33) return { s: 'warn', t: '폭염 변수 있음', d: '경기 시간대 체감온도 ' + at + '° — 혹서 대비 필요' };
+    if(pp == null) return null;
+    return { s: 'ok', t: '정상 개최 예상', d: '강수확률 ' + pp + '% — 날씨 양호' };
+  }
+
+  /* ---------- 개인 타이틀 레이스 ---------- */
+  function renderTitleRace(tr){
+    if(!tr || !tr.list || tr.list.length < 6) return;
+    document.getElementById('titleSec').style.display = 'block';
+    document.getElementById('titleGrid').innerHTML = tr.list.map(c =>
+      '<div class="tcard"><h5>' + esc(c.cat) + '</h5><ol>' +
+      c.top.map(p =>
+        '<li' + (p.team === 'KT' ? ' class="mine"' : '') + '>' +
+        '<span class="rk">' + p.rank + '</span>' +
+        '<span class="nm">' + esc(p.name) + '</span>' +
+        '<span class="tm">' + esc(p.team) + '</span>' +
+        '<span class="vl">' + esc(p.val) + '</span></li>'
+      ).join('') + '</ol></div>'
+    ).join('');
+  }
+
+  /* ---------- 팀간 상대전적 (KT 중심) ---------- */
+  function renderH2H(py, standings, games){
+    const h2h = py && py.h2h;
+    if(!h2h || !h2h['KT'] || !standings || standings.length < 10) return;
+    document.getElementById('h2hSec').style.display = 'block';
+    const order = standings.map(t => t.name); // 순위순
+    const rankOf = {}; standings.forEach((t, i) => rankOf[t.name] = i + 1);
+    const todayG = (games || []).find(g => g.home === 'KT' || g.away === 'KT');
+    const oppToday = todayG ? (todayG.home === 'KT' ? todayG.away : todayG.home) : null;
+
+    const rows = order.filter(n => n !== 'KT').map(n => {
+      const r = h2h['KT'][n] || {};
+      const w = r.w || 0, l = r.l || 0, d = r.d || 0;
+      return { name: n, w, l, d, left: Math.max(0, 16 - w - l - d), diff: w - l };
+    });
+    /* 표시는 순위순(경쟁 구도 중심 — 2위 경쟁팀이 상단), 요약 칩만 우세순 집계 */
+    const byDiff = rows.slice().sort((a, b) => (b.diff - a.diff) || (b.w - a.w) || (rankOf[a.name] - rankOf[b.name]));
+
+    const up = rows.filter(r => r.diff > 0).length, dn = rows.filter(r => r.diff < 0).length;
+    const best = byDiff[0], worst = byDiff[byDiff.length - 1];
+    document.getElementById('h2hSum').innerHTML =
+      '<span class="chip"><b style="color:var(--ok)">우세 ' + up + '팀</b> · 백중 ' + (rows.length - up - dn) + '팀 · <b style="color:var(--red-soft)">열세 ' + dn + '팀</b></span>' +
+      (best.diff > 0 ? '<span class="chip">최다 우세: <b>' + esc(best.name) + '</b> ' + best.w + '승 ' + best.l + '패</span>' : '') +
+      (worst.diff < 0 ? '<span class="chip">천적: <b>' + esc(worst.name) + '</b> ' + worst.w + '승 ' + worst.l + '패</span>' : '');
+
+    const seg = r => {
+      let s = '';
+      for(let i = 0; i < r.w; i++) s += '<i class="w"></i>';
+      for(let i = 0; i < r.d; i++) s += '<i class="d"></i>';
+      for(let i = 0; i < r.l; i++) s += '<i class="l"></i>';
+      for(let i = 0; i < r.left; i++) s += '<i></i>';
+      return '<span class="h2h-seg">' + s + '</span>';
+    };
+
+    document.getElementById('h2hList').innerHTML = rows.map(r => {
+      const tone = r.diff > 0 ? 'up' : (r.diff < 0 ? 'dn' : 'ev');
+      const diffTxt = r.diff > 0 ? '+' + r.diff : (r.diff < 0 ? '' + r.diff : '백중');
+      return '<li' + (r.name === oppToday ? ' class="today"' : '') + '>' +
+        '<span class="h2h-opp"><b>' + esc(r.name) + '</b><em>' + rankOf[r.name] + '위</em>' +
+          (r.name === oppToday ? '<i class="tdy">오늘 맞대결</i>' : '') + '</span>' +
+        '<span class="h2h-mid">' + seg(r) +
+          '<span class="h2h-rec">' + r.w + '승 ' + r.d + '무 ' + r.l + '패</span></span>' +
+        '<span class="h2h-side"><b class="h2h-diff ' + tone + '">' + diffTxt + '</b>' +
+          '<em>' + (r.left > 0 ? '잔여 ' + r.left : '맞대결 종료') + '</em></span></li>';
+    }).join('');
+
+    document.getElementById('h2hNote').innerHTML =
+      '막대 한 칸 = 1경기 (팀당 16차전) — <span style="color:var(--ok);font-weight:700">승</span> · <span style="color:var(--gold);font-weight:700">무</span> · <span style="color:var(--red-soft);font-weight:700">패</span> · 회색 = 남은 경기. 현재 순위순 정렬.';
+
+    // 전체 매트릭스 (토글, 기본 접힘)
+    const tgl = document.getElementById('h2hTgl'), wrap = document.getElementById('h2hMatWrap');
+    tgl.onclick = () => {
+      const open = wrap.style.display !== 'none';
+      wrap.style.display = open ? 'none' : '';
+      tgl.textContent = open ? '전체 10팀 매트릭스 펼치기 ▾' : '매트릭스 접기 ▴';
+      tgl.setAttribute('aria-expanded', String(!open));
+    };
+    document.getElementById('h2hHead').innerHTML = '<tr><th></th>' +
+      order.map(n => '<th class="' + (n === 'KT' ? 'kt-col' : '') + '">' + esc(n) + '</th>').join('') + '</tr>';
+    document.getElementById('h2hBody').innerHTML = order.map(row =>
+      '<tr' + (row === 'KT' ? ' class="kt"' : '') + '><td>' + esc(row) + '</td>' +
+      order.map(col => {
+        if(row === col) return '<td class="diag' + (col === 'KT' ? ' kt-col' : '') + '">■</td>';
+        const r = (h2h[row] || {})[col] || { w: 0, l: 0 };
+        const cls = r.w > r.l ? 'win' : (r.w < r.l ? 'lose' : '');
+        return '<td class="' + cls + (col === 'KT' ? ' kt-col' : '') + '">' + r.w + '-' + r.l + '</td>';
+      }).join('') + '</tr>').join('');
+  }
+
+  /* ---------- 오늘 선발 구종 맞대결 ---------- */
+  const PITCH_KO = { FAST:'포심', TWOS:'투심', SLID:'슬라이더', CURV:'커브', CHUP:'체인지업', CUTT:'커터', FORK:'포크', SINK:'싱커', KNUC:'너클', SLOW:'슬로커브' };
+  function renderDuel(st){
+    if(!st || !st.kt || !st.opp) return;
+    const box = document.getElementById('duelBox');
+    box.style.display = 'grid';
+    const card = (p, cls, teamLabel) => {
+      if(!p) return '';
+      const rec = (p.w != null ? p.w + '승 ' : '') + (p.l != null ? p.l + '패 ' : '') + (p.era ? '· ERA ' + p.era : '');
+      return '<div class="dcard ' + cls + '"><h5>' + esc(p.name) + '</h5><p class="dsub">' + esc(teamLabel) + ' 선발 · ' + esc(rec) + '</p>' +
+        (p.pitches || []).slice(0, 5).map(x =>
+          '<div class="pt"><span class="pn">' + (PITCH_KO[x.type] || esc(x.type)) + '</span>' +
+          '<span class="pbar"><i style="width:' + Math.min(100, Math.round(x.rt)) + '%"></i></span>' +
+          '<span class="pv">' + Math.round(x.rt) + '% · ' + x.spd + 'km</span></div>').join('') +
+        '</div>';
+    };
+    box.innerHTML = card(st.kt, 'kt', 'kt wiz') + card(st.opp, '', st.oppName || '상대');
+  }
+
+  /* ---------- 뉴스 (구글 뉴스 수집) ---------- */
+  function renderNews(news){
+    if(!news || !news.length) return; // 수집 전엔 안내 카드 유지
+    document.getElementById('newsCards').innerHTML = news.slice(0, 6).map((n, i) =>
+      '<a class="card reveal on" href="' + esc(n.url) + '" target="_blank" rel="noopener nofollow" style="text-decoration:none;color:inherit">' +
+      '<span class="date">' + esc(n.date || '') + ' · ' + esc(n.src || '') + '</span>' +
+      '<span class="chip">기사</span>' +
+      '<h3>' + esc(n.title) + '</h3></a>'
+    ).join('');
+  }
+
+  /* ---------- 스포트라이트 (오늘의 키플레이어 자동) ---------- */
+  function renderSpot(top){
+    if(!top || !top.name) return; // 데이터 전엔 기존 내용 유지
+    document.getElementById('spotNum').textContent = top.backnum || '';
+    document.getElementById('spotPos').textContent = '오늘의 키플레이어 · No.' + (top.backnum || '-') + (top.hitType ? ' · ' + top.hitType : '');
+    document.getElementById('spotName').textContent = top.name;
+    const r5 = top.r5hra ? '최근 5경기 타율 ' + ('' + top.r5hra).replace(/^0\./, '.') + ' (' + top.r5ab + '타수 ' + top.r5hit + '안타)' : '';
+    document.getElementById('spotDesc').textContent =
+      (top.opp ? esc(top.opp) + '전을 앞두고 네이버 프리뷰가 선정한 kt 키플레이어. ' : '') + r5;
+    const nums = [];
+    if(top.hra) nums.push(['타율', ('' + top.hra).replace(/^0\./, '.')]);
+    if(top.obp) nums.push(['출루율', ('' + top.obp).replace(/^0\./, '.')]);
+    if(top.hr != null) nums.push(['홈런', top.hr]);
+    if(top.rbi != null) nums.push(['타점', top.rbi]);
+    if(top.games != null) nums.push(['경기', top.games]);
+    document.getElementById('spotNums').innerHTML = nums.map(([l, v]) =>
+      '<div class="n"><b>' + esc('' + v) + '</b><span>' + esc(l) + '</span></div>').join('');
+  }
+
+  /* ---------- 쇼츠 ---------- */
+
+  async function loadData(){
+    const urls = [
+      // 1순위: GitHub API (캐시 없음 — 2분 내 최신, 방문자당 시간 60회 제한이라 75초 주기와 함께 사용)
+      {u:'https://api.github.com/repos/ktwiz-board/ktwiz-board.github.io/contents/data/live.json?ref=data', o:{headers:{Accept:'application/vnd.github.raw+json'}}},
+      // 2순위: raw CDN (최대 5분 캐시)
+      {u:'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/live.json?t=' + Date.now(), o:{}},
+      {u:'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/main/data/live.json?t=' + Date.now(), o:{}},
+      {u:'./data/live.json?t=' + Date.now(), o:{}}
+    ];
+    for(const {u:url, o:opts} of urls){
+      try{
+        const r = await fetch(url, {...opts, cache:'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
+        if(!r.ok) continue;
+        const j = await r.json();
+        if(!j || !j.games) continue;
+        updatedKST = j.updatedKST || '';
+        dataMode = j.mode || 'pre'; // 폴링 주기 조절용 (수집기와 같은 모드 기준)
+        updatedISO = j.updated || null;
+        ktWeekCache = (j.kt && j.kt.week) || null;
+        ktLastCache = (j.kt && j.kt.lastGame) || null;
+        window.__aux = { py: j.pythag, sc: j.sched }; // 확률 시뮬레이션용 (매직넘버 배너)
+        renderStandings(j.standings, j.date);
+        render(j.games, true);
+        renderStatusChip(j.games);
+        renderWeek(j.kt && j.kt.week, j.date);
+        renderForm(j.kt && j.kt.recent);
+        renderRest(j.sched, j.games, j.standings);
+        renderCancelled(j.cancelled, j.standings, j.sched);
+        renderLineup(j.kt, j.games);
+        renderBox(j.kt, j.games);
+        renderScoreLog(j.kt, j.games);
+        renderLastGame(j.kt && j.kt.lastGame);
+        renderNews(j.news);
+        renderSpot(j.kt && j.kt.top);
+        renderH2H(j.pythag, j.standings, j.games);
+        renderDuel(j.kt && j.kt.starters);
+        renderMagic(j.standings);
+        renderMagicBanner(j.standings);
+        window.__agAdj = j.agAdj || null; // 경기차 전망의 아시안게임 공백 보정값 (roster 없을 때 대체용)
+        window.__roster = j.roster || null; // 선수 단위 팀 전력 — 경기차 전망·경우의 수·KS 예측 공통
+        renderPs(j.standings, j.pythag, j.sched, j.ps, j.date);
+        renderAg(j.ag, j.date);
+        renderTitleRace(j.titleRace);
+        renderYT(j.youtube);
+        celebrate(j.games);
+        return;
+      }catch(e){ /* 다음 경로 */ }
+    }
+    render(SEED, false);
+  }
+  /* ---------- 접이식 섹션 ----------
+     시즌이 진행될수록 참고용 섹션이 쌓여 페이지가 매우 길어진다.
+     경기·순위 등 자주 보는 것만 펼쳐 두고 나머지는 접어 첫 화면 길이를 줄인다.
+     사용자가 펼친 섹션은 localStorage에 기억해 다음 방문에도 유지한다. */
+  const FOLDED = [];   // v2: 접기 대신 '분석' 탭으로 정리
+  const SEC_KEY = 'wizSecOpen';
+  const secLoad = () => { try{ return JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); }catch(e){ return {}; } };
+  const secSave = o => { try{ localStorage.setItem(SEC_KEY, JSON.stringify(o)); }catch(e){} };
+  (function initFold(){
+    const saved = secLoad();
+    // 1회성 초기화(2026-09-25): 유튜브 섹션을 펼쳐 둔 저장값을 지워 다시 접힌 상태로
+    if(!saved._ytReset){ delete saved.ytSec; saved._ytReset = 1; secSave(saved); }
+    FOLDED.forEach(id => {
+      const sec = document.getElementById(id);
+      const head = sec && sec.querySelector('.sec-head');
+      if(!head || head.querySelector('.sec-toggle')) return;
+      let open = saved[id] === true;   // 저장값이 없으면 접힌 상태로 시작
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sec-toggle';
+      const apply = () => {
+        sec.classList.toggle('sec-collapsed', !open);
+        btn.textContent = open ? '접기 ▴' : '펼치기 ▾';
+        btn.setAttribute('aria-expanded', String(open));
+        // 접힌 동안엔 스크롤 관찰자가 못 보므로, 펼칠 때 등장 애니메이션을 확정 적용
+        if(open) sec.querySelectorAll('.reveal:not(.on)').forEach(el => el.classList.add('on'));
+        // 접고 펴면 문서 높이가 바뀌므로 배경 트레일을 다시 그리게 한다
+        dispatchEvent(new Event('resize'));
+      };
+      apply();
+      btn.addEventListener('click', () => {
+        open = !open;
+        apply();
+        const s = secLoad(); s[id] = open; secSave(s);
+      });
+      head.appendChild(btn);
+      head.addEventListener('click', e => { if(!e.target.closest('.sec-toggle') && sec.classList.contains('sec-collapsed')) btn.click(); });
+    });
+  })();
+
+  render(SEED, false);
+
+  /* ---------- 폴링 주기 ----------
+     1순위 데이터 소스인 GitHub API는 비인증 시 IP당 시간 60회 제한이라,
+     고정 75초(=시간 48회) 폴링은 탭을 오래 열어두거나 두 개만 열어도 한도를 넘겨
+     5분 캐시 CDN으로 밀린다. 수집 주기도 모드별로 다르므로(경기 중 5분·경기 전 10분·
+     종료 30분) 화면 폴링도 같은 기준으로 맞추고, 배경 탭에서는 아예 쉬게 한다. */
+  let dataMode = 'pre';
+  const POLL = { live: 60000, pre: 180000, post: 300000 };
+  let pollTimer = null;
+  function schedulePoll(){
+    clearTimeout(pollTimer);
+    pollTimer = setTimeout(tick, POLL[dataMode] || POLL.pre);
+  }
+  function tick(){
+    if(document.hidden){ schedulePoll(); return; } // 안 보는 화면은 요청하지 않음
+    loadData().finally(schedulePoll);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden){ tick(); } // 다시 보면 즉시 최신화
+  });
+
+  loadData().finally(() => { fetchWeather(); schedulePoll(); });
+  setInterval(() => { if(!document.hidden) fetchWeather(); }, 60000);
+  loadRankHistory();
+  setInterval(() => { if(!document.hidden) loadRankHistory(); }, 1200000);
+})();
+</script>
+
+<script>
+/* GA4 섹션 조회 추적 — 섹션이 화면에 30% 이상 보이면 1회 전송 */
+(function(){
+  if(typeof gtag !== 'function' || !('IntersectionObserver' in window)) return;
+  const seen = new Set();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(!en.isIntersecting) return;
+      const sec = en.target;
+      const name = (sec.querySelector('h2') || {}).textContent || sec.id || 'unknown';
+      if(seen.has(name)) return;
+      seen.add(name);
+      gtag('event', 'section_view', { section_name: name.trim() });
+      io.unobserve(sec);
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('section').forEach(s => io.observe(s));
+  // 재생 버튼 등 주요 인터랙션도 추적
+  const play = document.getElementById('rankPlay');
+  if(play) play.addEventListener('click', () => gtag('event', 'rank_play_click'));
+})();
+</script>
+<script>
+/* 소스 열람 억제 — 우클릭·단축키·드래그 차단 (완전한 보호는 아님) */
+(function(){
+  addEventListener('contextmenu', e => e.preventDefault());
+  addEventListener('selectstart', e => { if(e.target.closest('input,textarea') === null) e.preventDefault(); });
+  addEventListener('keydown', e => {
+    const k = e.key.toUpperCase();
+    if(k === 'F12' ||
+       (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) ||
+       (e.ctrlKey && (k === 'U' || k === 'S'))){
+      e.preventDefault(); e.stopPropagation();
+    }
+  }, true);
+})();
+</script>
+<script>
+// 설치형 앱(PWA·Play 스토어 TWA)용 서비스워커 — 실시간 데이터는 캐시하지 않음 (sw.js 참고)
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

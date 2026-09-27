@@ -44,10 +44,12 @@ gtag('config', 'G-8MC9LN4N1R');
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="wiz board">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!-- 글꼴은 화면을 막지 않게 비동기로 (CDN이 느려도 기본 글꼴로 먼저 그리고, 도착하면 교체) -->
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"></noscript>
 <script>(function(d){d.classList.add('js');try{var t=localStorage.getItem('wizTheme');if(t==='light'||t==='dark')d.setAttribute('data-theme',t)}catch(e){}})(document.documentElement)</script>
 <style>
 /* ==========================================================================
@@ -79,7 +81,7 @@ gtag('config', 'G-8MC9LN4N1R');
 }
 :root[data-theme="dark"]{color-scheme:dark;--paper:#121212;--ink:#ececec;--black:#000;--g1:#d0d0d0;--g2:#a3a3a3;--g3:#707070;--g4:#3a3a3a;--g5:#1b1b1b;--line:#2a2a2a;--accent:#ff4a5f;--rv:#6f9df0;--pos:#4cc27f}
 /* 항상 검은 면 — 어느 테마든 같은 값 */
-.ink,.cover__sheet,.magicbanner,.foot,.drawer{--paper:#0b0b0b;--ink:#f2f2f2;--g1:#d6d6d6;--g2:#9d9d9d;--g3:#6b6b6b;--g4:#3a3a3a;--g5:rgba(255,255,255,.05);--line:rgba(255,255,255,.16);--accent:#ff4a5f;--rv:#7fa6f2;--pos:#4cc27f;color-scheme:dark}
+.ink,.todaybox,.foot{--paper:#0b0b0b;--ink:#f2f2f2;--g1:#d6d6d6;--g2:#9d9d9d;--g3:#6b6b6b;--g4:#3a3a3a;--g5:rgba(255,255,255,.05);--line:rgba(255,255,255,.16);--accent:#ff4a5f;--rv:#7fa6f2;--pos:#4cc27f;color-scheme:dark}
 html.theme-anim,html.theme-anim *{transition:background-color .45s,color .45s,border-color .45s,fill .45s,stroke .45s!important}
 
 /* ---------- base ---------- */
@@ -112,73 +114,6 @@ tbody tr:hover{background:var(--g5)}
 .sec-head.reveal .kicker{transition-delay:.1s}
 .sec-head.reveal.on h2,.sec-head.reveal.on .kicker{clip-path:inset(-10% -4% -20% -4%);transform:none}
 
-/* ---------- masthead (흑백 반전 합성 → 첫 화면을 지나면 반투명 바탕) ---------- */
-.mast{position:fixed;inset:0 0 auto;z-index:60;color:#fff;mix-blend-mode:difference;transition:background-color .35s,box-shadow .35s}
-.mast.is-past{mix-blend-mode:normal;color:var(--ink);background:color-mix(in srgb,var(--paper) 86%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line)}
-.mast .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;height:72px}
-.logo{font-size:17px;font-weight:800;letter-spacing:-.03em;text-decoration:none;white-space:nowrap}
-.logo .it{font-size:24px;letter-spacing:-.01em;margin-right:2px}
-.nav{display:flex;gap:30px;font-size:13.5px;font-weight:600;letter-spacing:.01em}
-.nav a{position:relative;padding:4px 0;text-decoration:none}
-.nav a::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}
-.nav a:hover::after,.nav a:focus-visible::after,.nav a.is-on::after{transform:scaleX(1);transform-origin:left}
-.mast__tools{display:flex;align-items:center;gap:16px}
-.livepill{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;border:1px solid currentColor;border-radius:999px;padding:7px 14px;text-decoration:none;white-space:nowrap}
-.livepill i{width:6px;height:6px;border-radius:50%;background:currentColor}
-.themebtn{width:22px;height:22px;border:1.5px solid currentColor;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:none;padding:0;cursor:pointer}
-.themebtn::after{content:"";position:absolute;inset:0;background:currentColor;transform:translateX(50%);transition:transform .45s var(--ease)}
-.themebtn[data-mode="light"]::after{transform:translateX(105%)}
-.themebtn[data-mode="dark"]::after{transform:none}
-.burger{display:none;width:28px;height:18px;position:relative;background:none;border:0;padding:0;cursor:pointer}
-.burger i{position:absolute;left:0;right:0;height:1.5px;background:currentColor}
-.burger i:nth-child(1){top:0}.burger i:nth-child(2){top:8px}.burger i:nth-child(3){top:16px}
-@media (max-width:980px){.nav,.mast .livepill{display:none}.burger{display:block}}
-.drawer{position:fixed;inset:0;z-index:70;background:var(--black);color:var(--ink);display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0 var(--gutter);transform:translateY(-100%);visibility:hidden;transition:transform .6s var(--ease),visibility .6s}
-.drawer.is-open{transform:none;visibility:visible}
-.drawer a{font-size:34px;font-weight:800;letter-spacing:-.04em;text-decoration:none;display:flex;align-items:baseline;gap:14px}
-.drawer a small{font-family:var(--serif);font-style:italic;font-weight:400;font-size:20px;color:var(--g2)}
-.drawer__close{position:absolute;top:22px;right:var(--gutter);font-size:26px;background:none;border:0;color:inherit;cursor:pointer}
-
-/* ---------- folio: 오른쪽 섹션 위치 ---------- */
-.folio{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:50;mix-blend-mode:difference;display:flex;flex-direction:column;gap:12px}
-.folio a{display:flex;align-items:center;justify-content:flex-end;gap:12px;color:#fff;font-size:11px;font-weight:600;letter-spacing:.08em;text-decoration:none}
-.folio a span{opacity:0;transform:translateX(6px);transition:.35s}
-.folio a i{width:14px;height:1px;background:#fff;opacity:.45;transition:.35s}
-.folio a:hover span,.folio a:focus-visible span,.folio a.is-on span{opacity:1;transform:none}
-.folio a.is-on i{width:36px;opacity:1}
-@media (max-width:1320px){.folio{display:none}}
-
-/* ---------- cover: 제목 속 작은 창이 스크롤에 따라 화면 전체로 열림 ---------- */
-.cover{height:190vh;position:relative}
-.cover__pin{position:sticky;top:0;height:100svh;overflow:hidden}
-.cover__type{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center}
-.cover__meta{display:flex;justify-content:space-between;gap:16px;font-size:12.5px;font-weight:600;letter-spacing:.18em;color:var(--g2);margin-bottom:clamp(18px,3vh,36px)}
-.cover__title{font-size:clamp(52px,11.2vw,184px);font-weight:800;line-height:.9;letter-spacing:-.055em;text-transform:uppercase;margin:0}
-.cover__title .it{text-transform:none;font-size:1.06em;letter-spacing:-.02em}
-.cover__row{display:flex;align-items:center;gap:.18em}
-.cover__lens{display:inline-block;width:1.9em;height:.72em;background:var(--black);border-radius:.36em;flex-shrink:0;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px var(--g4)} /* 어두운 테마에서도 바탕과 구분 */
-.cover__lens::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(255,255,255,.08) 10px 11px);animation:scan 3s linear infinite}
-@keyframes scan{to{transform:translateX(11px)}}
-.cover__foot{position:absolute;left:0;right:0;bottom:34px}
-.cover__foot .wrap{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;font-size:14px;color:var(--g2);line-height:1.6}
-.cover__foot strong{color:var(--ink);font-size:17px;font-weight:700}
-.cue{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.24em}
-.cue i{width:1px;height:44px;background:var(--g4);position:relative;overflow:hidden}
-.cue i::after{content:"";position:absolute;left:0;top:-100%;width:1px;height:100%;background:var(--ink);animation:drop 1.8s var(--ease) infinite}
-@keyframes drop{to{top:100%}}
-/* 영어 ↔ 한글 전환 (스크롤 진행률 --f) */
-.flip{display:inline-grid;overflow:hidden;overflow:clip;padding:.08em .06em;margin:-.08em -.06em}
-.flip>span{grid-area:1/1}
-.flip__en{transform:translateY(calc(var(--f,0) * -110%));opacity:calc(1 - var(--f,0))}
-.flip__ko{font-family:var(--sans);font-style:normal;text-transform:none;letter-spacing:-.05em;transform:translateY(calc((1 - var(--f,0)) * 110%));opacity:var(--f,0)}
-.cover__sheet{position:absolute;inset:0;background:var(--black);color:var(--ink);clip-path:inset(var(--t,50%) var(--r,50%) var(--b,50%) var(--l,50%) round var(--rad,0px));display:flex;align-items:center;will-change:clip-path}
-.cover__sheet>.sheet{width:100%;opacity:var(--o,0);transform:translateY(calc((1 - var(--o,0)) * 24px))}
-.cover.is-static,html:not(.js) .cover{height:auto}
-.cover.is-static .cover__pin,html:not(.js) .cover__pin{position:relative;height:auto;overflow:visible}
-.cover.is-static .cover__type,html:not(.js) .cover__type{position:relative;height:100svh}
-.cover.is-static .cover__sheet,html:not(.js) .cover__sheet{position:relative;clip-path:none;min-height:100svh;padding:110px 0 70px;--o:1}
-@media (max-width:700px){.cover__sheet{align-items:flex-start;padding-top:92px}.ktbanner .match{margin:10px 0 16px}.quicklinks{margin-top:20px}.quicklinks a{padding:11px 18px;font-size:13px}.cover{height:170vh}.cover__title{font-size:clamp(40px,13.4vw,96px)}.cover__lens{width:1.3em}.cover__meta span:last-child{white-space:nowrap}}
-
 /* 가을 낙엽 — 가는 선으로만 그린 잎 (색 없이 잉크 선) */
 .leaves{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:var(--ink);opacity:.5}
 .leaves.bg{position:fixed;opacity:.28}
@@ -196,84 +131,6 @@ tbody tr:hover{background:var(--g5)}
   @keyframes leafSpin{from{transform:rotate3d(var(--rx),1,var(--rz),0deg)}to{transform:rotate3d(var(--rx),1,var(--rz),360deg)}}
 }
 @media (prefers-reduced-motion:reduce){.leaves{display:none}}
-
-/* ---------- 오늘 경기 (첫 화면이 열리면 나타나는 검은 면) ---------- */
-.ktbanner{position:relative;padding:0}
-.ktbanner .ghost{position:absolute;right:calc(var(--gutter) * -.4);top:50%;transform:translateY(-50%);font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(110px,20vw,300px);letter-spacing:-.03em;line-height:1;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.14);user-select:none;pointer-events:none;will-change:transform}
-.ktbanner .wrap{position:relative}
-.ktbanner .today{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(20px,2vw,28px);color:var(--g2);text-transform:none;letter-spacing:0}
-.ktbanner .match{font-size:clamp(46px,8.6vw,132px);font-weight:800;letter-spacing:-.055em;line-height:.98;margin:14px 0 22px}
-.ktbanner .match .at{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--g2);font-size:.5em;letter-spacing:0;padding:0 .22em;vertical-align:.18em}
-.ktbanner .match .live-score{color:var(--accent);font-variant-numeric:tabular-nums}
-.ktbanner .detail{font-size:clamp(15px,1.3vw,18px);color:var(--g1);margin:0;line-height:1.7;max-width:760px}
-.ktbanner .detail b{color:var(--ink)}
-.agbanner{margin-bottom:clamp(40px,6vh,70px);padding-bottom:clamp(30px,5vh,56px);border-bottom:1px solid var(--line)}
-.agbanner .match{font-size:clamp(34px,5.4vw,80px)}
-.agbanner .ag-sub{font-size:13.5px;color:var(--g2);margin-top:8px}
-.quicklinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
-.quicklinks a,.btn{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:700;padding:13px 22px;border-radius:999px;border:1px solid currentColor;text-decoration:none;transition:background-color .3s,color .3s}
-.quicklinks a:first-child{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.quicklinks a:hover,.quicklinks a:focus-visible{background:var(--ink);color:var(--paper)}
-.quicklinks a:first-child:hover{background:transparent;color:var(--ink)}
-.playbadge{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px;border:1px solid currentColor;vertical-align:2px;letter-spacing:.02em}
-.playbadge.ok{color:var(--pos)}
-.playbadge.warn{color:var(--g2)}
-.playbadge.bad{color:var(--accent)}
-.winbadge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:800;letter-spacing:.2em;padding:6px 16px;border-radius:999px;margin-bottom:16px}
-.celebrate-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
-
-/* ---------- 매직넘버: 검은 띠 위 큰 숫자 ---------- */
-.magicbanner{background:var(--black);color:var(--ink);padding:clamp(70px,9vw,120px) 0;border-top:1px solid var(--line)}
-.magicbanner .wrap{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:clamp(28px,5vw,80px);align-items:end}
-.magicbanner .mb-kicker{display:block;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2);text-transform:none;letter-spacing:0}
-.magicbanner .mb-num b{display:block;font-size:clamp(110px,15vw,220px);line-height:.85;font-weight:800;letter-spacing:-.07em;font-variant-numeric:tabular-nums;margin-top:10px;color:var(--ink)}
-.magicbanner.clinch .mb-num b{color:var(--accent)}
-.magicbanner .mb-copy{border-top:1px solid var(--ink);padding-top:22px}
-.magicbanner .mb-head{font-size:clamp(20px,2vw,28px);font-weight:700;letter-spacing:-.03em;line-height:1.4;margin:0 0 12px}
-.magicbanner .mb-head b{color:var(--accent)}
-.magicbanner .mb-ex{font-size:15px;color:var(--g2);line-height:1.75;margin:0}
-.magicbanner .mb-ex b{color:var(--ink)}
-.magicbanner .mb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
-.magicbanner .mb-chips span{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:var(--g1)}
-.magicbanner .mb-chips span b{color:var(--ink)}
-@media (max-width:760px){.magicbanner .wrap{grid-template-columns:1fr}}
-
-/* ---------- 본문 섹션: 왼쪽 번호 표식 + 오른쪽 본문 ---------- */
-.main{counter-reset:sec;position:relative;z-index:1}
-.main>section{padding:clamp(96px,11vw,160px) 0 0;counter-increment:sec;position:relative}
-@media (min-width:981px){
-  .main>section:not(.sec-collapsed):not([style*="none"]){display:grid!important;grid-template-columns:230px minmax(0,1fr);column-gap:clamp(32px,4vw,72px);align-items:start}
-  .main>section:not(.sec-collapsed)>*{grid-column:2;min-width:0}
-  .main>section:not(.sec-collapsed)>.sec-head{grid-column:1;grid-row:1/span 40;position:sticky;top:104px;margin:0}
-}
-.sec-head{display:flex;flex-direction:column;align-items:flex-start;margin:0 0 34px;position:relative}
-.sec-head::before{content:counter(sec,decimal-leading-zero);font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--g2);margin-bottom:12px;font-variant-numeric:tabular-nums}
-.sec-head h2{order:1;font-size:clamp(24px,2.3vw,32px);font-weight:800;letter-spacing:-.045em;line-height:1.15;margin:0}
-.sec-head .kicker{order:2;margin:6px 0 0;font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(26px,2.6vw,38px);line-height:1.05;letter-spacing:-.01em;color:var(--g2);text-transform:none}
-.sec-head .sub{order:3;font-size:13.5px;color:var(--g2);margin:16px 0 0;line-height:1.65;max-width:30ch}
-.sec-head .live-head{order:4}
-.sec-toggle{order:5;margin-top:18px;background:none;border:1px solid var(--ink);color:var(--ink);font-size:12.5px;font-weight:700;padding:8px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background-color .3s,color .3s}
-.sec-toggle:hover{background:var(--ink);color:var(--paper)}
-@media (max-width:980px){.sec-head .sub{max-width:none}}
-
-/* 접힌 섹션 = 목록의 한 줄. 마우스를 올리면 행이 아래에서부터 검게 채워진다 */
-.foldline{margin:clamp(110px,12vw,170px) 0 0;padding-bottom:20px;border-bottom:1px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
-.foldline::before{content:"Archive";font-family:var(--serif);font-style:italic;font-size:clamp(44px,6vw,92px);line-height:.9;letter-spacing:-.02em}
-.foldline span{font-size:13px;color:var(--g2);font-weight:600}
-.main>section.sec-collapsed{display:block;padding:0;border-bottom:1px solid var(--line);isolation:isolate;overflow:hidden}
-.main>section.sec-collapsed::after{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleY(0);transform-origin:bottom;transition:transform .5s var(--ease);z-index:-1}
-.main>section.sec-collapsed:hover::after{transform:scaleY(1)}
-.main>section.sec-collapsed:hover{color:var(--paper)}
-.main>section.sec-collapsed:hover .sec-head::before,.main>section.sec-collapsed:hover .kicker{color:color-mix(in srgb,var(--paper) 60%,var(--ink))}
-.main>section.sec-collapsed:hover .sec-toggle{border-color:var(--paper);color:var(--paper)}
-section.sec-collapsed>*:not(.sec-head){display:none!important}
-section.sec-collapsed .sec-head{flex-direction:row;align-items:baseline;gap:6px 22px;flex-wrap:wrap;margin:0;padding:24px 4px;cursor:pointer;transition:padding .4s var(--ease)}
-section.sec-collapsed:hover .sec-head{padding-left:16px}
-section.sec-collapsed .sec-head::before{margin:0;min-width:26px}
-section.sec-collapsed .sec-head h2{font-size:clamp(19px,1.9vw,24px)}
-section.sec-collapsed .sec-head .kicker{margin:0;font-size:clamp(20px,2vw,26px)}
-section.sec-collapsed .sec-head .sub,section.sec-collapsed .sec-head .live-head{display:none}
-section.sec-collapsed .sec-toggle{margin:0 0 0 auto;align-self:center}
 
 /* ---------- 공통: 카드 대신 선 ---------- */
 .board,.tablebox,.boxpanel,.calbox,.lu,.chartbox,.lastgame,.h2hbox,.spot,.scorelog,.psgames,.attend{background:none;border-radius:0;border-top:1px solid var(--ink)}
@@ -379,10 +236,10 @@ tr.kt .pybar i{background:var(--accent)}
 .odds-row{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(56px,7vw,96px);align-items:start;margin-bottom:10px}
 .odds-row.solo{grid-template-columns:1fr}
 .odds-wrap{position:relative}
-.odds{display:grid;gap:3px;padding:14px 0 10px;border-top:1px solid var(--ink);background:none;border-radius:0}
+.odds{display:grid;gap:2px;max-width:780px;padding:14px 0 10px;border-top:1px solid var(--ink);background:none;border-radius:0}
 .odds .ox,.odds .oy{font-size:10.5px;color:var(--g2);font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
 .odds .ox{padding-bottom:4px}
-.odds .oc{height:22px;border-radius:0;cursor:pointer;transition:transform .25s var(--ease)}
+.odds .oc{height:17px;border-radius:0;cursor:pointer;transition:transform .25s var(--ease)}
 .odds .oc:hover{transform:scale(1.18);outline:1px solid var(--ink);z-index:1;position:relative}
 @media (max-width:560px){.odds .oc{height:18px}}
 .odds .oc.w,.odds-legend i.w{background:var(--accent)}
@@ -682,22 +539,165 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
 .links a.primary{color:var(--accent)}
 @media (max-width:760px){.links{grid-template-columns:1fr 1fr}.links a:nth-child(2){border-right:0}.links a:nth-child(3){padding-left:0}.links a:nth-child(n+3){border-top:1px solid var(--line)}}
 
-/* ---------- 흐르는 대형 문구 · 바닥글 ---------- */
-.ticker{overflow:hidden;padding:clamp(80px,9vw,130px) 0 clamp(60px,7vw,100px);margin-top:clamp(90px,10vw,150px);border-top:1px solid var(--line);position:relative;z-index:1}
-.ticker__track{display:flex;width:max-content;animation:slide 44s linear infinite}
-.ticker__track span{font-size:clamp(64px,10vw,168px);font-weight:800;letter-spacing:-.055em;white-space:nowrap;padding-right:.45em;line-height:1}
-.ticker__track span:nth-child(even){font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.02em;color:transparent;-webkit-text-stroke:1px var(--ink)}
-@keyframes slide{to{transform:translateX(-50%)}}
-.foot{background:var(--black);color:var(--g2);font-size:13px;line-height:1.85;position:relative;z-index:1}
-.foot .wrap{display:flex;justify-content:space-between;gap:16px 40px;flex-wrap:wrap;padding-top:34px;padding-bottom:34px}
+/* ---------- 상단: 로고 · 오늘 경기 상태 · 테마 / 아래 줄: 섹션 바로가기 (둘 다 고정) ---------- */
+.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top__bar{display:flex;align-items:center;gap:16px;height:60px}
+.logo{font-size:17px;font-weight:800;letter-spacing:-.03em;text-decoration:none;white-space:nowrap;margin-right:auto}
+.logo .it{font-size:23px;letter-spacing:-.01em;margin-right:2px}
+.statuschip{display:inline-flex;align-items:center;gap:8px;min-width:0;font-size:12.5px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:6px 13px;text-decoration:none;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .3s}
+.statuschip i{width:6px;height:6px;border-radius:50%;background:var(--g3);flex:none}
+.statuschip.is-live{border-color:var(--accent);color:var(--accent)}
+.statuschip.is-live i{background:var(--accent);animation:pulse 1.8s ease-in-out infinite}
+.statuschip span{overflow:hidden;text-overflow:ellipsis}
+.themebtn{width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:none;padding:0;cursor:pointer;color:var(--ink)}
+.themebtn::after{content:"";position:absolute;inset:0;background:currentColor;transform:translateX(50%);transition:transform .45s var(--ease)}
+.themebtn[data-mode="light"]::after{transform:translateX(105%)}
+.themebtn[data-mode="dark"]::after{transform:none}
+.subnav{border-top:1px solid var(--line)}
+.subnav .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.subnav .wrap::-webkit-scrollbar{display:none}
+.subnav a{position:relative;flex:none;padding:12px 12px 11px;font-size:13.5px;font-weight:600;color:var(--g2);text-decoration:none;transition:color .25s}
+.subnav a:first-child{padding-left:0}
+.subnav a::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.subnav a:first-child::after{left:0}
+.subnav a:hover{color:var(--ink)}
+.subnav a.is-on{color:var(--ink)}
+.subnav a.is-on::after{transform:scaleX(1)}
+html{scroll-padding-top:118px}
+
+/* ---------- 오늘: 첫 화면에서 바로 보이는 검은 판 (경기 + 시즌 요약) ---------- */
+.todaybox{background:var(--black);color:var(--ink);position:relative;z-index:1}
+.todaybox>.wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:clamp(28px,4vw,64px);padding-top:clamp(40px,5vw,64px);padding-bottom:clamp(40px,5vw,64px)}
+@media (max-width:900px){.todaybox>.wrap{grid-template-columns:1fr}}
+.ktbanner{position:relative}
+.ktbanner .ghost{display:none}
+.ktbanner .wrap,.agbanner .wrap{display:block;padding:0;max-width:none}
+.ktbanner .today{margin:0;display:flex;align-items:baseline;gap:10px;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--g2)}
+.ktbanner .match{font-size:clamp(44px,6.4vw,96px);font-weight:800;letter-spacing:-.055em;line-height:1;margin:12px 0 18px}
+.ktbanner .match .at{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--g2);font-size:.5em;letter-spacing:0;padding:0 .22em;vertical-align:.18em}
+.ktbanner .match .live-score{color:var(--accent);font-variant-numeric:tabular-nums}
+.ktbanner .detail{font-size:15.5px;color:var(--g1);margin:0;line-height:1.75}
+.ktbanner .detail b{color:var(--ink)}
+.agbanner{margin-bottom:34px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.agbanner .match{font-size:clamp(32px,4vw,60px)}
+.agbanner .ag-sub{font-size:13.5px;color:var(--g2);margin-top:8px}
+.quicklinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.quicklinks a{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:11px 20px;border-radius:999px;border:1px solid var(--line);text-decoration:none;transition:background-color .3s,color .3s,border-color .3s}
+.quicklinks a:first-child{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.quicklinks a:hover,.quicklinks a:focus-visible{border-color:var(--ink)}
+.quicklinks a:first-child:hover{background:transparent;color:var(--ink)}
+.playbadge{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid currentColor;vertical-align:1px}
+.playbadge.ok{color:var(--pos)}
+.playbadge.warn{color:var(--g2)}
+.playbadge.bad{color:var(--accent)}
+.winbadge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:800;letter-spacing:.2em;padding:5px 14px;border-radius:999px;margin-bottom:14px}
+.celebrate-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+/* 시즌 요약 (매직넘버) — 오른쪽 칸 */
+.magicbanner{border-left:1px solid var(--line);padding-left:clamp(24px,3vw,44px);display:flex;flex-direction:column}
+@media (max-width:900px){.magicbanner{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:24px}}
+.magicbanner .wrap{display:contents}
+.magicbanner .mb-num{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.magicbanner .mb-kicker{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--g2);line-height:1.2}
+.magicbanner .mb-num b{font-size:clamp(76px,8vw,120px);line-height:.82;font-weight:800;letter-spacing:-.07em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.magicbanner.clinch .mb-num b{color:var(--accent)}
+.magicbanner .mb-head{font-size:16px;font-weight:700;letter-spacing:-.02em;line-height:1.55;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.magicbanner .mb-head b{color:var(--accent)}
+.magicbanner .mb-chips{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-top:1px solid var(--line)}
+.magicbanner .mb-chips span{font-size:12.5px;color:var(--g2);padding:10px 8px 10px 0;border-bottom:1px solid var(--line)}
+.magicbanner .mb-chips span:nth-child(even){padding-left:12px;border-left:1px solid var(--line)}
+.magicbanner .mb-chips span b{display:block;font-size:19px;font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+.mb-more{margin-top:14px;font-size:13px;color:var(--g2)}
+.mb-more summary{cursor:pointer;font-weight:700;color:var(--g1);list-style:none}
+.mb-more summary::-webkit-details-marker{display:none}
+.mb-more summary::after{content:" +"}
+.mb-more[open] summary::after{content:" −"}
+.magicbanner .mb-ex{font-size:13px;color:var(--g2);line-height:1.75;margin:8px 0 0}
+.magicbanner .mb-ex b{color:var(--ink)}
+
+/* ---------- 섹션: 제목 한 줄(한글 + 영문 이탤릭) + 굵은 선 ---------- */
+.main>.wrap>section,.main>.wrap>.block{padding-top:clamp(64px,7vw,104px);position:relative}
+.sec-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--ink);padding-bottom:12px;margin:0 0 22px}
+.sec-head h2{order:1;font-size:clamp(22px,2.4vw,30px);font-weight:800;letter-spacing:-.045em;line-height:1.2;margin:0}
+.sec-head .kicker{order:2;margin:0;font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(18px,1.8vw,22px);color:var(--g2);letter-spacing:0;text-transform:none}
+.sec-head .sub{order:4;flex-basis:100%;font-size:13px;color:var(--g2);margin:2px 0 0;line-height:1.6}
+.sec-head .live-head{order:3;margin:0 0 0 auto}
+.sec-head .aside{order:3;margin-left:auto;font-size:12.5px;color:var(--g2)}
+.subhead{display:flex;align-items:baseline;gap:10px;margin:40px 0 12px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.subhead small{font-family:var(--serif);font-style:italic;font-weight:400;font-size:16px;color:var(--g2)}
+.pshead{display:flex;align-items:baseline;gap:10px;margin:40px 0 12px;font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--ink);text-transform:none}
+.pshead:first-child{margin-top:0}
+
+/* ---------- 탭 (분석 · 가을야구 상세) ---------- */
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin:0 0 22px;position:relative}
+.tabs::-webkit-scrollbar{display:none}
+.tabs [role=tab]{flex:none;background:none;border:0;padding:11px 14px 12px;font-size:14px;font-weight:700;color:var(--g2);cursor:pointer;position:relative;transition:color .25s}
+.tabs [role=tab]:first-child{padding-left:0}
+.tabs [role=tab]:hover{color:var(--ink)}
+.tabs [role=tab][aria-selected="true"]{color:var(--ink)}
+.tabs .tabs__bar{position:absolute;bottom:-1px;left:0;height:2px;background:var(--ink);transition:transform .45s var(--ease),width .45s var(--ease)}
+.tabpanel.is-off{display:none!important}
+.tabpanel>section{padding:0}
+.tabpanel .sec-head{border-bottom:0;padding:0;margin:0 0 16px}
+.tabpanel .sec-head h2{display:none}
+.tabpanel .sec-head .kicker{font-size:17px}
+.tabpanel .sec-head .sub{flex-basis:auto;order:3}
+@media (prefers-reduced-motion:no-preference){.tabpanel{animation:panelIn .5s var(--ease)}@keyframes panelIn{from{opacity:0;transform:translateY(10px)}}}
+
+/* ---------- 리그: 현황판 + 순위 나란히 (각 칸 폭에 맞춰 컨테이너 쿼리로 줄바꿈) ---------- */
+.league{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media (max-width:1000px){.league{grid-template-columns:1fr}}
+.league>div{min-width:0}
+.league .board,.league .tablebox{container-type:inline-size}
+#magicRow,#magicNote{display:none!important}   /* 시즌 요약은 맨 위 '오늘' 판에 있음 */
+
+/* ---------- 소식: 기사 목록 + 영상 ---------- */
+.news2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media (max-width:900px){.news2{grid-template-columns:1fr}}
+.news2>section{padding:0}
+.news2 .yt{grid-template-columns:1fr 1fr;gap:20px 16px}
+.news2 .yt a:nth-child(n+5){display:none}
+
+/* v2 보정: 섹션 제목 선 바로 아래 오는 덩어리는 윗선을 겹쳐 긋지 않음 */
+.sec-head+:is(.board,.tablebox,.lastgame,.spot,.h2hbox,.chartbox,.cards,.insta,.links,.lineups,.titlegrid,.pshero,.boxgrid,.cal,.psbracket,.yt,.league){border-top:0}
+.sec-head+.pshero{padding-top:6px}
+/* 큰 덩어리(블록) 안에 들어간 섹션의 제목은 작은 소제목으로 */
+.block section{padding:0}
+.block section .sec-head{border-bottom:0;padding:0;margin:0 0 12px}
+.block section .sec-head h2{font-size:16px;letter-spacing:-.02em}
+.block section .sec-head .kicker{font-size:16px}
+.block section+section{margin-top:44px}
+/* 오늘 판 안의 득점 로그 */
+.todaybox .scorelog{margin-top:30px;border-top:1px solid var(--line)}
+/* 1위 레이스 탭 안: 탭 이름과 겹치는 소제목 숨김 */
+.odds-col.tabpanel>.pshead{display:none}
+#gbFan.tabpanel>.pshead{display:none}
+
+/* 일정: 잔여 일정이 있으면 '이번 주'는 중복이라 숨기고, 잔여 일정(왼쪽) + 최근 5경기(오른쪽) */
+.cal:has(#ktRestBox:not([style*="none"]))>.calbox:first-child{display:none}
+.cal:has(#ktRestBox:not([style*="none"])) #ktRestBox{grid-column:1!important;grid-row:1}
+.cal:has(#ktRestBox:not([style*="none"]))>.calbox:nth-child(2){grid-column:2;grid-row:1}
+@media (max-width:760px){.cal:has(#ktRestBox:not([style*="none"]))>.calbox:nth-child(2){grid-column:1;grid-row:auto}}
+/* 접어 두는 참고 목록 */
+.fold summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary h4{margin:0}
+.fold__hint{font-size:12.5px;color:var(--g2);margin-left:auto}
+.fold__hint::after{content:" +";font-weight:700}
+.fold[open] .fold__hint::after{content:" −"}
+.fold[open] summary{margin-bottom:12px}
+/* 영상이 없는 날은 기사 목록이 전체 폭 */
+.news2:has(#ytSec[style*="none"]){grid-template-columns:1fr}
+#psOdds{margin-top:56px}
+.ksopp th:first-child,.ksopp td:first-child{text-align:left;font-weight:700}
+/* ---------- 바닥글 ---------- */
+.foot{background:var(--black);color:var(--g2);font-size:13px;line-height:1.85;margin-top:clamp(90px,10vw,140px);position:relative;z-index:1}
+.foot .wrap{display:flex;justify-content:space-between;gap:16px 40px;flex-wrap:wrap;padding-top:32px;padding-bottom:32px}
 .foot strong{color:var(--ink);font-weight:700}
 .foot .mischief{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink)}
 
-/* ---------- 모바일 ---------- */
-@media (max-width:600px){
-  .main>section{padding-top:84px}
-  .board{overflow-x:visible}
-  .game{min-width:0;grid-template-columns:1fr auto;grid-template-areas:"stadium status" "away mid" "home mid";gap:5px 12px;padding:16px 2px;align-items:center}
+/* ---------- 좁은 칸 (컨테이너 기준) ---------- */
+@container (max-width:640px){
+  .game{min-width:0;grid-template-columns:1fr auto;grid-template-areas:"stadium status" "away mid" "home mid";gap:5px 12px;padding:15px 2px;align-items:center}
   .game.kt-game{padding-left:12px}
   .game .stadium{grid-area:stadium;flex-direction:row;flex-wrap:wrap;align-items:center;gap:7px}
   .game .status{grid-area:status;justify-self:end;align-self:start}
@@ -705,145 +705,184 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
   .game .side.home{grid-area:home;align-items:flex-start;text-align:left}
   .game .mid{grid-area:mid;padding:0 2px 0 10px}
   .game .side .team{font-size:16px;white-space:normal}
-  .game .mid .sc{font-size:30px}
+  .game .mid .sc{font-size:28px}
+}
+@container (max-width:560px){
+  table{min-width:0}
+  th,td{padding:11px 6px;font-size:13px}
+  th:nth-child(3),td:nth-child(3),th:nth-child(6),td:nth-child(6){display:none}
+  .gbbar{display:none}
+}
+
+/* ---------- 모바일 ---------- */
+@media (max-width:600px){
+  .top__bar{height:54px;gap:10px}
+  .statuschip{max-width:52vw}
+  .main>.wrap>section,.main>.wrap>.block{padding-top:56px}
   .tablebox table{min-width:0;width:100%}
   .tablebox th,.tablebox td{padding:11px 6px;font-size:13px}
   .tablebox:not(.ksopp) th:nth-child(3),.tablebox:not(.ksopp) td:nth-child(3),
   .tablebox th:nth-child(6),.tablebox td:nth-child(6){display:none}
-  .gbbar{display:none}
   .bx th,.bx td{padding:7px 5px;font-size:12px}
   #batTable th:nth-child(8),#batTable td:nth-child(8),#batTable th:nth-child(9),#batTable td:nth-child(9){display:none}
   .line th,.line td{padding:6px 4px;font-size:10.5px}
   .lg-hero .meta{margin-left:0;text-align:left;width:100%}
   .playbadge{display:inline-block;margin:8px 0 0}
   .spot .ghostnum{font-size:180px}
+  .news2 .yt{grid-template-columns:1fr}
 }
-@media (max-width:380px){.game .side .team .rec{display:none}.tablebox th,.tablebox td{padding:10px 5px;font-size:12px}}
+@media (max-width:380px){.game .side .team .rec{display:none}}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
-  .reveal,.sec-head.reveal h2,.sec-head.reveal .kicker{opacity:1;transform:none;clip-path:none}
+  .reveal{opacity:1;transform:none}
 }
+
 </style>
 </head>
 <body>
-<a class="sr" href="#psSec">본문 바로가기</a>
+<a class="sr" href="#today">본문 바로가기</a>
 
-<!-- ================= 상단 메뉴 ================= -->
-<header class="mast" id="mast">
-  <div class="wrap">
-    <a href="#top" class="logo" aria-label="wiz board, 처음으로"><span class="it">wiz</span>board</a>
-    <nav class="nav" aria-label="주요 메뉴">
-      <a href="#psSec">가을야구</a>
-      <a href="#boardSec">현황판</a>
-      <a href="#luSec">라인업</a>
-      <a href="#calSec">일정</a>
-      <a href="#standSec">순위</a>
-      <a href="#archive">기록</a>
-    </nav>
-    <div class="mast__tools">
-      <a href="#boardSec" class="livepill" id="livePill"><i></i><span id="livePillTxt">LIVE BOARD</span></a>
-      <button class="themebtn" type="button" id="themeBtn" aria-label="화면 모드 바꾸기"></button>
-      <button class="burger" type="button" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="drawer"><i></i><i></i><i></i></button>
-    </div>
+<header class="top" id="mast">
+  <div class="wrap top__bar">
+    <a href="#today" class="logo" aria-label="wiz board, 맨 위로"><span class="it">wiz</span>board</a>
+    <a href="#today" class="statuschip" id="statusChip"><i></i><span id="statusTxt">불러오는 중</span></a>
+    <button class="themebtn" type="button" id="themeBtn" aria-label="화면 모드 바꾸기"></button>
   </div>
+  <nav class="subnav" id="subnav" aria-label="섹션 바로가기">
+    <div class="wrap">
+      <a href="#today">오늘</a>
+      <a href="#luSec">경기</a>
+      <a href="#psSec">가을야구</a>
+      <a href="#leagueSec">리그</a>
+      <a href="#calSec">일정</a>
+      <a href="#anaSec">분석</a>
+      <a href="#newsBlock">소식</a>
+    </div>
+  </nav>
 </header>
-<nav class="drawer" id="drawer" aria-label="모바일 메뉴" aria-hidden="true">
-  <button class="drawer__close" type="button" id="drawerClose" aria-label="메뉴 닫기">✕</button>
-  <a href="#psSec">가을야구 <small>Postseason</small></a>
-  <a href="#boardSec">현황판 <small>Scoreboard</small></a>
-  <a href="#luSec">라인업 <small>Lineup</small></a>
-  <a href="#calSec">일정 <small>Schedule</small></a>
-  <a href="#standSec">순위 <small>Standings</small></a>
-  <a href="#archive">기록 <small>Archive</small></a>
-</nav>
-<nav class="folio" id="folio" aria-label="섹션 이동"></nav>
 
 <div class="leaves bg" id="leavesBg" aria-hidden="true"></div>
 
-<!-- ================= 첫 화면: 제목 속 창이 스크롤에 따라 열리며 오늘 경기로 ================= -->
-<section class="cover" id="top" data-folio="Home">
-  <div class="cover__pin">
-    <div class="cover__type">
-      <div class="leaves" id="leaves" aria-hidden="true"></div>
-      <div class="wrap">
-        <div class="cover__meta"><span>KT WIZ — KBO LIVE BOARD</span><span>SEASON 2026</span></div>
-        <p class="cover__title">
-          <span class="sr">마법의 10월, 수원. Magic in October, Suwon.</span>
-          <span aria-hidden="true">
-            <span class="cover__row"><span data-ko="마법의" data-flip="0">Magic</span><span class="cover__lens"></span></span>
-            <span class="cover__row"><span data-ko="10월," data-flip="1"><span class="it">in</span> October,</span></span>
-            <span class="cover__row"><span data-ko="수원." data-flip="2">Suwon.</span></span>
-          </span>
-        </p>
-      </div>
-      <div class="cover__foot">
-        <div class="wrap">
-          <div><strong>kt wiz 팬 상황판</strong><br>스코어 · 라인업 · 순위 · 가을야구, 자동 갱신</div>
-          <div class="cue" aria-hidden="true">SCROLL <i></i></div>
-        </div>
-      </div>
-    </div>
-    <div class="cover__sheet">
-      <div class="sheet">
-        <!-- 아시안게임 한국 경기 (지정한 날에만) -->
-        <div class="ktbanner agbanner" id="agBanner" hidden>
-          <div class="wrap">
-            <p class="today" id="agKicker">Asian Games · Team Korea</p>
-            <div class="match" id="agMatch"></div>
-            <p class="detail" id="agDetail"></p>
-            <p class="detail ag-sub" id="agSub"></p>
-            <div class="quicklinks">
-              <a id="agRelay" href="https://m.sports.naver.com/kbaseball/index" target="_blank" rel="noopener">문자중계 ↗</a>
-              <a href="https://chzzk.naver.com/" target="_blank" rel="noopener">치지직 중계 ↗</a>
-            </div>
-          </div>
-        </div>
-        <!-- 오늘의 KT -->
-        <div class="ktbanner">
-          <div class="ghost" id="ghostType" aria-hidden="true">Victory</div>
-          <div class="wrap">
-            <p class="today">Today · kt wiz</p>
-            <div class="match" id="ktMatch">KT <span class="at">vs</span> KIA</div>
-            <p class="detail" id="ktDetail">불러오는 중…</p>
-            <div class="quicklinks" data-live>
-              <a href="https://www.tving.com/live/player/C05007" target="_blank" rel="noopener">TVING 중계 ↗</a>
-              <a href="https://tkt.ktwiz.co.kr/" target="_blank" rel="noopener">티켓 예매 ↗</a>
-              <a href="https://sports.news.naver.com/kbaseball/schedule/index" target="_blank" rel="noopener">문자중계 ↗</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= 매직넘버 ================= -->
-<section class="magicbanner" id="magicBanner" aria-label="정규시즌 1위 매직넘버">
+<main class="main">
+<section class="todaybox" id="today" aria-label="오늘의 kt wiz">
   <div class="wrap">
-    <div class="mb-num">
-      <span class="mb-kicker" id="mbKicker">PS Magic Number</span>
-      <b id="mbNum">–</b>
+    <div class="today__main">
+      <div class="ktbanner agbanner" id="agBanner" hidden>
+        <div class="wrap">
+          <p class="today" id="agKicker">Asian Games · Team Korea</p>
+          <div class="match" id="agMatch"></div>
+          <p class="detail" id="agDetail"></p>
+          <p class="detail ag-sub" id="agSub"></p>
+          <div class="quicklinks">
+            <a id="agRelay" href="https://m.sports.naver.com/kbaseball/index" target="_blank" rel="noopener">문자중계 ↗</a>
+            <a href="https://chzzk.naver.com/" target="_blank" rel="noopener">치지직 중계 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="ktbanner">
+        <div class="ghost" id="ghostType" aria-hidden="true">Victory</div>
+        <div class="wrap">
+          <p class="today">Today · kt wiz</p>
+          <div class="match" id="ktMatch">KT <span class="at">vs</span> KIA</div>
+          <p class="detail" id="ktDetail">불러오는 중…</p>
+          <div class="quicklinks">
+            <a href="https://www.tving.com/live/player/C05007" target="_blank" rel="noopener">TVING 중계 ↗</a>
+            <a href="https://tkt.ktwiz.co.kr/" target="_blank" rel="noopener">티켓 예매 ↗</a>
+            <a href="https://sports.news.naver.com/kbaseball/schedule/index" target="_blank" rel="noopener">문자중계 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="scorelog " id="scoreLog" style="display:none">
+      <h4>득점 로그</h4>
+      <ul id="scoreLogList"></ul>
     </div>
-    <div class="mb-copy">
+    </div>
+    <aside class="magicbanner" id="magicBanner" aria-label="시즌 요약">
+      <div class="mb-num"><span class="mb-kicker" id="mbKicker">PS Magic Number</span><b id="mbNum">–</b></div>
       <p class="mb-head" id="mbHead">매직넘버 계산 중…</p>
-      <p class="mb-ex" id="mbEx"></p>
       <div class="mb-chips" id="mbChips"></div>
-    </div>
+      <details class="mb-more"><summary>어떻게 계산했나</summary><p class="mb-ex" id="mbEx"></p></details>
+    </aside>
   </div>
 </section>
 
-<main class="wrap main">
-  <!-- ================= 가을야구 ================= -->
-  <section id="psSec" style="display:none" data-folio="Autumn">
+<div class="wrap">
+  <section id="luSec">
+    <div class="sec-head reveal">
+      <p class="kicker" id="luKicker">Lineup</p>
+      <h2>라인업</h2>
+    </div>
+    <div class="lineups">
+      <div class="lu today reveal d1">
+        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
+        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
+        <ol id="luList"></ol>
+        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+      </div>
+      <div class="lu reveal d2" id="lgluBox" style="display:none">
+        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
+        <p class="sp" id="lgluSp"></p>
+        <ol id="lgluList"></ol>
+      </div>
+    </div>
+    <!-- 오늘 선발 구종 맞대결 -->
+    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
+  </section>
+
+  <section id="boxSec" style="display:none">
+    <div class="sec-head reveal on">
+      <p class="kicker">Box score</p>
+      <h2 id="boxTitle">오늘 경기 기록</h2>
+      <p class="sub" id="boxSub"></p>
+    </div>
+    <div class="boxgrid">
+      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
+      <div class="boxpanel"><h4>kt 타자 기록</h4>
+        <table class="bx" id="batTable"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
+      </div>
+      <div class="boxcols">
+        <div class="boxpanel"><h4>kt 투수 기록</h4>
+          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>투구수</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
+        </div>
+        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="psSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Postseason 2026</p>
       <h2>가을야구</h2>
       <p class="sub" id="psSub">포스트시즌 대진과 한국시리즈 확률</p>
     </div>
     <div class="pshero reveal d1" id="psHero"></div>
-    <div id="psOdds" class="odds-row" hidden>
-      <div class="odds-col">
+    <p class="pshead reveal d1">포스트시즌 대진표</p>
+    <div class="psbracket reveal d1" id="psBracket"></div>
+    <p class="board-note reveal d1" id="psBracketNote" style="margin:-6px 0 18px"></p>
+    <div id="psGamesBox" hidden>
+      <p class="pshead" id="psGamesHead">시리즈 경기</p>
+      <ul class="psgames" id="psGames"></ul>
+    </div>
+    <p class="pshead reveal d2">한국시리즈 예측</p>
+    <div class="ksgrid reveal d2">
+      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
+      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
+    </div>
+    <div class="tablebox ksopp reveal d2">
+      <table>
+        <thead><tr><th>예상 KS 상대</th><th>정규시즌 맞대결</th><th>확률</th></tr></thead>
+        <tbody id="ksOppBody"></tbody>
+      </table>
+    </div>
+    <p class="py-note reveal d2" id="ksNote"></p>
+    <div id="psOdds" class="odds-row" data-tabs hidden>
+      <p class="pshead">정규시즌 1위 레이스 <small class="it">Pennant race</small></p>
+      <div class="tabs" role="tablist" aria-label="1위 레이스">
+        <button type="button" role="tab" id="t-odds" aria-controls="oddsPanel">1위 경우의 수</button>
+        <button type="button" role="tab" id="t-gb" aria-controls="gbFan">경기차 전망</button>
+      </div>
+      <div class="odds-col tabpanel" id="oddsPanel" role="tabpanel" aria-labelledby="t-odds">
         <p class="pshead">정규시즌 1위 경우의 수</p>
         <div class="odds-sum" id="oddsSum"></div>
         <div class="odds-wrap">
@@ -854,7 +893,7 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
         <div class="odds-legend" id="oddsLegend"></div>
         <p class="board-note" id="oddsNote"></p>
       </div>
-      <div class="odds-col" id="gbFan" hidden>
+      <div class="odds-col tabpanel" id="gbFan" role="tabpanel" aria-labelledby="t-gb" hidden>
         <p class="pshead">경기차 전망 · 선수별 WAR 기준 · 아시안게임 공백 반영</p>
         <div class="gb-sum" id="gbSum"></div>
         <div class="gb-bar"><button type="button" class="gb-play" id="gbPlay">▶ 가상 시즌 재생</button><span id="gbCount">가상 시즌 4,000개를 실제로 겹쳐 그려, 띠와 오른쪽 분포가 어떻게 만들어지는지 보여줍니다</span></div>
@@ -886,88 +925,47 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
         <p class="board-note" id="gbNote"></p>
       </div>
     </div>
-    <p class="pshead reveal d1">포스트시즌 대진표</p>
-    <div class="psbracket reveal d1" id="psBracket"></div>
-    <p class="board-note reveal d1" id="psBracketNote" style="margin:-6px 0 18px"></p>
-    <div id="psGamesBox" hidden>
-      <p class="pshead" id="psGamesHead">시리즈 경기</p>
-      <ul class="psgames" id="psGames"></ul>
-    </div>
-    <p class="pshead reveal d2">한국시리즈 예측</p>
-    <div class="ksgrid reveal d2">
-      <div class="kstile"><b id="ksReach">—</b><span>KS 진출 확률</span></div>
-      <div class="kstile champ"><b id="ksChamp">—</b><span>한국시리즈 우승 확률</span></div>
-    </div>
-    <div class="tablebox ksopp reveal d2">
-      <table>
-        <thead><tr><th>예상 KS 상대</th><th>정규시즌 맞대결</th><th>확률</th></tr></thead>
-        <tbody id="ksOppBody"></tbody>
-      </table>
-    </div>
-    <p class="py-note reveal d2" id="ksNote"></p>
   </section>
 
-  <!-- ================= 구장별 현황판 ================= -->
-  <section id="boardSec" data-folio="Live">
+  <section class="block" id="leagueSec">
     <div class="sec-head reveal">
-      <p class="kicker">Scoreboard</p>
-      <h2>오늘의 현황판</h2>
+      <h2>리그</h2>
+      <p class="kicker">Around the league</p>
       <div class="live-head"><span class="dot pulse" id="liveDot"></span><span class="tag" id="boardStamp">불러오는 중…</span></div>
     </div>
-    <div class="board reveal d1" id="board"></div>
-    <div class="scorelog reveal d2" id="scoreLog" style="display:none">
-      <h4>득점 로그</h4>
-      <ul id="scoreLogList"></ul>
-    </div>
-    <p class="board-note reveal d2">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
-  </section>
-
-  <!-- ================= 라인업 ================= -->
-  <section id="luSec" data-folio="Lineup">
-    <div class="sec-head reveal">
-      <p class="kicker" id="luKicker">Lineup</p>
-      <h2>라인업</h2>
-    </div>
-    <div class="lineups">
-      <div class="lu today reveal d1">
-        <div class="lu-head"><h4 id="luTitle">라인업 불러오는 중</h4><span class="lock" id="luLock">대기 중</span><span class="when" id="luWhen"></span></div>
-        <p class="sp" id="luStarter">데이터 수집 대기 중…</p>
-        <ol id="luList"></ol>
-        <p class="note">공식 발표 확인: <a href="https://www.ktwiz.co.kr/" target="_blank" rel="noopener">kt wiz 공식</a> · <a href="https://sports.daum.net/team/kbo/394601" target="_blank" rel="noopener">다음스포츠</a></p>
+    <div class="league">
+      <div>
+        <p class="subhead">오늘의 현황판 <small>Scoreboard</small></p>
+        <div class="board reveal d1" id="board"></div>
+        <p class="board-note">경기 중에는 5분, 경기 전 10분 주기로 자동 수집됩니다. 모든 경기 종료 후에는 영상 콘텐츠만 갱신됩니다. 날씨(현재 기온 · ☂ 경기시간대 강수확률)는 Open-Meteo 데이터, 취소 사유는 KBO 공식 일정 기준.</p>
       </div>
-      <div class="lu reveal d2" id="lgluBox" style="display:none">
-        <div class="lu-head"><h4>지난 경기 라인업</h4><span class="when" id="lgluWhen"></span></div>
-        <p class="sp" id="lgluSp"></p>
-        <ol id="lgluList"></ol>
-      </div>
+      <div>
+        <p class="subhead">팀 순위 <small id="standKicker">Standings</small></p>
+        <div class="magic reveal" id="magicRow" style="display:none"></div>
+    <p class="magic-note reveal" id="magicNote" style="display:none"></p>
+    <div class="tablebox reveal d1">
+      <table>
+        <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
+        <tbody id="standBody">
+          <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
+          <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
+          <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
+          <tr><td><span class="rank">4</span></td><td>KIA 타이거즈<span class="po">PS</span></td><td>83</td><td>44</td><td>37</td><td>2</td><td>.543</td><td><span class="gbbar" style="width:39px"></span>6.5</td></tr>
+          <tr><td><span class="rank">5</span></td><td>두산 베어스<span class="po">PS</span></td><td>84</td><td>42</td><td>40</td><td>2</td><td>.512</td><td><span class="gbbar" style="width:54px"></span>9.0</td></tr>
+          <tr><td><span class="rank">6</span></td><td>한화 이글스</td><td>80</td><td>39</td><td>39</td><td>2</td><td>.500</td><td><span class="gbbar" style="width:60px"></span>10.0</td></tr>
+          <tr><td><span class="rank">7</span></td><td>NC 다이노스</td><td>80</td><td>38</td><td>41</td><td>1</td><td>.481</td><td><span class="gbbar" style="width:69px"></span>11.5</td></tr>
+          <tr><td><span class="rank">8</span></td><td>롯데 자이언츠</td><td>82</td><td>36</td><td>44</td><td>2</td><td>.450</td><td><span class="gbbar" style="width:84px"></span>14.0</td></tr>
+          <tr><td><span class="rank">9</span></td><td>SSG 랜더스</td><td>83</td><td>30</td><td>50</td><td>3</td><td>.375</td><td><span class="gbbar" style="width:120px"></span>20.0</td></tr>
+          <tr><td><span class="rank">10</span></td><td>키움 히어로즈</td><td>85</td><td>29</td><td>55</td><td>1</td><td>.345</td><td><span class="gbbar" style="width:138px"></span>23.0</td></tr>
+        </tbody>
+      </table>
     </div>
-    <!-- 오늘 선발 구종 맞대결 -->
-    <div class="duel reveal d2" id="duelBox" style="display:none"></div>
-  </section>
-
-  <!-- ================= 오늘 경기 기록 (박스스코어) ================= -->
-  <section id="boxSec" style="display:none">
-    <div class="sec-head reveal on">
-      <p class="kicker">Box score</p>
-      <h2 id="boxTitle">오늘 경기 기록</h2>
-      <p class="sub" id="boxSub"></p>
-    </div>
-    <div class="boxgrid">
-      <div class="boxpanel"><h4>라인스코어</h4><table class="line"><tbody id="lineScore"></tbody></table></div>
-      <div class="boxpanel"><h4>kt 타자 기록</h4>
-        <table class="bx" id="batTable"><thead><tr><th>타순</th><th>선수</th><th>타수</th><th>안타</th><th>타점</th><th>득점</th><th>홈런</th><th>4구</th><th>삼진</th><th>타율</th></tr></thead><tbody id="batBox"></tbody></table>
-      </div>
-      <div class="boxcols">
-        <div class="boxpanel"><h4>kt 투수 기록</h4>
-          <table class="bx"><thead><tr><th>투수</th><th>이닝</th><th>투구수</th><th>피안타</th><th>실점</th><th>자책</th><th>탈삼진</th><th>결과</th></tr></thead><tbody id="pitBox"></tbody></table>
-        </div>
-        <div class="boxpanel"><h4>주요 기록</h4><ul class="keyrec" id="keyRec"></ul></div>
+    <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
       </div>
     </div>
   </section>
 
-  <!-- ================= KT 캘린더 · 폼 ================= -->
-  <section id="calSec" data-folio="Schedule">
+  <section id="calSec">
     <div class="sec-head reveal">
       <p class="kicker">Schedule &amp; Form</p>
       <h2>KT 일정 · 최근 흐름</h2>
@@ -989,47 +987,30 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
         <p class="board-note" id="ktRestNote" style="margin-top:12px"></p>
       </div>
       <div class="calbox reveal d3" id="ktCancelBox" style="grid-column:1/-1;display:none">
-        <h4>시즌 취소 경기</h4>
-        <ul class="week" id="ktCancelList"></ul>
-        <p class="board-note" id="ktCancelNote" style="margin-top:12px"></p>
+        <details class="fold">
+          <summary><h4>시즌 취소 경기</h4><span class="fold__hint">재편성 날짜 보기</span></summary>
+          <ul class="week" id="ktCancelList"></ul>
+          <p class="board-note" id="ktCancelNote" style="margin-top:12px"></p>
+        </details>
       </div>
     </div>
   </section>
 
-  <!-- ================= 순위 ================= -->
-  <section id="standSec" data-folio="Standings">
+  <section class="block" id="anaSec">
     <div class="sec-head reveal">
-      <p class="kicker" id="standKicker">Standings</p>
-      <h2>팀 순위</h2>
-      <p class="sub">상위 5팀 포스트시즌 진출</p>
+      <h2>분석</h2>
+      <p class="kicker">Analysis</p>
     </div>
-    <div class="magic reveal" id="magicRow" style="display:none"></div>
-    <p class="magic-note reveal" id="magicNote" style="display:none"></p>
-    <div class="tablebox reveal d1">
-      <table>
-        <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th></tr></thead>
-        <tbody id="standBody">
-          <tr><td><span class="rank">1</span></td><td>LG 트윈스<span class="po">PS</span></td><td>82</td><td>51</td><td>31</td><td>0</td><td>.622</td><td>—</td></tr>
-          <tr><td><span class="rank">2</span></td><td>삼성 라이온즈<span class="po">PS</span></td><td>82</td><td>49</td><td>31</td><td>2</td><td>.613</td><td><span class="gbbar" style="width:6px"></span>1.0</td></tr>
-          <tr class="kt"><td><span class="rank">3</span></td><td>kt wiz<span class="po">PS</span></td><td>81</td><td>45</td><td>35</td><td>1</td><td>.563</td><td><span class="gbbar" style="width:30px"></span>5.0</td></tr>
-          <tr><td><span class="rank">4</span></td><td>KIA 타이거즈<span class="po">PS</span></td><td>83</td><td>44</td><td>37</td><td>2</td><td>.543</td><td><span class="gbbar" style="width:39px"></span>6.5</td></tr>
-          <tr><td><span class="rank">5</span></td><td>두산 베어스<span class="po">PS</span></td><td>84</td><td>42</td><td>40</td><td>2</td><td>.512</td><td><span class="gbbar" style="width:54px"></span>9.0</td></tr>
-          <tr><td><span class="rank">6</span></td><td>한화 이글스</td><td>80</td><td>39</td><td>39</td><td>2</td><td>.500</td><td><span class="gbbar" style="width:60px"></span>10.0</td></tr>
-          <tr><td><span class="rank">7</span></td><td>NC 다이노스</td><td>80</td><td>38</td><td>41</td><td>1</td><td>.481</td><td><span class="gbbar" style="width:69px"></span>11.5</td></tr>
-          <tr><td><span class="rank">8</span></td><td>롯데 자이언츠</td><td>82</td><td>36</td><td>44</td><td>2</td><td>.450</td><td><span class="gbbar" style="width:84px"></span>14.0</td></tr>
-          <tr><td><span class="rank">9</span></td><td>SSG 랜더스</td><td>83</td><td>30</td><td>50</td><td>3</td><td>.375</td><td><span class="gbbar" style="width:120px"></span>20.0</td></tr>
-          <tr><td><span class="rank">10</span></td><td>키움 히어로즈</td><td>85</td><td>29</td><td>55</td><td>1</td><td>.345</td><td><span class="gbbar" style="width:138px"></span>23.0</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="py-note reveal d2" id="ktStat" style="display:none"></p>
-  </section>
-
-  <!-- ================= 참고 섹션 구분선 ================= -->
-  <div class="foldline reveal" id="archive" data-folio="Archive"><span>기록 · 분석 · 콘텐츠 — 줄을 눌러 펼쳐 보기</span></div>
-
-  <!-- ================= 지난 경기 ================= -->
-  <section id="lastGameSec">
+    <div data-tabs>
+      <div class="tabs" role="tablist" aria-label="분석">
+        <button type="button" role="tab" id="t-last" aria-controls="p-last">지난 경기</button>
+        <button type="button" role="tab" id="t-h2h" aria-controls="p-h2h">상대전적</button>
+        <button type="button" role="tab" id="t-rank" aria-controls="p-rank">순위 변동</button>
+        <button type="button" role="tab" id="t-title" aria-controls="p-title">타이틀 레이스</button>
+        <button type="button" role="tab" id="t-spot" aria-controls="p-spot">이 주의 마법사</button>
+      </div>
+      <div class="tabpanel" id="p-last" role="tabpanel" aria-labelledby="t-last">
+<section id="lastGameSec">
     <div class="sec-head reveal">
       <p class="kicker" id="lgKicker">Last game</p>
       <h2>지난 경기</h2>
@@ -1038,11 +1019,9 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
       <div class="lg-hero"><div class="matchup"></div><div class="meta">데이터 수집 대기 중…</div></div>
     </div>
   </section>
-
-
-
-  <!-- ================= 팀간 상대전적 ================= -->
-  <section id="h2hSec" style="display:none">
+      </div>
+      <div class="tabpanel" id="p-h2h" role="tabpanel" aria-labelledby="t-h2h">
+<section id="h2hSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Head to Head</p>
       <h2>KT 상대전적</h2>
@@ -1057,10 +1036,9 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
       <p class="h2h-note" style="margin:10px 4px 4px">각 칸은 가로줄 팀 기준 승-패 · 무승부 제외</p>
     </div>
   </section>
-
-
-  <!-- ================= 시즌 순위 변동 ================= -->
-  <section id="rankChartSec" style="display:none">
+      </div>
+      <div class="tabpanel" id="p-rank" role="tabpanel" aria-labelledby="t-rank">
+<section id="rankChartSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Rank History</p>
       <h2>시즌 순위 변동</h2>
@@ -1075,9 +1053,9 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
       <div class="chart-legend" id="rankLegend"></div>
     </div>
   </section>
-
-  <!-- ================= 개인 타이틀 레이스 ================= -->
-  <section id="titleSec" style="display:none">
+      </div>
+      <div class="tabpanel" id="p-title" role="tabpanel" aria-labelledby="t-title">
+<section id="titleSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">Title Race</p>
       <h2>개인 타이틀 레이스</h2>
@@ -1085,11 +1063,9 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
     </div>
     <div class="titlegrid reveal d1" id="titleGrid"></div>
   </section>
-
-
-
-  <!-- ================= 스포트라이트 ================= -->
-  <section id="spotSec">
+      </div>
+      <div class="tabpanel" id="p-spot" role="tabpanel" aria-labelledby="t-spot">
+<section id="spotSec">
     <div class="sec-head reveal">
       <p class="kicker">Spotlight</p>
       <h2>이 주의 마법사</h2>
@@ -1106,18 +1082,40 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
       </div>
     </div>
   </section>
+      </div>
+    </div>
+  </section>
 
-  <!-- ================= wiz TV ================= -->
-  <section id="ytSec" style="display:none">
+  <section class="block" id="newsBlock">
+    <div class="sec-head reveal">
+      <h2>소식</h2>
+      <p class="kicker">News &amp; media</p>
+    </div>
+    <div class="news2">
+<section id="newsSec">
+    <div class="sec-head reveal">
+      <p class="kicker">News</p>
+      <h2>wiz 최근 소식</h2>
+    </div>
+    <div class="cards" id="newsCards">
+      <div class="card reveal d1">
+        <span class="date">자동 수집 대기 중</span>
+        <span class="chip">뉴스</span>
+        <h3>kt wiz 관련 최신 기사가 이 자리에 자동으로 표시됩니다</h3>
+        <p>구글 뉴스에서 30분 주기로 수집됩니다.</p>
+      </div>
+    </div>
+    <p class="gall-note reveal d2">구글 뉴스 검색 결과의 제목·출처만 표시하며, 클릭 시 해당 언론사 기사로 이동합니다.</p>
+  </section>
+<section id="ytSec" style="display:none">
     <div class="sec-head reveal">
       <p class="kicker">wiz TV</p>
       <h2>공식 유튜브 최신 영상</h2>
     </div>
     <div class="yt reveal d1" id="ytGrid"></div>
   </section>
-
-  <!-- ================= 인스타그램 ================= -->
-  <section id="instaSec">
+    </div>
+<section id="instaSec">
     <div class="sec-head reveal">
       <p class="kicker">Instagram</p>
       <h2>선수단 인스타그램</h2>
@@ -1137,26 +1135,7 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
     </div>
     <p class="insta-note reveal d2">공식 계정 외 선수 개인 계정은 사칭 계정 위험 때문에 직접 연결 대신 인스타그램 검색으로 안내합니다.</p>
   </section>
-
-  <!-- ================= 소식 ================= -->
-  <section id="newsSec">
-    <div class="sec-head reveal">
-      <p class="kicker">News</p>
-      <h2>wiz 최근 소식</h2>
-    </div>
-    <div class="cards" id="newsCards">
-      <div class="card reveal d1">
-        <span class="date">자동 수집 대기 중</span>
-        <span class="chip">뉴스</span>
-        <h3>kt wiz 관련 최신 기사가 이 자리에 자동으로 표시됩니다</h3>
-        <p>구글 뉴스에서 30분 주기로 수집됩니다.</p>
-      </div>
-    </div>
-    <p class="gall-note reveal d2">구글 뉴스 검색 결과의 제목·출처만 표시하며, 클릭 시 해당 언론사 기사로 이동합니다.</p>
-  </section>
-
-  <!-- ================= 링크 ================= -->
-  <section id="linkSec">
+<section id="linkSec">
     <div class="sec-head reveal">
       <p class="kicker">Links</p>
       <h2>실시간 확인</h2>
@@ -1168,15 +1147,10 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
       <a href="https://yagu.today/teams/kt" target="_blank" rel="noopener">경기 일정 · 오늘야구</a>
     </div>
   </section>
-
+  </section>
+</div>
 </main>
 
-<div class="ticker" aria-hidden="true">
-  <div class="ticker__track">
-    <span>KT WIZ</span><span>Postseason</span><span>SUWON</span><span>October</span><span>WIZ BOARD</span><span>2026</span>
-    <span>KT WIZ</span><span>Postseason</span><span>SUWON</span><span>October</span><span>WIZ BOARD</span><span>2026</span>
-  </div>
-</div>
 <footer class="foot">
   <div class="wrap">
     <div><strong>wiz board</strong> — kt wiz 팬이 만든 비공식 상황판. kt wiz·KBO와 무관합니다.<br>스코어·순위·라인업·날씨는 자동 수집으로 갱신됩니다.</div>
@@ -1208,10 +1182,8 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
   document.addEventListener('visibilitychange', () => { if(!document.hidden) checkVersion(); });
 
   /* ==========================================================================
-     화면 연출 (2026 가을 리뉴얼) — 외부 라이브러리 없음, 요소가 없으면 조용히 건너뜀
+     화면 동작 (v2) — 외부 라이브러리 없음, 요소가 없으면 조용히 건너뜀
      ========================================================================== */
-  const clamp01 = v => Math.min(Math.max(v, 0), 1);
-  const easeOut = p => 1 - Math.pow(1 - p, 3);
 
   /* 테마: 자동 → 밝게 → 어둡게 (선택은 브라우저에 저장). 바뀌면 캔버스 차트를 다시 그리도록 알린다 */
   (function theme(){
@@ -1238,78 +1210,82 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
     paint();
   })();
 
-  /* 모바일 서랍 메뉴 */
-  (function drawer(){
-    const btn = document.getElementById('burger'), panel = document.getElementById('drawer');
-    if(!btn || !panel) return;
-    const close = document.getElementById('drawerClose');
-    const set = (open, restore) => {
-      panel.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', open); panel.setAttribute('aria-hidden', !open);
-      if(open) close.focus(); else if(restore) btn.focus({ preventScroll:true });
-    };
-    btn.addEventListener('click', () => set(true));
-    close.addEventListener('click', () => set(false, true));
-    panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => set(false)));
-    addEventListener('keydown', e => { if(e.key === 'Escape' && panel.classList.contains('is-open')) set(false, true); });
-  })();
-
-  /* 첫 화면: ① 영어 제목이 한 줄씩 한글로 ② 제목 속 창이 화면 전체로 열리며 오늘 경기가 나타남 (스크롤한 만큼 진행) */
-  (function cover(){
-    const root = document.getElementById('top');
-    if(!root) return;
-    const sheet = root.querySelector('.cover__sheet'), lens = root.querySelector('.cover__lens'), mast = document.getElementById('mast');
-    // data-ko를 가진 글자를 영어/한글 두 겹으로
-    const flips = [...root.querySelectorAll('[data-ko]')];
-    flips.forEach(el => {
-      const en = document.createElement('span'), ko = document.createElement('span');
-      en.className = 'flip__en'; while(el.firstChild) en.appendChild(el.firstChild);
-      ko.className = 'flip__ko'; ko.lang = 'ko'; ko.textContent = el.dataset.ko;
-      el.classList.add('flip'); el.append(en, ko);
+  /* 탭: 데이터가 없는 탭은 스스로 숨는다(패널 안 섹션이 display:none이거나 패널이 hidden이면).
+     패널 전환은 hidden이 아니라 .is-off 클래스로 — hidden은 데이터 유무 표시에 스크립트가 이미 쓰고 있어서 */
+  (function tabs(){
+    document.querySelectorAll('[data-tabs]').forEach(root => {
+      const list = root.querySelector('.tabs');
+      const btns = [...list.querySelectorAll('[role=tab]')];
+      const panels = btns.map(b => document.getElementById(b.getAttribute('aria-controls')));
+      const bar = document.createElement('i'); bar.className = 'tabs__bar'; list.appendChild(bar);
+      let cur = -1;
+      const moveBar = () => {   // 밑줄을 선택된 탭 글자 폭에 맞춰 미끄러지게
+        const b = btns[cur];
+        if(!b || b.hidden){ bar.style.width = '0'; return; }
+        const cs = getComputedStyle(b), pl = parseFloat(cs.paddingLeft), pr = parseFloat(cs.paddingRight);
+        bar.style.width = (b.offsetWidth - pl - pr) + 'px'; bar.style.transform = 'translateX(' + (b.offsetLeft + pl) + 'px)';
+      };
+      const pick = (k, focus) => {
+        cur = k;
+        btns.forEach((b, j) => { b.setAttribute('aria-selected', j === k); b.tabIndex = j === k ? 0 : -1; });
+        panels.forEach((p, j) => p && p.classList.toggle('is-off', j !== k));
+        if(focus) btns[k].focus();
+        moveBar();
+        dispatchEvent(new Event('themechange'));   // 숨어 있던 캔버스 차트(순위 변동)가 폭을 얻었으니 다시 그리기
+      };
+      const sync = () => {
+        btns.forEach((b, j) => { const p = panels[j], sec = p && p.querySelector('section');
+          b.hidden = !p || p.hidden || (sec && sec.style.display === 'none'); });
+        root.hidden = btns.every(b => b.hidden);
+        if(cur < 0 || btns[cur].hidden){ const k = btns.findIndex(b => !b.hidden); if(k >= 0) pick(k); } else moveBar();
+      };
+      btns.forEach((b, k) => b.addEventListener('click', () => pick(k)));
+      list.addEventListener('keydown', e => {
+        if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const vis = btns.map((b, j) => j).filter(j => !btns[j].hidden), i = vis.indexOf(cur);
+        pick(vis[(i + (e.key === 'ArrowRight' ? 1 : -1) + vis.length) % vis.length], true);
+      });
+      // 데이터가 들어와 섹션 표시가 바뀌면 탭 목록을 다시 맞춘다
+      // (탭 전체를 감시하면 밑줄 위치를 옮길 때 바뀌는 style에 다시 반응해 무한 반복 → 패널만 감시)
+      if('MutationObserver' in window){ const mo = new MutationObserver(sync); panels.forEach(p => p && mo.observe(p, { attributes:true, attributeFilter:['style', 'hidden'], subtree:true })); }
+      addEventListener('resize', moveBar);
+      sync();
     });
-    const live = [...sheet.querySelectorAll('a,button')];
-    if(reduce){
-      root.classList.add('is-static'); flips.forEach(el => el.style.setProperty('--f', 1));
-      if(mast && 'IntersectionObserver' in window) new IntersectionObserver(es => mast.classList.toggle('is-past', !es[0].isIntersecting), { rootMargin:'-80px 0px 0px 0px' }).observe(root.querySelector('.cover__type'));
-      return;
-    }
-    const set = (k, v) => sheet.style.setProperty(k, v);
-    const paint = p => {
-      flips.forEach(el => el.style.setProperty('--f', easeOut(clamp01((p - .03 - (+el.dataset.flip) * .04) / .12)).toFixed(3)));   // 3~27%: 한 줄씩 한글로
-      const e = easeOut(clamp01((p - .28) / .42)), w = lens.getBoundingClientRect(), vw = innerWidth, vh = innerHeight, mix = (a, b) => a + (b - a) * e;   // 28~70%: 창이 열림
-      set('--t', mix(w.top / vh * 100, 0) + '%'); set('--l', mix(w.left / vw * 100, 0) + '%');
-      set('--r', mix((vw - w.right) / vw * 100, 0) + '%'); set('--b', mix((vh - w.bottom) / vh * 100, 0) + '%');
-      set('--rad', mix(w.height / 2, 0) + 'px');
-      const o = clamp01((p - .58) / .2); set('--o', o);
-      live.forEach(el => { el.tabIndex = o < .6 ? -1 : 0; });   // 안 보일 때는 초점이 가지 않게
-      if(mast) mast.classList.toggle('is-past', p > .62);
-    };
-    const progress = () => clamp01(-root.getBoundingClientRect().top / Math.max(1, root.offsetHeight - innerHeight));
-    let ticking = false;
-    const refresh = () => { if(ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; paint(progress()); }); };
-    addEventListener('scroll', refresh, { passive:true }); addEventListener('resize', refresh); addEventListener('load', refresh);
-    if(document.fonts) document.fonts.ready.then(refresh);   // 글꼴이 늦게 오면 제목 폭(창 위치)이 바뀜
-    paint(progress());
   })();
 
-  /* 오른쪽 섹션 표시 + 상단 메뉴 현재 위치 */
-  (function folio(){
-    const nav = document.getElementById('folio');
-    const secs = [...document.querySelectorAll('[data-folio]')];
-    if(!nav || !secs.length) return;
-    nav.innerHTML = secs.map(s => '<a href="#' + s.id + '"><span>' + s.dataset.folio + '</span><i></i></a>').join('');
-    const links = [...nav.children], menu = [...document.querySelectorAll('.nav a')];
-    // 화면 가운데선을 이미 지난 마지막 섹션이 '현재 위치' — 짧은 구분선(Archive)도 지나간 뒤까지 유지된다
+  /* 섹션 바로가기: 화면 위쪽을 지난 마지막 섹션을 '현재'로. 가로로 넘치는 폰에서는 현재 칸이 보이게 스크롤 */
+  (function spy(){
+    const nav = document.getElementById('subnav');
+    if(!nav) return;
+    const links = [...nav.querySelectorAll('a')];
+    const secs = links.map(a => document.getElementById(a.getAttribute('href').slice(1)));
     let cur = -1;
     const sync = () => {
       let k = 0;
-      secs.forEach((s, j) => { if(s.offsetParent !== null && s.getBoundingClientRect().top < innerHeight * .5) k = j; });
+      secs.forEach((s, j) => { if(s && s.offsetParent !== null && s.getBoundingClientRect().top < 170) k = j; });
       if(k === cur) return; cur = k;
       links.forEach((a, j) => a.classList.toggle('is-on', j === k));
-      menu.forEach(a => a.classList.toggle('is-on', a.getAttribute('href') === '#' + secs[k].id));
+      const a = links[k], box = a.parentElement;
+      if(box.scrollWidth > box.clientWidth) box.scrollTo({ left:a.offsetLeft - 20, behavior:reduce ? 'auto' : 'smooth' });
     };
-    addEventListener('scroll', sync, { passive:true });   // 섹션 7개의 위치만 읽으므로 프레임 대기 없이 바로 계산
+    addEventListener('scroll', sync, { passive:true });
     sync();
   })();
+
+  /* 상단 칩: 오늘 KT 경기 상태를 한 줄로 (어느 위치에서든 보임, 누르면 맨 위 '오늘'로) */
+  function renderStatusChip(games){
+    const el = document.getElementById('statusChip'), tx = document.getElementById('statusTxt');
+    if(!el) return;
+    const g = (games || []).find(x => x.home === 'KT' || x.away === 'KT');
+    el.classList.remove('is-live');
+    if(!g){ tx.textContent = '오늘 경기 없음'; return; }
+    const kt = g.home === 'KT', opp = kt ? g.away : g.home, my = kt ? g.hs : g.as, op = kt ? g.as : g.hs;
+    if(g.code === 'STARTED' || g.code === 'LIVE'){ el.classList.add('is-live'); tx.textContent = (g.status || 'LIVE') + ' · KT ' + my + ':' + op + ' ' + opp; }
+    else if(g.code === 'RESULT' || g.code === 'ENDED') tx.textContent = '종료 · KT ' + my + ':' + op + ' ' + opp + (my > op ? ' 승' : my < op ? ' 패' : ' 무');
+    else if(g.code === 'CANCEL') tx.textContent = '오늘 경기 취소 · vs ' + opp;
+    else tx.textContent = '오늘 ' + (g.time ? g.time + ' ' : '') + 'vs ' + opp;
+  }
 
   /* ---------- 가을 낙엽 ---------- */
   (function leaves(){
@@ -1822,12 +1798,13 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
     if(frame === undefined) frame = rankFrame || hist.length - 1;
     rankFrame = frame = Math.max(1, Math.min(frame, hist.length - 1));
     const sec = document.getElementById('rankChartSec');
-    sec.style.display = 'block';
+    if(sec.style.display !== 'block') sec.style.display = 'block';
     const cv = document.getElementById('rankCanvas');
     const dpr = Math.min(2, devicePixelRatio || 1);
     const cw = cv.clientWidth || cv.parentElement.clientWidth;
     // 레이아웃 전에 호출되면 폭이 비정상적으로 작음 — 다음 프레임에 재시도
-    if(cw < 100){ requestAnimationFrame(() => renderRankChart(hist, frame)); return; }
+    // 숨은 탭 안이면 폭이 0 — 재시도하지 않고, 탭이 열릴 때(themechange) 다시 그린다
+    if(cw < 100){ if(cv.offsetParent !== null) requestAnimationFrame(() => renderRankChart(hist, frame)); return; }
     const ch = 280;
     cv.width = cw * dpr; cv.height = ch * dpr;
     const ctx = cv.getContext('2d');
@@ -2251,7 +2228,7 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
     if(!box || !r || !r.dates.length){ if(box) box.hidden = true; return; }
     const raw = adj ? gbForecast(st, py, sc, rivName, null) : null; // 보정 전 비교용
     // 넓은 화면은 16:9, 폰(폭 600px 미만)은 5:4로 그려 글자가 너무 작아지지 않게
-    const svg0 = document.getElementById('gbSvg'), narrow = (svg0.parentNode.clientWidth || 960) < 600;
+    const narrow = innerWidth < 640;   // 탭 안에 숨어 있으면 부모 폭이 0이라 화면 폭으로 판단
     const W = narrow ? 600 : 960, H = narrow ? 480 : 540, L = narrow ? 50 : 70, R = narrow ? 128 : 210, T = 34, B = 58; // 오른쪽 여백 = 시즌 끝 분포 막대
     const xs = ['지금'].concat(r.dates.map(d => +d.slice(5, 7) + '/' + +d.slice(8)), ['시즌 끝']);
     const first = { p10: r.now, p25: r.now, p50: r.now, p75: r.now, p90: r.now };
@@ -3155,6 +3132,7 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
         window.__aux = { py: j.pythag, sc: j.sched }; // 확률 시뮬레이션용 (매직넘버 배너)
         renderStandings(j.standings, j.date);
         render(j.games, true);
+        renderStatusChip(j.games);
         renderWeek(j.kt && j.kt.week, j.date);
         renderForm(j.kt && j.kt.recent);
         renderRest(j.sched, j.games, j.standings);
@@ -3185,7 +3163,7 @@ tr.kt .rank{color:var(--paper);background:var(--accent);border-radius:0}
      시즌이 진행될수록 참고용 섹션이 쌓여 페이지가 매우 길어진다.
      경기·순위 등 자주 보는 것만 펼쳐 두고 나머지는 접어 첫 화면 길이를 줄인다.
      사용자가 펼친 섹션은 localStorage에 기억해 다음 방문에도 유지한다. */
-  const FOLDED = ['titleSec','rankChartSec','h2hSec','lastGameSec','spotSec','ytSec','instaSec','newsSec'];
+  const FOLDED = [];   // v2: 접기 대신 '분석' 탭으로 정리
   const SEC_KEY = 'wizSecOpen';
   const secLoad = () => { try{ return JSON.parse(localStorage.getItem(SEC_KEY) || '{}'); }catch(e){ return {}; } };
   const secSave = o => { try{ localStorage.setItem(SEC_KEY, JSON.stringify(o)); }catch(e){} };
