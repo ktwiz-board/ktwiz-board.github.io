@@ -5,6 +5,7 @@ const path = require('path');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board live fetcher)' };
 const { rosterStrength } = require('./roster');
+const { seedProjection } = require('./seeds');
 const API = 'https://api-gw.sports.naver.com';
 
 function kstNow() {
@@ -299,8 +300,21 @@ async function pythagorean(today) {
   };
 }
 
+// 가을야구 시드 경쟁: 팀별 최종 순위 확률 + 9월부터의 날짜별 기록 (scripts/seeds.js)
+function seedsFor(today, played, standings, sched, roster, pythag, prevSeeds) {
+  if (!played || !played.length || !standings || standings.length < 10 || !sched || !sched.league) return prevSeeds || null;
+  const S = {};
+  const ro = roster && roster.full;
+  for (const t of standings) {
+    if (ro && ro[t.name] != null) S[t.name] = ro[t.name];
+    else { const py = ((pythag && pythag.teams) || []).find(x => x.name === t.name); S[t.name] = py ? (0.7 * py.exp + 0.3 * py.act) * 0.7 + 0.15 : 0.5; }
+  }
+  try { return seedProjection({ today, played, league: sched.league, standings, strength: S, prev: prevSeeds }); }
+  catch (e) { console.error('seeds fail', e.message); return prevSeeds || null; }
+}
+
 // 자체 순위 계산: 시즌 전 경기 결과를 직접 집계 (네이버 순위표 반영 지연과 무관하게 경기 종료 즉시 갱신)
-async function selfStandings(today) {
+async function selfStandings(today, sink) {   // sink: 완료 경기 [{d,a,h,as,hs}]를 모을 배열(선택)
   const ranges = dateRanges(SEASON_START, today, 60);
   const agg = {};
   for (const [f, t] of ranges) {
@@ -310,6 +324,7 @@ async function selfStandings(today) {
       if (g.statusCode !== 'RESULT' && g.statusCode !== 'ENDED') continue;
       if (!KBO_TEAMS.includes(g.homeTeamName) || !KBO_TEAMS.includes(g.awayTeamName)) continue;
       if (isPs(g.gameId)) continue; // 포스트시즌은 정규시즌 집계에서 제외
+      if (sink) sink.push({ d: g.gameDate, a: g.awayTeamName, h: g.homeTeamName, as: g.awayTeamScore, hs: g.homeTeamScore });
       for (const [me, my, opsc] of [[g.homeTeamName, g.homeTeamScore, g.awayTeamScore], [g.awayTeamName, g.awayTeamScore, g.homeTeamScore]]) {
         if (!agg[me]) agg[me] = { w: 0, l: 0, d: 0 };
         if (my > opsc) agg[me].w++; else if (my < opsc) agg[me].l++; else agg[me].d++;
@@ -429,8 +444,10 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
     try {
-      const self = await selfStandings(today);
+      const playedP = [];
+      const self = await selfStandings(today, playedP);
       if (self) {
+        prev.seeds = seedsFor(today, playedP, self, prev.sched, prev.roster, prev.pythag, prev.seeds);
         const byName = {};
         (prev.standings || []).forEach(t => { byName[t.name] = t; });
         prev.standings = self.map(t => Object.assign({}, byName[t.name] || {}, t));
@@ -738,8 +755,9 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   // 순위: 경기 결과에서 자체 집계가 1순위 (네이버 순위표는 경기 종료 후 반영이 늦음)
   // 성공 시 자체 w/l/d/rank/wra를 쓰고, era 등 부가 지표만 preview 순위에서 병합
   let finalStandings = null;
+  const playedAll = [];
   try {
-    const self = await selfStandings(today);
+    const self = await selfStandings(today, playedAll);
     if (self) finalStandings = self.map(t => Object.assign({}, standings[t.name] || {}, t));
   } catch (e) { console.error('selfStandings fail', e.message); }
   if (!finalStandings) {
@@ -759,6 +777,8 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       roster = Object.assign(await rosterStrength(gms, absent, UA, pyMap), { date: today, ret });
     } catch (e) { console.error('roster fail', e.message); roster = (prev && prev.roster) || null; }
   }
+
+  const seeds = seedsFor(today, playedAll, finalStandings, sched, roster, pythag, prev && prev.seeds);
 
   // 포스트시즌 대진·시리즈 전적 (실패 시 직전 값 유지)
   let ps = (prev && prev.ps) || null;
@@ -783,7 +803,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched, ps, ag, agAdj: agAdjust(), roster
+    youtube, pythag, sched, ps, ag, agAdj: agAdjust(), roster, seeds
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
