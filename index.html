@@ -728,7 +728,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       <p class="kicker">Waiting in Suwon</p>
       <p class="sub" id="ktSub">정규시즌 1위 — 한국시리즈 직행</p>
     </div>
-    <p class="subhead">한국시리즈 예상 선발 <small>Projected rotation</small></p>
+    <p class="subhead">한국시리즈 예상 선발 <small>정규시즌 마지막 엔트리 기준 · 실제와 다를 수 있음</small></p>
     <div class="rot" id="ktRot"></div>
     <p class="note" id="ktRotNote"></p>
     <p class="subhead">예상 상대별 <small>If we meet…</small></p>
@@ -1510,7 +1510,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     const res = SIM.res, ks = res.ks, t1 = res.seeds[0];
     if(ks && ks.games){
       $('ktRot').innerHTML = ks.games.map((g, i) => '<div' + (i >= 4 ? ' class="maybe"' : '') + '><span class="n">' + g.n + '차전</span><span class="d">' + fmtDate(g.d) + (i >= 4 ? ' · 필요 시' : '') + '</span><b>' + esc(g.sp || '미정') + '</b></div>').join('');
-      $('ktRotNote').textContent = esc(t1) + ' 로테이션 앞 4명(' + ks.rotation.join(' · ') + ')을 실점 지수 순으로 세우고, 4일 이상 쉰 가장 좋은 투수가 나가는 규칙으로 배치한 예상입니다. 실제 발표 선발이 나오면 그 이름으로 바뀝니다.';
+      $('ktRotNote').textContent = '정규시즌 마지막 경기 1군 엔트리 기준 예상치이며 실제 엔트리·선발과 다를 수 있습니다. ' + t1 + ' 로테이션 앞 4명(' + ks.rotation.join(' · ') + ')을 실점 지수 순으로 세우고, 4일 이상 쉰 가장 좋은 투수가 나가는 규칙으로 배치한 예상입니다. 실제 발표 선발이 나오면 그 이름으로 바뀝니다.';
     }
     const h2h = (D.pythag && D.pythag.h2h && D.pythag.h2h[t1]) || {};
     const opp = res.seeds.slice(1).map(t => {

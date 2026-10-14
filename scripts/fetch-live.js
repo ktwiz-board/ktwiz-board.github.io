@@ -501,14 +501,14 @@ async function psModelFor(today, standings, pythag, psStats, prev) {
     raw[name] = { hitters, pitchers };
   }
   const gp = {}; for (const t of standings) gp[t.name] = t.w + t.l + t.d;
-  // 1군 엔트리: 팀별 최근 끝난 경기 3개의 문자중계 명단(선발 라인업·투수 + 벤치)을 합친다 — 방출·말소 선수 제외용
+  // 1군 엔트리: 팀별 정규시즌 마지막 경기의 문자중계 명단(선발 라인업·투수 + 벤치) — 방출·말소 선수 제외용
   const entry = {};
   try {
     const recent = (await games(ymd(addDays(new Date(Date.parse(today)), -20)), today, 500))
-      .filter(g => g.statusCode === 'RESULT' && !g.cancel).sort((a, b) => (b.gameDate + b.gameDateTime).localeCompare(a.gameDate + a.gameDateTime));
+      .filter(g => g.statusCode === 'RESULT' && !g.cancel && !isPs(g.gameId)).sort((a, b) => (b.gameDate + b.gameDateTime).localeCompare(a.gameDate + a.gameDateTime));
     for (const t of seeds) {
       const set = new Set();
-      for (const g of recent.filter(x => x.homeTeamName === t || x.awayTeamName === t).slice(0, 3)) {
+      for (const g of recent.filter(x => x.homeTeamName === t || x.awayTeamName === t).slice(0, 1)) {
         try {
           const rd = ((await j(`${API}/schedule/games/${g.gameId}/relay`)).result || {}).textRelayData || {};
           const side = g.homeTeamName === t ? 'home' : 'away';

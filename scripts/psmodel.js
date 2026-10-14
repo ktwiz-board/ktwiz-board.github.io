@@ -28,7 +28,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  const VERSION = 2;   // 2: 1군 엔트리에 있는 선수만 (방출·말소 선수 제외)
+  const VERSION = 3;   // 2: 1군 엔트리에 있는 선수만 (방출·말소 선수 제외)
   const ROUNDS = ['WC', 'SPO', 'PO', 'KS'];
   const META = {
     WC:  { ko: '와일드카드 결정전', short: '와일드카드', abbr: 'WC',   seed: 4, need: 0, fmt: '4위 1승 안고 최대 2경기' },
