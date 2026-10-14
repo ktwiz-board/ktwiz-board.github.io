@@ -28,7 +28,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  const VERSION = 1;
+  const VERSION = 2;   // 2: 1군 엔트리에 있는 선수만 (방출·말소 선수 제외)
   const ROUNDS = ['WC', 'SPO', 'PO', 'KS'];
   const META = {
     WC:  { ko: '와일드카드 결정전', short: '와일드카드', abbr: 'WC',   seed: 4, need: 0, fmt: '4위 1승 안고 최대 2경기' },
@@ -138,8 +138,11 @@
 
     const T = {};
     names.forEach(t => {
-      const Ps = (raw[t].pitchers || []).filter(active).map(pit).filter(Boolean);
-      const Hs = (raw[t].hitters || []).filter(active).map(hit).filter(Boolean);
+      // 엔트리(최근 경기 문자중계의 1군 명단)가 있으면 그 선수만 — 네이버 시즌 기록엔 방출 선수도 '현역'으로 남는다
+      const ent = opt.entry && opt.entry[t] && opt.entry[t].length >= 20 ? new Set(opt.entry[t]) : null;
+      const onRoster = p => !ent || ent.has(p.playerName);
+      const Ps = (raw[t].pitchers || []).filter(active).filter(onRoster).map(pit).filter(Boolean);
+      const Hs = (raw[t].hitters || []).filter(active).filter(onRoster).map(hit).filter(Boolean);
       let lu = [];
       const want = opt.lineups && opt.lineups[t];
       if (want && want.length) lu = want.map(n => Hs.find(h => h.n === n)).filter(Boolean);
@@ -159,7 +162,7 @@
         t: +(0.65 * exp + 0.35 * exp60).toFixed(4), exp: +exp.toFixed(3), exp60: +exp60.toFixed(3),
         rs: py ? py.rs : null, ra: py ? py.ra : null, g: (opt.games && opt.games[t]) || 144,
         lineup: lu.map(h => ({ n: h.n, pos: h.pos, pa: h.pa, wrc: h.wrc, avg: h.avg, ops: h.ops, hr: h.hr, war: h.war })),
-        luFrom: want && want.length ? 'ps' : 'season',
+        luFrom: want && want.length ? 'ps' : 'season', entry: !!ent,
         sp, rp,
         pAll: Object.fromEntries(Ps.filter(p => p.ip >= 3).map(p => [p.n, [p.q, p.ips || 0]]))
       };

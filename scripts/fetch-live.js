@@ -500,8 +500,25 @@ async function psModelFor(today, standings, pythag, psStats, prev) {
     const [hitters, pitchers] = await Promise.all([fetchTeam(code, 'HITTER', UA), fetchTeam(code, 'PITCHER', UA)]);
     raw[name] = { hitters, pitchers };
   }
-  const games = {}; for (const t of standings) games[t.name] = t.w + t.l + t.d;
-  return Object.assign(PSModel.buildTeams(raw, { pythag, games, lineups, only: seeds }), { date: today, luKey, seeds });
+  const gp = {}; for (const t of standings) gp[t.name] = t.w + t.l + t.d;
+  // 1군 엔트리: 팀별 최근 끝난 경기 3개의 문자중계 명단(선발 라인업·투수 + 벤치)을 합친다 — 방출·말소 선수 제외용
+  const entry = {};
+  try {
+    const recent = (await games(ymd(addDays(new Date(Date.parse(today)), -20)), today, 500))
+      .filter(g => g.statusCode === 'RESULT' && !g.cancel).sort((a, b) => (b.gameDate + b.gameDateTime).localeCompare(a.gameDate + a.gameDateTime));
+    for (const t of seeds) {
+      const set = new Set();
+      for (const g of recent.filter(x => x.homeTeamName === t || x.awayTeamName === t).slice(0, 3)) {
+        try {
+          const rd = ((await j(`${API}/schedule/games/${g.gameId}/relay`)).result || {}).textRelayData || {};
+          const side = g.homeTeamName === t ? 'home' : 'away';
+          for (const k of ['Lineup', 'Entry']) for (const kind of ['batter', 'pitcher']) ((rd[side + k] || {})[kind] || []).forEach(p => p.name && set.add(p.name));
+        } catch (e) { console.error('entry fail', g.gameId, e.message); }
+      }
+      if (set.size) entry[t] = [...set];
+    }
+  } catch (e) { console.error('entry fail', e.message); }
+  return Object.assign(PSModel.buildTeams(raw, { pythag, games: gp, lineups, only: seeds, entry }), { date: today, luKey, seeds });
 }
 
 // 우승 확률: 지금(진행 중 경기 포함) + 경기마다의 추이(끝난 경기 목록이 바뀔 때만 다시 계산)
