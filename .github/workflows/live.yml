@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04    # ubuntu-latest가 2026-10-19부터 Ubuntu 26으로 바뀜 — 가을야구 중 실행 환경이 바뀌지 않게 고정
     timeout-minutes: 320     # 잡 상한 6시간 대비 여유 (루프는 5시간에 스스로 종료)
     steps:
       - uses: actions/checkout@v4

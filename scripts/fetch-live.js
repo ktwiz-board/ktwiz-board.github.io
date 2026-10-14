@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board live fetcher)' };
-const { rosterStrength } = require('./roster');
-const { seedProjection } = require('./seeds');
+const { fetchTeam, TEAM_CODE } = require('./roster');
+const PSModel = require('./psmodel');   // 포스트시즌 우승 확률 머신 (화면과 같은 파일)
 const API = 'https://api-gw.sports.naver.com';
 
 function kstNow() {
@@ -300,17 +300,222 @@ async function pythagorean(today) {
   };
 }
 
-// 가을야구 시드 경쟁: 팀별 최종 순위 확률 + 9월부터의 날짜별 기록 (scripts/seeds.js)
-function seedsFor(today, played, standings, sched, roster, pythag, prevSeeds) {
-  if (!played || !played.length || !standings || standings.length < 10 || !sched || !sched.league) return prevSeeds || null;
-  const S = {};
-  const ro = roster && roster.full;
-  for (const t of standings) {
-    if (ro && ro[t.name] != null) S[t.name] = ro[t.name];
-    else { const py = ((pythag && pythag.teams) || []).find(x => x.name === t.name); S[t.name] = py ? (0.7 * py.exp + 0.3 * py.act) * 0.7 + 0.15 : 0.5; }
+/* ==========================================================================
+   가을야구 — 오늘의 경기(포커스) · 가을 개인 기록 · 우승 확률 머신 입력/결과
+   ========================================================================== */
+const isDone = g => g && (g.code === 'RESULT' || g.code === 'ENDED');
+const isLiveG = g => g && (g.code === 'STARTED' || g.code === 'LIVE');
+const psGamesOf = ps => {
+  const out = [];
+  for (const [round, r] of Object.entries((ps && ps.rounds) || {})) for (const g of r.games || []) out.push(Object.assign({ round }, g));   // g.code는 경기 상태
+  return out.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+};
+
+// 오늘 보여줄 경기: 오늘의 가을야구 경기(진행 중 > 예정 > 종료) → 오늘 KT 경기 → 가장 최근에 끝난 가을야구 경기
+function pickFocus(todayGames, ps) {
+  const pool = todayGames.filter(g => isPs(g.id));
+  const kt = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
+  const from = pool.length ? pool : kt;
+  const g = from.find(isLiveG) || from.find(x => !isDone(x) && x.code !== 'CANCEL') || from[from.length - 1];
+  if (g) return g;
+  const fin = psGamesOf(ps).filter(isDone);
+  return fin[fin.length - 1] || null;
+}
+
+// 문자중계: 득점 순간(홈인·홈런) · 지금 상황(볼카운트·아웃·주자·타자/투수)
+// (투구수는 기록 API의 bf가 정확해서 그걸 쓴다 — 문자중계로 세면 중립 경기에서 양 팀 투수가 섞였다)
+// 네이버 relay API는 inning 파라미터로 그 이닝 전체(초+말)를 최신순으로 묶어 주므로, 시간순으로 뒤집어
+// "N회초/말 OOO 공격" 마커를 지날 때마다 공격팀을 바꾸는 상태기계로 읽는다. 끝난 이닝은 캐시해 다시 받지 않는다.
+async function relayLog(gameId, g, prevLog, box) {
+  const base = await j(`${API}/schedule/games/${gameId}/relay`);
+  const rd = base.result && base.result.textRelayData;
+  if (!rd || !rd.inningScore) return null;
+  const names = {};   // pcode → 이름 (라인업 + 박스스코어)
+  for (const side of ['homeLineup', 'awayLineup', 'homeEntry', 'awayEntry']) {
+    const s = rd[side] || {};
+    [...(s.batter || []), ...(s.pitcher || [])].forEach(p => { if (p.pcode) names[p.pcode] = p.name; });
   }
-  try { return seedProjection({ today, played, league: sched.league, standings, strength: S, prev: prevSeeds }); }
-  catch (e) { console.error('seeds fail', e.message); return prevSeeds || null; }
+  [...((box && box.pitchers && box.pitchers.away) || []), ...((box && box.pitchers && box.pitchers.home) || [])].forEach(p => { if (p.pcode) names[p.pcode] = p.name; });
+  const doneFull = new Set((prevLog && prevLog.doneFull) || []);
+  const byInning = Object.assign({}, (prevLog && prevLog.events) || {});
+  const finished = isDone(g);
+  let lastState = null;
+  for (let n = 1; n <= 15; n++) {
+    const a = rd.inningScore.away && rd.inningScore.away[n];
+    const h = rd.inningScore.home && rd.inningScore.home[n];
+    if (a == null || a === '-') continue;
+    if (doneFull.has(n)) continue;
+    try {
+      const rr = await j(`${API}/schedule/games/${gameId}/relay?inning=${n}`);
+      const trd = rr.result && rr.result.textRelayData;
+      const list = ((trd && trd.textRelays) || []).slice().reverse();
+      const evs = [];
+      let curTeam = null, curHalf = null;
+      for (const e of list) {
+        const first = e.textOptions && e.textOptions[0];
+        if (first && first.type === 0) {
+          const m = (first.text || '').match(/^(\d+)회(초|말)\s*(.+?)\s*공격/);
+          if (m) { curHalf = m[2]; curTeam = m[3]; }
+          continue;
+        }
+        for (const o of (e.textOptions || [])) {
+          const cgsState = o.currentGameState;
+          if (cgsState) lastState = Object.assign({ inn: n, half: curHalf }, cgsState);
+          if (o.type === 24 && /홈인/.test(o.text || '')) {
+            const scorer = (o.text.match(/^(.+?)\s*[:：]\s*홈인/) || [])[1] || '';
+            const hitLine = (e.textOptions || []).find(x => x.type === 13 || x.type === 23);
+            const how = hitLine ? hitLine.text.replace(/^[^:：]+[:：]\s*/, '') : '';
+            evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer, how, batter: (e.title || '').replace(/^\d+번타자\s*/, '') });
+          }
+        }
+        // 홈런은 주자 이동("홈인") 없이 타자가 직접 득점하므로 따로 기록 — 안 하면 홈런 득점이 빠진다
+        const batterName = (e.title || '').replace(/^\d+번타자\s*/, '');
+        const homerLine = (e.textOptions || []).find(x => (x.type === 13 || x.type === 23) && /홈런/.test(x.text || ''));
+        if (homerLine) evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer: batterName, how: homerLine.text.replace(/^[^:：]+[:：]\s*/, ''), batter: batterName });
+      }
+      byInning[n] = evs;
+      if (finished || (h != null && h !== '-')) doneFull.add(n);
+    } catch (e) { console.error('relay fail', n, e.message); }
+  }
+  // 지금 상황 (경기 중일 때만) — 기본 relay 응답의 최신 상태가 가장 정확
+  let state = null;
+  const cur = rd.currentGameState || (lastState || null);
+  if (isLiveG(g) && cur) {
+    const m = String(g.status || '').match(/(\d+)회(초|말)/);
+    state = {
+      inn: m ? +m[1] : (lastState && lastState.inn) || null, half: m ? m[2] : (lastState && lastState.half) || null,
+      out: +cur.out || 0, b: +cur.ball || 0, s: +cur.strike || 0,
+      bases: [cur.base1, cur.base2, cur.base3].map(x => x != null && String(x) !== '0' && x !== ''),
+      pitcher: names[cur.pitcher] || '', batter: names[cur.batter] || ''
+    };
+  }
+  return { log: { gameId, doneFull: [...doneFull], events: byInning }, state };
+}
+
+const mapStarter = s => s && s.playerInfo ? {
+  name: s.playerInfo.name,
+  era: (s.currentSeasonStats || {}).era, w: (s.currentSeasonStats || {}).w, l: (s.currentSeasonStats || {}).l,
+  pitches: (s.currentPitKindStats || []).map(p => ({ type: p.type, rt: p.pit_rt, spd: p.speed }))
+} : null;
+const mapBat = b => ({ o: b.batOrder, name: b.name, pos: b.pos, ab: b.ab, h: b.hit, rbi: b.rbi, r: b.run, hr: b.hr, bb: b.bb, kk: b.kk, sb: b.sb || 0, avg: b.hra });
+const mapPit = p => ({ name: p.name, pcode: p.pcode, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, hr: p.hr || 0, bf: p.bf, era: p.era, wls: p.wls || '' });
+const firstNine = bats => {   // 선발 타순: 1~9번 각 첫 선수
+  const seen = new Set();
+  return (bats || []).filter(b => { const o = +b.batOrder || +b.o; if (!(o >= 1 && o <= 9) || seen.has(o)) return false; seen.add(o); return true; })
+    .sort((a, b) => (+a.batOrder || +a.o) - (+b.batOrder || +b.o)).map(b => ({ o: +b.batOrder || +b.o, name: b.name, pos: b.pos }));
+};
+
+// 포커스 경기 상세: 라인업·선발 구종(프리뷰) + 라인스코어·박스스코어(기록) + 득점 로그·투구수·현재 상황(문자중계)
+async function focusGame(g, prevF) {
+  if (!g) return null;
+  const code = PS_ROUND[String(g.id).slice(0, 4)] || null;
+  const cached = prevF && prevF.id === g.id ? prevF : null;
+  if (cached && cached.final && isDone(g)) return cached;   // 끝난 경기는 한 번 완성되면 다시 받지 않음
+  const f = Object.assign({}, g, { round: code, lineups: (cached && cached.lineups) || null, starters: (cached && cached.starters) || null });
+  try {
+    const p = await j(`${API}/schedule/games/${g.id}/preview`);
+    const pd = p.result && p.result.previewData;
+    if (pd) {
+      const la = mapLineup(pd.awayTeamLineUp), lh = mapLineup(pd.homeTeamLineUp);
+      if (la || lh) f.lineups = { away: la, home: lh };
+      const sa = mapStarter(pd.awayStarter), sh = mapStarter(pd.homeStarter);
+      if (sa || sh) f.starters = { away: sa, home: sh };
+    }
+  } catch (e) { console.error('focus preview fail', e.message); }
+  if (g.code !== 'BEFORE' && g.code !== 'CANCEL') {
+    try {
+      const rec = await j(`${API}/schedule/games/${g.id}/record`);
+      const rd = rec.result && rec.result.recordData;
+      if (rd && rd.battersBoxscore) {
+        f.line = rd.scoreBoard || null;
+        f.box = {
+          batters: { away: (rd.battersBoxscore.away || []).map(mapBat), home: (rd.battersBoxscore.home || []).map(mapBat) },
+          batTotal: { away: rd.battersBoxscore.awayTotal || null, home: rd.battersBoxscore.homeTotal || null },
+          pitchers: { away: ((rd.pitchersBoxscore || {}).away || []).map(mapPit), home: ((rd.pitchersBoxscore || {}).home || []).map(mapPit) },
+          keys: (rd.etcRecords || []).slice(0, 10).map(e => ({ how: e.how, result: e.result }))
+        };
+        if (!f.lineups || !f.lineups.away || !f.lineups.home) {
+          const fa = firstNine(rd.battersBoxscore.away), fh = firstNine(rd.battersBoxscore.home);
+          f.lineups = { away: (f.lineups && f.lineups.away) || (fa.length === 9 ? { starter: (f.box.pitchers.away[0] || {}).name || '', batters: fa } : null),
+                        home: (f.lineups && f.lineups.home) || (fh.length === 9 ? { starter: (f.box.pitchers.home[0] || {}).name || '', batters: fh } : null) };
+        }
+      }
+    } catch (e) { console.error('focus record fail', e.message); }
+    try {
+      const rl = await relayLog(g.id, g, cached && cached.log, f.box);
+      if (rl) { f.log = rl.log; f.state = rl.state; }
+    } catch (e) { console.error('focus relay fail', e.message); }
+  }
+  f.final = isDone(g) && !!f.box;
+  return f;
+}
+
+// 가을야구 개인 기록 — 끝난 가을야구 경기마다 박스스코어를 한 번씩 받아 누적 (경기 id로 캐시)
+async function psStatsUpdate(ps, prev) {
+  const st = prev && prev.v === 1 ? JSON.parse(JSON.stringify(prev)) : { v: 1, done: [], bat: {}, pit: {}, lineups: {}, teams: {} };
+  const todo = psGamesOf(ps).filter(g => isDone(g) && st.done.indexOf(g.id) < 0);
+  for (const g of todo) {
+    try {
+      const rd = ((await j(`${API}/schedule/games/${g.id}/record`)).result || {}).recordData;
+      if (!rd || !rd.battersBoxscore) continue;
+      for (const side of ['away', 'home']) {
+        const team = g[side], my = side === 'home' ? g.hs : g.as, op = side === 'home' ? g.as : g.hs;
+        const T = st.teams[team] || (st.teams[team] = { g: 0, w: 0, l: 0, d: 0, rs: 0, ra: 0 });
+        T.g++; T.rs += my; T.ra += op; T[my > op ? 'w' : my < op ? 'l' : 'd']++;
+        const seenB = new Set();
+        for (const b of rd.battersBoxscore[side] || []) {
+          const k = team + '|' + b.name;
+          const x = st.bat[k] || (st.bat[k] = { n: b.name, t: team, g: 0, ab: 0, h: 0, hr: 0, rbi: 0, r: 0, bb: 0, k: 0, sb: 0 });
+          if (!seenB.has(k)) { x.g++; seenB.add(k); }
+          x.ab += b.ab || 0; x.h += b.hit || 0; x.hr += b.hr || 0; x.rbi += b.rbi || 0; x.r += b.run || 0; x.bb += b.bb || 0; x.k += b.kk || 0; x.sb += b.sb || 0;
+        }
+        for (const p of (rd.pitchersBoxscore || {})[side] || []) {
+          const k = team + '|' + p.name;
+          const x = st.pit[k] || (st.pit[k] = { n: p.name, t: team, g: 0, gs: 0, outs: 0, h: 0, r: 0, er: 0, bb: 0, k: 0, hr: 0, w: 0, l: 0, sv: 0, hd: 0 });
+          x.g++; if ((rd.pitchersBoxscore[side] || [])[0] === p) x.gs++;
+          x.outs += Math.round(PSModel.innings(p.inn) * 3); x.h += p.hit || 0; x.r += p.r || 0; x.er += p.er || 0; x.bb += p.bb || 0; x.k += p.kk || 0; x.hr += p.hr || 0;
+          const r = String(p.wls || '') + String(p.w || '') + String(p.l || '') + String(p.s || '');
+          if (/승|W/.test(r)) x.w++; if (/패|L/.test(r)) x.l++; if (/세|S/.test(r)) x.sv++; if (/홀|H/.test(r)) x.hd++;
+        }
+        const nine = firstNine(rd.battersBoxscore[side]);
+        const prevLu = st.lineups[team];
+        if (nine.length === 9 && (!prevLu || prevLu.date <= g.date)) st.lineups[team] = { id: g.id, date: g.date, names: nine.map(b => b.name) };
+      }
+      st.done.push(g.id);
+    } catch (e) { console.error('psStats fail', g.id, e.message); }
+  }
+  return st;
+}
+
+// 우승 확률 머신 입력: 가을야구 5개 팀 모델 (선수 기록 기반) — 하루 1회 또는 가을 선발 타순이 바뀌면 다시 만든다
+async function psModelFor(today, standings, pythag, psStats, prev) {
+  if (!standings || standings.length < 10) return prev || null;
+  const seeds = standings.slice().sort((a, b) => a.rank - b.rank).slice(0, 5).map(t => t.name);
+  const lineups = {};
+  for (const [t, lu] of Object.entries((psStats && psStats.lineups) || {})) lineups[t] = lu.names;
+  const luKey = Object.keys(lineups).sort().map(t => t + ':' + psStats.lineups[t].id).join(',');
+  if (prev && prev.v === PSModel.VERSION && prev.date === today && prev.luKey === luKey && prev.seeds && prev.seeds.join() === seeds.join()) return prev;
+  const raw = {};
+  for (const [name, code] of Object.entries(TEAM_CODE)) {
+    const [hitters, pitchers] = await Promise.all([fetchTeam(code, 'HITTER', UA), fetchTeam(code, 'PITCHER', UA)]);
+    raw[name] = { hitters, pitchers };
+  }
+  const games = {}; for (const t of standings) games[t.name] = t.w + t.l + t.d;
+  return Object.assign(PSModel.buildTeams(raw, { pythag, games, lineups, only: seeds }), { date: today, luKey, seeds });
+}
+
+// 우승 확률: 지금(진행 중 경기 포함) + 경기마다의 추이(끝난 경기 목록이 바뀔 때만 다시 계산)
+function psOddsFor(psm, ps, focus, prev, nowKST) {
+  if (!psm || !psm.teams) return prev || null;
+  const live = focus && focus.state && focus.state.inn ? { id: focus.id, inn: focus.state.inn, half: focus.state.half, out: focus.state.out } : null;
+  const input = { model: psm, seeds: psm.seeds, rounds: (ps && ps.rounds) || {}, live };
+  const now = PSModel.simulate(input, { n: PSModel.P.N });
+  if (!now) return prev || null;
+  delete now.samples;
+  const fin = psGamesOf(ps).filter(isDone).map(g => g.id + ':' + g.as + '-' + g.hs);
+  const hkey = ['v' + PSModel.VERSION, psm.date, psm.luKey, fin.join(',')].join('|');
+  const hist = prev && prev.hkey === hkey ? prev.hist : PSModel.history({ model: psm, seeds: psm.seeds, rounds: input.rounds }, { n: 10000 });
+  return { v: PSModel.VERSION, at: nowKST, hkey, now, hist };
 }
 
 // 자체 순위 계산: 시즌 전 경기 결과를 직접 집계 (네이버 순위표 반영 지연과 무관하게 경기 종료 즉시 갱신)
@@ -406,7 +611,7 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   };
 }
 
-(async () => {
+async function main() {
   const now = kstNow();
   const today = ymd(now);
 
@@ -433,21 +638,19 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   const SLEEP = { live: 300, pre: 600, post: 1800 };
 
   // post 모드 + 이전 파일이 이미 오늘의 종료 상태를 반영("post" 마킹) → 유튜브·쇼츠만 부분 갱신
-  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 9 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace;
+  const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 9 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace && prev.psm && prev.psm.v === PSModel.VERSION;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
     try { prev.ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); }
-    prev.agAdj = agAdjust();
-    // roster는 풀 수집 때 하루 1회 갱신된 값을 그대로 둔다
+    delete prev.agAdj; delete prev.roster; delete prev.seeds;   // 정규시즌 전용 값(예전 수집본) 정리
+    // 가을 기록·머신 입력·우승 확률은 풀 수집 때 갱신된 값을 그대로 둔다(경기가 끝나면 첫 수집이 풀 수집)
     if (yt2.length) prev.youtube = yt2;
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
     try {
-      const playedP = [];
-      const self = await selfStandings(today, playedP);
+      const self = await selfStandings(today);
       if (self) {
-        prev.seeds = seedsFor(today, playedP, self, prev.sched, prev.roster, prev.pythag, prev.seeds);
         const byName = {};
         (prev.standings || []).forEach(t => { byName[t.name] = t; });
         prev.standings = self.map(t => Object.assign({}, byName[t.name] || {}, t));
@@ -468,166 +671,14 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     return;
   }
 
-  // 2) 순위표: 오늘 경기들의 preview에서 양팀 standings 수집 (10팀 커버)
-  const standings = {};
-  let ktLineup = null, oppLineup = null, ktGameId = null, ktTop = null, ktStarters = null;
-  // 더블헤더 대비: KT 경기가 2개면 진행 중 > 예정 > 마지막(종료·취소) 순으로 대표 경기 선택
-  const ktTodayGames = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
-  const ktActive = ktTodayGames.find(g => g.code === 'STARTED' || g.code === 'LIVE')
-    || ktTodayGames.find(g => !['RESULT', 'ENDED', 'CANCEL'].includes(g.code))
-    || ktTodayGames[ktTodayGames.length - 1] || null;
-  for (const g of todayGames) {
-    try {
-      const p = await j(`${API}/schedule/games/${g.id}/preview`);
-      const pd = p.result && p.result.previewData;
-      if (!pd) continue;
-      for (const s of [pd.homeStandings, pd.awayStandings]) {
-        if (s && s.name) standings[s.name] = {
-          name: s.name, rank: s.rank, w: s.w, l: s.l, d: s.d,
-          wra: s.wra, era: s.era, hra: s.hra, hr: s.hr
-        };
-      }
-      // KT 라인업 (발표 시 fullLineUp에 타자 9명 포함) — 더블헤더면 대표 경기만
-      if (ktActive && g.id === ktActive.id) {
-        ktGameId = g.id;
-        const ktSide = g.home === 'KT' ? 'homeTeamLineUp' : 'awayTeamLineUp';
-        const opSide = g.home === 'KT' ? 'awayTeamLineUp' : 'homeTeamLineUp';
-        ktLineup = mapLineup(pd[ktSide]);
-        oppLineup = mapLineup(pd[opSide]);
-        // 오늘 선발 맞대결: 구종 구성·구속 (통계 수치만 사용)
-        const mapStarter = (s) => s && s.playerInfo ? {
-          name: s.playerInfo.name,
-          era: (s.currentSeasonStats || {}).era,
-          w: (s.currentSeasonStats || {}).w, l: (s.currentSeasonStats || {}).l,
-          pitches: (s.currentPitKindStats || []).map(p => ({ type: p.type, rt: p.pit_rt, spd: p.speed }))
-        } : null;
-        ktStarters = {
-          kt: mapStarter(g.home === 'KT' ? pd.homeStarter : pd.awayStarter),
-          opp: mapStarter(g.home === 'KT' ? pd.awayStarter : pd.homeStarter),
-          oppName: g.home === 'KT' ? g.away : g.home
-        };
-        // 오늘의 키플레이어 (네이버 프리뷰 선정) — 스포트라이트 자동 교체용
-        const tp = g.home === 'KT' ? pd.homeTopPlayer : pd.awayTopPlayer;
-        if (tp && tp.playerInfo) {
-          const st = tp.currentSeasonStats || {};
-          const r5 = tp.recentFiveGamesStats || {};
-          ktTop = {
-            name: tp.playerInfo.name, backnum: tp.playerInfo.backnum, hitType: tp.playerInfo.hitType,
-            opp: g.home === 'KT' ? g.away : g.home,
-            hra: st.hra, hr: st.hr, rbi: st.rbi, obp: st.obp, games: st.gameCount,
-            r5hra: r5.hra, r5hit: r5.hit, r5ab: r5.ab
-          };
-        }
-      }
-    } catch (e) { console.error('preview fail', g.id, e.message); }
-  }
+  // 2) 가을야구 대진·시리즈 전적 (실패 시 직전 값 유지) — 포커스 경기 선택에 필요해 먼저 받는다
+  const standings = {};   // (예전: 프리뷰 순위 보조 지표) 정규시즌이 끝나 자체 집계만 쓴다
+  let ps = (prev && prev.ps) || null;
+  try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
 
-  // 2.5) KT 경기 박스스코어 (선수 기록 — 경기 중/종료 시)
-  let box = null;
-  if (ktGameId) {
-    try {
-      const rec = await j(`${API}/schedule/games/${ktGameId}/record`);
-      const rd = rec.result && rec.result.recordData;
-      const g = todayGames.find(x => x.id === ktGameId);
-      if (rd && rd.battersBoxscore && g) {
-        const side = g.home === 'KT' ? 'home' : 'away';
-        const opSide = side === 'home' ? 'away' : 'home';
-        const mapBat = b => ({ o: b.batOrder, name: b.name, pos: b.pos, ab: b.ab, h: b.hit, rbi: b.rbi, r: b.run, hr: b.hr, bb: b.bb, kk: b.kk, avg: b.hra });
-        const mapPit = p => ({ name: p.name, pcode: p.pcode, inn: p.inn, h: p.hit, r: p.r, er: p.er, bb: p.bb, kk: p.kk, era: p.era, wls: p.wls || '' });
-        box = {
-          rheb: rd.scoreBoard && rd.scoreBoard.rheb,
-          inn: rd.scoreBoard && rd.scoreBoard.inn,
-          ktSide: side,
-          batters: (rd.battersBoxscore[side] || []).map(mapBat),
-          batTotal: rd.battersBoxscore[side + 'Total'] || null,
-          pitchers: (rd.pitchersBoxscore[side] || []).map(mapPit),
-          oppPitchers: (rd.pitchersBoxscore[opSide] || []).map(mapPit),
-          keys: (rd.etcRecords || []).slice(0, 8).map(e => ({ how: e.how, result: e.result }))
-        };
-      }
-    } catch (e) { console.error('record fail', e.message); }
-  }
-
-  // 2.6) KT 경기 이닝별 득점/실점 로그 — 문자중계(텍스트 릴레이)에서 "홈인" 순간만 추출.
-  // 네이버 relay API는 half 파라미터로 초/말이 나뉘지 않고 inning 파라미터로 그 이닝 전체(초+말)를
-  // 최신순으로 묶어 반환하므로, 배열을 시간순으로 뒤집어 "N회 초/말 OOO 공격" 마커를 지날 때마다
-  // 공격팀을 갱신하는 상태기계로 파싱한다. 이닝별로 결과를 캐시해 완료된 이닝은 재조회하지 않는다.
-  let scoreLog = (prev && prev.kt && prev.kt.scoreLog && prev.kt.scoreLog.gameId === ktGameId) ? prev.kt.scoreLog : null;
-  let pitchCounts = (prev && prev.kt && prev.kt.pitchCounts && prev.kt.pitchCounts.gameId === ktGameId) ? prev.kt.pitchCounts.byName : {};
-  if (ktGameId) {
-    try {
-      const g = todayGames.find(x => x.id === ktGameId);
-      if (g && g.code !== 'BEFORE' && g.code !== 'CANCEL') {
-        const base = await j(`${API}/schedule/games/${ktGameId}/relay`);
-        const rd = base.result && base.result.textRelayData;
-        if (rd && rd.inningScore) {
-          const doneFull = new Set((scoreLog && scoreLog.doneFull) || []);
-          const byInning = Object.assign({}, (scoreLog && scoreLog.events) || {});
-          const finished = g.code === 'RESULT' || g.code === 'ENDED';
-          for (let n = 1; n <= 9; n++) {
-            const a = rd.inningScore.away && rd.inningScore.away[n];
-            const h = rd.inningScore.home && rd.inningScore.home[n];
-            if (a == null || a === '-') continue; // 아직 이 이닝 초가 시작 안 함
-            if (doneFull.has(n)) continue; // 이미 완결 캐시됨
-            try {
-              const rr = await j(`${API}/schedule/games/${ktGameId}/relay?inning=${n}`);
-              const trd = rr.result && rr.result.textRelayData;
-              const list = ((trd && trd.textRelays) || []).slice().reverse(); // 시간순으로 뒤집기
-              // pcode → 이름 로스터 (투구수 집계용). relay의 homeEntry/awayEntry.pitcher 명단은
-              // "현재 등판 중인" 투수를 제외한 나머지 불펜만 나열해 활성 투수가 빠지므로,
-              // 이미 수집한 박스스코어(box.pitchers/oppPitchers, pcode 포함)를 우선 사용하고
-              // relay 명단은 아직 박스스코어에 안 잡힌 경우의 보조 폴백으로만 쓴다.
-              const roster = {};
-              [...((trd && trd.homeEntry && trd.homeEntry.pitcher) || []), ...((trd && trd.awayEntry && trd.awayEntry.pitcher) || [])]
-                .forEach(p => { roster[p.pcode] = p.name; });
-              [...((box && box.pitchers) || []), ...((box && box.oppPitchers) || [])]
-                .forEach(p => { if (p.pcode) roster[p.pcode] = p.name; });
-              const evs = [];
-              let curTeam = null, curHalf = null;
-              for (const e of list) {
-                const first = e.textOptions && e.textOptions[0];
-                if (first && first.type === 0) {
-                  const m = (first.text || '').match(/^(\d+)회(초|말)\s*(.+?)\s*공격/);
-                  if (m) { curHalf = m[2]; curTeam = m[3]; }
-                  continue;
-                }
-                for (const o of (e.textOptions || [])) {
-                  // 투구수: 그 시점 마운드 위 투수의 누적 스트라이크+볼 — 최댓값을 그 투수의 최종 투구수로 채택
-                  const pcode = o.currentGameState && o.currentGameState.pitcher;
-                  const info = o.currentPlayersInfo && (
-                    (o.currentPlayersInfo.away && o.currentPlayersInfo.away.playerType === 'pitcher') ? o.currentPlayersInfo.away
-                      : (o.currentPlayersInfo.home && o.currentPlayersInfo.home.playerType === 'pitcher') ? o.currentPlayersInfo.home : null
-                  );
-                  const cgs = info && info.currentGamePlayerStats;
-                  if (pcode && cgs && (cgs.ballCount != null || cgs.strikeCount != null)) {
-                    const name = roster[pcode];
-                    const pitches = (cgs.ballCount || 0) + (cgs.strikeCount || 0);
-                    if (name && pitches > (pitchCounts[name] || 0)) pitchCounts[name] = pitches;
-                  }
-                  if (o.type === 24 && /홈인/.test(o.text || '')) {
-                    const scorer = (o.text.match(/^(.+?)\s*[:：]\s*홈인/) || [])[1] || '';
-                    const hitLine = (e.textOptions || []).find(x => x.type === 13 || x.type === 23);
-                    const how = hitLine ? hitLine.text.replace(/^[^:：]+[:：]\s*/, '') : '';
-                    evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer, how, batter: (e.title || '').replace(/^\d+번타자\s*/, '') });
-                  }
-                }
-                // 홈런은 주자 이동(type24 "홈인") 없이 타자 본인이 직접 득점하므로 별도 처리 —
-                // 안 하면 스코어 로그에서 홈런 득점이 통째로 누락된다.
-                const batterName = (e.title || '').replace(/^\d+번타자\s*/, '');
-                const homerLine = (e.textOptions || []).find(x => (x.type === 13 || x.type === 23) && /홈런/.test(x.text || ''));
-                if (homerLine) {
-                  evs.push({ inn: n, half: curHalf || '?', team: curTeam || '', scorer: batterName, how: homerLine.text.replace(/^[^:：]+[:：]\s*/, ''), batter: batterName });
-                }
-              }
-              byInning[n] = evs;
-              if (finished || (h != null && h !== '-')) doneFull.add(n); // 초+말 모두 끝났거나 경기 종료면 캐시 확정
-            } catch (e) { console.error('relay fail', n, e.message); }
-          }
-          scoreLog = { gameId: ktGameId, doneFull: [...doneFull], events: byInning };
-        }
-      }
-    } catch (e) { console.error('scoreLog fail', e.message); }
-  }
+  // 2.5) 오늘의 경기(포커스): 가을야구 경기 → KT 경기 → 가장 최근에 끝난 가을야구 경기
+  let focus = (prev && prev.focus) || null;
+  try { focus = await focusGame(pickFocus(todayGames, ps), prev && prev.focus); } catch (e) { console.error('focus fail', e.message); }
 
   // 3) KT 주간 일정 (오늘 ~ +7일)
   const week = (await games(today, ymd(addDays(now, 7))))
@@ -659,56 +710,6 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   if (!titleRace) {
     const trList = await fetchTitleRace();
     titleRace = trList ? { date: today, list: trList } : ((prev && prev.titleRace) || null);
-  }
-
-  // 4) KT 최근 결과 (지난 12일, 종료 경기 최근 5)
-  const recent = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
-    .map(mapGame)
-    .filter(g => (g.home === 'KT' || g.away === 'KT') && (g.code === 'RESULT' || g.code === 'ENDED'))
-    .slice(-5)
-    .map(g => {
-      const ktHome = g.home === 'KT';
-      const my = ktHome ? g.hs : g.as, op = ktHome ? g.as : g.hs;
-      return { ...g, opp: ktHome ? g.away : g.home, my, op, r: my > op ? 'W' : (my < op ? 'L' : 'D') };
-    });
-
-  // 4.5) 지난 경기(오늘 이전 가장 최근 종료 경기) 상세
-  let lastGame = null;
-  const prevDone = (await games(ymd(addDays(now, -12)), ymd(addDays(now, -1))))
-    .map(mapGame)
-    .filter(g => (g.home === 'KT' || g.away === 'KT') && (g.code === 'RESULT' || g.code === 'ENDED'));
-  const lg = prevDone[prevDone.length - 1];
-  if (lg) {
-    const ktHome = lg.home === 'KT';
-    lastGame = {
-      date: lg.date, stadium: lg.stadium, opp: ktHome ? lg.away : lg.home, ktHome,
-      my: ktHome ? lg.hs : lg.as, op: ktHome ? lg.as : lg.hs,
-      as: lg.as, hs: lg.hs, away: lg.away, home: lg.home,
-      starter: ktHome ? lg.hp : lg.ap, keys: [], pitchers: []
-    };
-    lastGame.r = lastGame.my > lastGame.op ? 'W' : (lastGame.my < lastGame.op ? 'L' : 'D');
-    try {
-      const rec = await j(`${API}/schedule/games/${lg.id}/record`);
-      const rd = rec.result && rec.result.recordData;
-      if (rd) {
-        const side = ktHome ? 'home' : 'away';
-        const mapPit = p => ({ name: p.name, inn: p.inn, h: p.hit, r: p.r, er: p.er, kk: p.kk, wls: p.wls || '' });
-        lastGame.keys = (rd.etcRecords || []).slice(0, 6).map(e => ({ how: e.how, result: e.result }));
-        lastGame.pitchers = ((rd.pitchersBoxscore && rd.pitchersBoxscore[side]) || []).map(mapPit)
-          .filter(p => p.wls || p.inn); // 선발/승패/세이브 위주
-        // 선발 라인업: 타순 1~9의 첫 번째 선수(교체 전)
-        const bats = (rd.battersBoxscore && rd.battersBoxscore[side]) || [];
-        const seen = new Set();
-        lastGame.lineup = bats.filter(b => {
-          const o = +b.batOrder;
-          if (!(o >= 1 && o <= 9) || seen.has(o)) return false;
-          seen.add(o); return true;
-        }).sort((a, b) => +a.batOrder - +b.batOrder)
-          .map(b => ({ o: +b.batOrder, name: b.name, pos: b.pos }));
-        const sp = ((rd.pitchersBoxscore && rd.pitchersBoxscore[side]) || [])[0];
-        if (sp) lastGame.spLine = { name: sp.name, inn: sp.inn, r: sp.r };
-      }
-    } catch (e) { console.error('lastGame record fail', e.message); }
   }
 
   // 4.7) 관련 뉴스
@@ -753,12 +754,12 @@ async function scheduleDifficulty(today, standings, cancelledList) {
   if (!sched) sched = (prev && prev.sched) || null;
 
   // 순위: 경기 결과에서 자체 집계가 1순위 (네이버 순위표는 경기 종료 후 반영이 늦음)
-  // 성공 시 자체 w/l/d/rank/wra를 쓰고, era 등 부가 지표만 preview 순위에서 병합
+  // 성공 시 자체 w/l/d/rank/wra를 쓰고, era 등 부가 지표는 직전 수집본 값을 이어 쓴다
   let finalStandings = null;
-  const playedAll = [];
   try {
-    const self = await selfStandings(today, playedAll);
-    if (self) finalStandings = self.map(t => Object.assign({}, standings[t.name] || {}, t));
+    const self = await selfStandings(today);
+    const was = {}; ((prev && prev.standings) || []).forEach(t => { was[t.name] = t; });
+    if (self) finalStandings = self.map(t => Object.assign({}, was[t.name] || {}, standings[t.name] || {}, t));
   } catch (e) { console.error('selfStandings fail', e.message); }
   if (!finalStandings) {
     finalStandings = Object.keys(standings).length >= 10
@@ -766,44 +767,30 @@ async function scheduleDifficulty(today, standings, cancelledList) {
       : ((prev && prev.standings) || Object.values(standings).sort((a, b) => a.rank - b.rank));
   }
 
-  // 선수 단위 팀 전력 (scripts/roster.js) — 하루 1회, 실패 시 직전 값 유지
-  let roster = (prev && prev.roster && prev.roster.v === 2 && prev.roster.date === today) ? prev.roster : null;
-  if (!roster) {
-    try {
-      const gms = {}; for (const t of finalStandings) gms[t.name] = t.w + t.l + t.d;
-      const pyMap = {}; for (const t of ((pythag && pythag.teams) || [])) pyMap[t.name] = t.exp;
-      let absent = [], ret = null;
-      try { const agc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'tools', 'predictor', 'ag-2026.json'), 'utf8')); if (today < agc.return) { absent = agc.players; ret = agc.return; } } catch (e) {}
-      roster = Object.assign(await rosterStrength(gms, absent, UA, pyMap), { date: today, ret });
-    } catch (e) { console.error('roster fail', e.message); roster = (prev && prev.roster) || null; }
-  }
-
-  const seeds = seedsFor(today, playedAll, finalStandings, sched, roster, pythag, prev && prev.seeds);
-
-  // 포스트시즌 대진·시리즈 전적 (실패 시 직전 값 유지)
-  let ps = (prev && prev.ps) || null;
-  try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+  // 가을야구 개인 기록 → 머신 입력(팀 모델) → 우승 확률 (각각 실패 시 직전 값 유지)
+  let psStats = (prev && prev.psStats) || null;
+  try { psStats = await psStatsUpdate(ps, prev && prev.psStats); } catch (e) { console.error('psStats fail', e.message); }
+  let psm = (prev && prev.psm) || null;
+  try { psm = await psModelFor(today, finalStandings, pythag, psStats, prev && prev.psm); } catch (e) { console.error('psm fail', e.message); }
+  const stampKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+  let psOdds = (prev && prev.psOdds) || null;
+  try { psOdds = psOddsFor(psm, ps, focus, prev && prev.psOdds, stampKST); } catch (e) { console.error('psOdds fail', e.message); }
   let ag = null;
   try { ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); ag = (prev && prev.ag) || null; }
 
   const out = {
     updated: new Date().toISOString(),
-    updatedKST: `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`,
+    updatedKST: stampKST,
     date: today,
     mode,
     games: todayGames,
     standings: finalStandings,
-    kt: {
-      gameId: ktGameId, lineup: ktLineup, oppLineup, week, recent, box, lastGame, scoreLog,
-      pitchCounts: ktGameId ? { gameId: ktGameId, byName: pitchCounts } : null,
-      // 경기 없는 날엔 프리뷰가 없어 키플레이어를 못 구함 → 직전 값 유지
-      top: ktTop || (prev && prev.kt && prev.kt.top) || null,
-      starters: ktStarters || (prev && prev.kt && prev.kt.starters) || null
-    },
+    focus,
+    kt: { week },
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched, ps, ag, agAdj: agAdjust(), roster, seeds
+    youtube, pythag, sched, ps, psStats, psm, psOdds, ag
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -823,6 +810,10 @@ async function scheduleDifficulty(today, standings, cancelledList) {
     }
   } catch (e) { console.error('history snapshot fail', e.message); }
 
-  console.log(`ok(${mode}): ${todayGames.length} games, ${out.standings.length} teams, lineup=${!!ktLineup}, pythag=${!!pythag}`);
+  console.log(`ok(${mode}): ${todayGames.length} games, ${out.standings.length} teams, focus=${focus ? focus.id + ' ' + focus.code : '-'}, psm=${!!psm}, odds=${psOdds && psOdds.now ? Object.entries(psOdds.now.champ).map(([t, v]) => t + ' ' + v.toFixed(1)).join(' / ') : '-'}`);
   console.log(`SLEEP=${SLEEP[mode]}`);
-})().catch(e => { console.error(e); process.exit(1); });
+}
+
+// 직접 실행하면 수집, require하면 함수만 (테스트·예측 도구용)
+if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });
+module.exports = { postseason, focusGame, pickFocus, psStatsUpdate, psModelFor, psOddsFor };

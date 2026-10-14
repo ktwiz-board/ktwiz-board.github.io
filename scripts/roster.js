@@ -79,4 +79,4 @@ async function rosterStrength(games, absent, ua, pyth) {
   return { v: 2, k: +k.toFixed(3), regress: REGRESS, full, abs, teams };
 }
 
-module.exports = { rosterStrength, TEAM_CODE };
+module.exports = { rosterStrength, fetchTeam, TEAM_CODE };
