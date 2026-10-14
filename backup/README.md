@@ -58,9 +58,19 @@ git show pre-renewal-2026-09-27:index.html > index.html
 |---|---|---|---|
 | 리뉴얼 전 | `index-2026-09-27-before-renewal.html` | 태그 `pre-renewal-2026-09-27` | 보관 |
 | v1 에디토리얼 | `index-2026-09-27-renewal-v1-editorial.html` | 태그 `renewal-v1-editorial` (main에 배포 중) | 보관 |
-| v2 대시보드 | `index-2026-09-27-renewal-v2-dashboard.html` | 로컬 브랜치 `renewal-v2` (미배포) | 검토 중 |
-| v2 + 우승 확정 정리 | `index-2026-10-05-before-clinch.html` → `index-2026-10-05.html` | 로컬 브랜치 `renewal-v2` (미배포) | 가을 캘린더·순위 경쟁 추적표 추가 |
-| 가을야구 에디션 | `index-2026-10-14-before-ps.html`(직전 v2) → 현재 `index.html` | 로컬 브랜치 `renewal-ps` (미배포) | 우승 확률 머신 · 포스트시즌 경기 중심 재구성 |
+| v2 대시보드 | `index-2026-09-27-renewal-v2-dashboard.html` | 브랜치 `renewal-v2` → 가을야구 에디션에 포함되어 배포 | 보관 |
+| v2 + 우승 확정 정리 | `index-2026-10-05-before-clinch.html` → `index-2026-10-05.html` | 브랜치 `renewal-v2` | 보관 (가을 캘린더·순위 경쟁 추적표) |
+| 가을야구 에디션 | `index-2026-10-14-before-ps.html`(직전 v2) → 현재 `index.html` | main (2026-10-14 배포) | 운영 중 — 우승 확률 머신 · 포스트시즌 경기 중심 |
 
 - v1: 포트폴리오 연출을 그대로 옮김 — 스크롤로 열리는 커버, 섹션 왼쪽 번호 표식, 아카이브 목록. 정보보다 연출이 앞선다는 피드백.
 - v2: 같은 디자인 언어(흑백·KT 레드·Pretendard+Instrument Serif·1px 선·테마)를 쓰되 구조는 대시보드 — 첫 화면에 오늘 경기+시즌 요약, 고정 상단 바(경기 상태 칩)+섹션 바로가기, 리그(현황판+순위 나란히), 분석·1위 레이스는 탭.
+
+### 가을야구 에디션 → 이전 배포본(v1 에디토리얼)으로 되돌리기
+
+화면과 수집기가 함께 바뀌었으므로 둘 다 되돌린다(v1 화면은 수집기의 `roster` 출력을 쓴다).
+
+```bash
+git show 7fd3d55:index.html > index.html
+git show 7fd3d55:scripts/fetch-live.js > scripts/fetch-live.js
+git show 7fd3d55:version.txt > version.txt
+```
