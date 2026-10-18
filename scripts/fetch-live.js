@@ -515,6 +515,8 @@ async function psModelFor(today, standings, pythag, psStats, prev) {
           for (const k of ['Lineup', 'Entry']) for (const kind of ['batter', 'pitcher']) ((rd[side + k] || {})[kind] || []).forEach(p => p.name && set.add(p.name));
         } catch (e) { console.error('entry fail', g.gameId, e.message); }
       }
+      // 가을야구에서 실제로 뛴 선수는 정규시즌 마지막 명단에 없었어도 포함 (예: 복귀한 선발)
+      for (const x of [...Object.values((psStats && psStats.bat) || {}), ...Object.values((psStats && psStats.pit) || {})]) if (x.t === t) set.add(x.n);
       if (set.size) entry[t] = [...set];
     }
   } catch (e) { console.error('entry fail', e.message); }
