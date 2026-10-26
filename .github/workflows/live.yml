@@ -56,11 +56,10 @@ jobs:
               FAILS=$((FAILS + 1))
               echo "::warning title=수집 실패::fetch-live.js 실패 (연속 ${FAILS}회)"
               printf '%s\n' "$OUT" | tail -25
-              # 일시적 장애(네트워크·상대 API)는 다음 주기에 회복되지만, 계속 실패하면 실행을 붉게 남겨 드러낸다
-              if [ "$FAILS" -ge 5 ]; then
-                echo "::error title=수집 연속 실패::5회 연속 실패하여 루프를 종료합니다"
-                exit 1
-              fi
+              # 상대 API 장애는 몇 시간 이어지기도 한다(2026-10-26 네이버 응답 없음 15시간).
+              # 루프를 끝내면 다음 예약 실행까지 수 시간 비므로, 멈추지 않고 간격만 늘려(최대 15분) 계속 재시도한다.
+              SLEEP=$(( 180 + FAILS * 120 )); if [ "$SLEEP" -gt 900 ]; then SLEEP=900; fi
+              if [ "$FAILS" -eq 5 ]; then echo "::error title=수집 연속 실패::5회 연속 실패 — 계속 재시도합니다"; fi
             fi
 
             if [ -f data/live.json ]; then

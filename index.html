@@ -1628,7 +1628,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     const steps = [renderChip, renderHero, renderAside, renderGame, renderBracket, renderCal, renderPower, renderRecords, renderKT, renderStandings, renderTitle, renderNews, renderModelTable, renderHist];
     steps.forEach(fn => { try{ fn(); }catch(e){ console.error(fn.name, e); } });
     if(SIM){
-      $('mcStamp').textContent = '데이터 ' + (D.updatedKST || '') + ' 기준';
+      $('mcStamp').textContent = '데이터 ' + (D.updatedKST || '') + ' 기준' + (D.source === 'kbo' ? ' · 네이버 장애로 KBO 공식 점수만 갱신 중' : '');
       if(!$('mcRun').disabled){ mcOrder = null; machineFinal(); }   // 머신이 도는 중이면 끝난 뒤 다음 갱신에 반영
     } else {
       $('mcNote').textContent = '머신 입력(선수 기록)을 아직 받지 못했습니다. 다음 수집(5~10분) 후 자동으로 돌아갑니다.';

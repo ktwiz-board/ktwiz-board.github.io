@@ -639,8 +639,14 @@ async function main() {
   let prev = null;
   try { prev = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
 
-  // 1) 오늘 경기
-  const todayGames = (await games(today, today)).map(mapGame);
+  // 1) 오늘 경기 — 네이버가 응답하지 않으면 KBO 공식 기록으로 점수만 갱신하고 끝낸다(예비 경로)
+  let todayGames;
+  try { todayGames = (await games(today, today)).map(mapGame); }
+  catch (e) {
+    console.error('naver fail', e.message);
+    if (await kboFallback(today, prev, file, now)) return;
+    throw e;
+  }
 
   // ---- 수집 모드 결정 ----
   // live: 진행 중 경기 있음 → 5분 주기 풀 수집
@@ -809,7 +815,7 @@ async function main() {
     cancelled: { date: today, list: cancelledList },
     titleRace: titleRace,
     news: news.length ? news : ((prev && prev.news) || []),
-    youtube, pythag, sched, ps, psStats, psm, psOdds, ag
+    youtube, pythag, sched, ps, psStats, psm, psOdds, ag, source: 'naver'
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -833,6 +839,67 @@ async function main() {
   console.log(`SLEEP=${SLEEP[mode]}`);
 }
 
+/* ---------- 예비 경로: KBO 공식 메인 경기 목록 ----------
+   네이버 API가 막혔을 때(2026-10-26 17시~이튿날 08시 응답 없음) 점수·상태·이닝·볼카운트·선발/승패 투수만 받아
+   직전 수집본(경기·가을 대진·포커스 경기)을 갱신하고 우승 확률을 다시 굴린다. 라인업·박스스코어·문자중계는 이전 값 유지. */
+async function kboGames(date) {
+  const r = await fetch('https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList', {
+    method: 'POST', signal: AbortSignal.timeout(15000),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36',
+      'Referer': 'https://www.koreabaseball.com/', 'X-Requested-With': 'XMLHttpRequest' },
+    body: `leId=1&srId=0,1,3,4,5,6,7,8,9&date=${date.replace(/-/g, '')}`
+  });
+  if (!r.ok) throw new Error('kbo ' + r.status);
+  const d = await r.json();
+  const nm = s => String(s || '').trim();
+  return (d.game || []).map(g => {
+    const cancel = String(g.CANCEL_SC_ID || '0') !== '0';
+    const st = String(g.GAME_STATE_SC);
+    const code = cancel ? 'CANCEL' : st === '3' ? 'RESULT' : st === '2' ? 'STARTED' : 'BEFORE';
+    const inn = +g.GAME_INN_NO || 0, half = g.GAME_TB_SC === 'B' ? '말' : '초';
+    return {
+      away: nm(g.AWAY_NM), home: nm(g.HOME_NM), as: +g.T_SCORE_CN || 0, hs: +g.B_SCORE_CN || 0, code,
+      status: cancel ? '취소' : code === 'STARTED' ? `${inn}회${half}` : code === 'RESULT' ? '경기종료' : '경기전',
+      ap: nm(g.T_PIT_P_NM), hp: nm(g.B_PIT_P_NM), wp: nm(g.W_PIT_P_NM), lp: nm(g.L_PIT_P_NM),
+      state: code === 'STARTED' ? { inn, half, out: Math.min(3, +g.OUT_CN || 0), b: +g.BALL_CN || 0, s: +g.STRIKE_CN || 0,
+        bases: [g.B1_BAT_ORDER_NO, g.B2_BAT_ORDER_NO, g.B3_BAT_ORDER_NO].map(x => +x > 0),
+        pitcher: nm(code === 'STARTED' && half === '초' ? g.B_P_NM : g.T_P_NM), batter: nm(half === '초' ? g.T_P_NM : g.B_P_NM) } : null
+    };
+  });
+}
+async function kboFallback(today, prev, file, now) {
+  if (!prev || !prev.psm) return false;
+  // 오늘 + 어제(밤새 장애가 이어졌을 때 어제 결과도 채우기)
+  const yday = ymd(addDays(new Date(Date.parse(today + 'T00:00:00Z')), -1));
+  let kg, ky = [];
+  try { kg = await kboGames(today); } catch (e) { console.error('kbo fail', e.message); return false; }
+  try { ky = await kboGames(yday); } catch (e) {}
+  const same = (a, b) => a.away === b.away && a.home === b.home;
+  const upd = (g, k) => { const o = Object.assign({}, g, { as: k.as, hs: k.hs, code: k.code, status: k.status, wp: k.wp || g.wp, lp: k.lp || g.lp, ap: g.ap || k.ap, hp: g.hp || k.hp }); delete o.state; return o; };
+  const psAll = [];
+  for (const r of Object.values((prev.ps && prev.ps.rounds) || {})) {
+    r.games = r.games.map(g => { const k = (g.date === today ? kg : g.date === yday ? ky : []).find(x => same(x, g)); return k ? upd(g, k) : g; });
+    psAll.push(...r.games);
+  }
+  // 오늘 경기 목록: 가을 대진에 있는 경기는 그 id·구장을 이어 쓴다
+  prev.games = kg.map(k => { const g = psAll.find(x => x.date === today && same(x, k)); return g ? Object.assign({}, g) : Object.assign({ id: '', date: today, time: '', stadium: '' }, k, { state: undefined }); });
+  const todayPs = prev.games.find(g => g.id && psAll.some(x => x.id === g.id) && g.code !== 'CANCEL') || null;
+  if (todayPs) {
+    const k = kg.find(x => same(x, todayPs));
+    const keep = prev.focus && prev.focus.id === todayPs.id ? prev.focus : { lineups: null, starters: null };
+    prev.focus = Object.assign({}, keep, todayPs, { round: PS_ROUND[String(todayPs.id).slice(0, 4)] || null, state: k && k.state, final: false });
+  }
+  const stamp = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+  try { prev.psOdds = psOddsFor(prev.psm, prev.ps, prev.focus, prev.psOdds, stamp); } catch (e) { console.error('psOdds fail', e.message); }
+  const live = kg.some(x => x.code === 'STARTED');
+  prev.mode = live ? 'live' : 'pre';   // 'post'로 두면 네이버 복구 후 부분 갱신만 돌아 박스스코어를 놓친다
+  prev.source = 'kbo'; prev.updated = new Date().toISOString(); prev.updatedKST = stamp;
+  fs.writeFileSync(file, JSON.stringify(prev, null, 1));
+  console.log(`ok(kbo-fallback): ${kg.length} games`);
+  console.log(`SLEEP=${live ? 300 : 600}`);
+  return true;
+}
+
 // 직접 실행하면 수집, require하면 함수만 (테스트·예측 도구용)
 if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });
-module.exports = { postseason, focusGame, pickFocus, psStatsUpdate, psModelFor, psOddsFor };
+module.exports = { kboGames, postseason, focusGame, pickFocus, psStatsUpdate, psModelFor, psOddsFor };
