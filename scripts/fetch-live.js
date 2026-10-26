@@ -893,6 +893,7 @@ async function kboFallback(today, prev, file, now) {
   try { prev.psOdds = psOddsFor(prev.psm, prev.ps, prev.focus, prev.psOdds, stamp); } catch (e) { console.error('psOdds fail', e.message); }
   const live = kg.some(x => x.code === 'STARTED');
   prev.mode = live ? 'live' : 'pre';   // 'post'로 두면 네이버 복구 후 부분 갱신만 돌아 박스스코어를 놓친다
+  prev.date = today;   // 화면이 오늘 경기를 '지난 경기'로 보지 않게
   prev.source = 'kbo'; prev.updated = new Date().toISOString(); prev.updatedKST = stamp;
   fs.writeFileSync(file, JSON.stringify(prev, null, 1));
   console.log(`ok(kbo-fallback): ${kg.length} games`);
