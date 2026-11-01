@@ -539,7 +539,7 @@ function psOddsFor(psm, ps, focus, prev, nowKST) {
   if (!now) return prev || null;
   delete now.samples;
   const fin = psGamesOf(ps).filter(isDone).map(g => g.id + ':' + g.as + '-' + g.hs);
-  const hkey = ['v' + PSModel.VERSION, PSModel.SCHEDULE_VERSION, psm.psForm?.key || '', psm.date, psm.luKey, fin.join(',')].join('|');
+  const hkey = ['v' + PSModel.VERSION, PSModel.SCHEDULE_VERSION, now.mode || 'postseason', psm.psForm?.key || '', psm.date, psm.luKey, fin.join(',')].join('|');
   const hist = prev && prev.hkey === hkey ? prev.hist : PSModel.history({ model: psm, seeds: psm.seeds, rounds: input.rounds }, { n: 10000 });
   return { v: PSModel.VERSION, at: nowKST, hkey, now, hist };
 }

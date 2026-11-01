@@ -290,12 +290,28 @@
     return m ? { inn: +m[1], half: m[2], out: 0 } : null;
   }
 
+  // 실제 KS 대진 또는 PO의 확정 승자로 결정. 예상 확률로 결승 상대를 고정하지 않는다.
+  function finalistsFor(input) {
+    const R=input.rounds||{},hi=input.seeds?.[0];
+    if(!hi)return null;
+    const actual=R.KS?.teams;
+    if(actual?.length===2 && actual.includes(hi) && actual[0]!==actual[1])return [hi,actual.find(t=>t!==hi)];
+    const wins={};
+    for(const g of R.PO?.games||[]) if(done(g) && g.as!==g.hs) {const t=g.as>g.hs?g.away:g.home;wins[t]=(wins[t]||0)+1;}
+    const winner=Object.keys(wins).find(t=>wins[t]>=3);
+    return winner && winner!==hi?[hi,winner]:null;
+  }
+
   /* ---------- 현재 상태 정리 ---------- */
   // input: { model, seeds: [1~5위 팀], rounds: ps.rounds, live: { id, inn, half, out } }
   function prepare(input) {
-    const m = input.model, seeds = input.seeds || [], R = input.rounds || {};
-    if (!m || !m.teams || seeds.length < 5 || seeds.some(t => !m.teams[t])) return null;
-    const base = { m, seeds, rounds: {}, last: {}, days: {}, form: {} };
+    let m = input.model;
+    const seeds = input.seeds || [], R = input.rounds || {}, finalists=finalistsFor(input);
+    const required=finalists || seeds;
+    if (!m || !m.teams || (!finalists && seeds.length < 5) || required.some(t => !m.teams[t])) return null;
+    // 리그 평균은 기존 기준을 보존하고 실제 계산 대상만 결승 두 팀으로 제한한다.
+    if(finalists)m={...m,teams:Object.fromEntries(finalists.map(t=>[t,m.teams[t]]))};
+    const base = { m, seeds, finalists, rounds: {}, last: {}, days: {}, form: {} };
     Object.keys(m.teams).forEach(t => { base.last[t] = []; base.days[t] = []; base.form[t] = { g: 0, rd: 0 }; });
     const mark = (team, name, day) => {
       const T = m.teams[team]; if (!T || !name) return;
@@ -380,8 +396,8 @@
   function nextGame(base) {
     const m = base.m, seeds = base.seeds;
     let pw = null;
-    for (const code of ROUNDS) {
-      const hi = seeds[META[code].seed - 1], lo = code === 'WC' ? seeds[4] : pw;
+    for (const code of (base.finalists ? ['KS'] : ROUNDS)) {
+      const hi = base.finalists ? base.finalists[0] : seeds[META[code].seed - 1], lo = base.finalists ? base.finalists[1] : code === 'WC' ? seeds[4] : pw;
       if (!lo) return null;
       const w = base.realWinner(code, hi, lo);
       if (w) { pw = w; continue; }
@@ -454,6 +470,7 @@
     function once() {
       const st = { last: {}, days: {} };
       for (const t in base.last) { st.last[t] = base.last[t].slice(); st.days[t] = base.days[t].slice(); }
+      if(base.finalists)return {ks:series('KS',base.finalists[0],base.finalists[1],st)};
       const wc = series('WC', seeds[3], seeds[4], st);
       const spo = series('SPO', seeds[2], wc.w, st);
       const po = series('PO', seeds[1], spo.w, st);
@@ -464,6 +481,15 @@
       for (let i = 0; i < n; i++) {
         const r = once();
         acc.n++;
+        if(base.finalists) {
+          inc(acc.win.KS,r.ks.w);inc(acc.champ,r.ks.w);
+          base.finalists.forEach(t=>inc(acc.reach.KS,t));
+          inc(acc.len.KS,r.ks.w+' '+r.ks.s);inc(acc.ksPair,base.finalists[1]+'>'+r.ks.w);
+          const path=[null,null,null,null,null,null,r.ks.w,r.ks.s];
+          if(acc.samples.length<60)acc.samples.push(path);
+          acc.recent.push([acc.n,path]);if(acc.recent.length>6)acc.recent.shift();
+          continue;
+        }
         inc(acc.win.WC, r.wc.w); inc(acc.win.SPO, r.spo.w); inc(acc.win.PO, r.po.w); inc(acc.win.KS, r.ks.w);
         inc(acc.reach.SPO, seeds[2]); inc(acc.reach.SPO, r.wc.w);
         inc(acc.reach.PO, seeds[1]); inc(acc.reach.PO, r.spo.w);
@@ -482,7 +508,7 @@
       const pct = o => { const r = {}; Object.keys(o).forEach(k => { r[k] = +(100 * o[k] / acc.n).toFixed(2); }); return r; };
       const map = o => { const r = {}; Object.keys(o).forEach(k => { r[k] = pct(o[k]); }); return r; };
       return {
-        v: VERSION, n: acc.n, seed, seeds: seeds.slice(),
+        v: VERSION, mode:base.finalists?'KS':'postseason', teams:(base.finalists||seeds).slice(), n: acc.n, seed, seeds: seeds.slice(),
         champ: pct(acc.champ), reach: map(acc.reach), win: map(acc.win), len: map(acc.len), ksPair: pct(acc.ksPair),
         samples: acc.samples, next: nextGame(base), ks: ksRotation(base),
         live: ROUNDS.map(c => base.rounds[c].live).filter(Boolean).map(l => ({ id: l.g.id, pre: +l.pre.toFixed(4), p: +l.p.toFixed(4), state: l.state || null }))[0] || null
@@ -501,20 +527,20 @@
   // 경기마다 우승 확률이 어떻게 바뀌었나 — 끝난 가을야구 경기를 하나씩 더해 가며 다시 굴린다
   function history(input, opt) {
     opt = opt || {};
-    const R = input.rounds || {}, all = [];
+    const R = input.rounds || {}, all = [], finalists=finalistsFor(input);
     // 주의: 경기 객체의 code는 경기 상태(RESULT 등) — 라운드는 rc에 따로 둔다
-    ROUNDS.forEach(rc => ((R[rc] && R[rc].games) || []).forEach(g => { if (done(g)) all.push(Object.assign({}, g, { rc })); }));
+    (finalists?['KS']:ROUNDS).forEach(rc => ((R[rc] && R[rc].games) || []).forEach(g => { if (done(g)) all.push(Object.assign({}, g, { rc })); }));
     all.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
     const nOf = {};
     const out = [];
     for (let k = 0; k <= all.length; k++) {
-      const upto = all.slice(0, k), rounds = {};
+      const upto = all.slice(0, k), rounds = finalists ? {...R,KS:{...(R.KS||{}),teams:finalists.slice(),games:[]}} : {};
       upto.forEach(g => {
         const r = rounds[g.rc] || (rounds[g.rc] = { code: g.rc, teams: [], games: [] });
         [g.away, g.home].forEach(t => { if (r.teams.indexOf(t) < 0) r.teams.push(t); });
         r.games.push(g);
       });
-      const res = simulate({ model: input.model, seeds: input.seeds, rounds, asOf: all[k-1]?.date || '2026-10-13' }, { n: opt.n || 10000, seed: opt.seed || P.SEED });
+      const res = simulate({ model: input.model, seeds: input.seeds, rounds, asOf: all[k-1]?.date || (finalists ? (R.PO?.games||[]).filter(done).map(g=>g.date).sort().at(-1) : null) || '2026-10-13' }, { n: opt.n || 10000, seed: opt.seed || P.SEED });
       if (!res) return null;
       const g = all[k - 1];
       if (g) nOf[g.rc] = (nOf[g.rc] || 0) + 1;
@@ -527,5 +553,5 @@
     return out;
   }
 
-  return { VERSION, SCHEDULE_VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, applyPostseason, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
+  return { VERSION, SCHEDULE_VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, applyPostseason, finalistsFor, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
 });

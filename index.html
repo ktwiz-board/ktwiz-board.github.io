@@ -605,10 +605,10 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   <!-- ② 우승 확률 머신 -->
   <section id="machine">
     <div class="sec-head">
-      <h2>우승 확률 머신</h2>
-      <p class="kicker">Postseason machine</p>
+      <h2>한국시리즈 우승 확률 머신</h2>
+      <p class="kicker" id="mcKicker">Postseason machine</p>
       <p class="aside" id="mcStamp"></p>
-      <p class="sub">선수·팀 기록으로 남은 가을야구를 <b>20,000번</b> 치러 본 결과입니다. 경기 결과·발표된 선발·진행 중인 점수가 들어오면 자동으로 다시 돌립니다.</p>
+      <p class="sub" id="mcIntro">선수·팀 기록으로 남은 가을야구를 <b>20,000번</b> 치러 본 결과입니다. 경기 결과·발표된 선발·진행 중인 점수가 들어오면 자동으로 다시 돌립니다.</p>
     </div>
     <div class="mc">
       <div>
@@ -621,13 +621,13 @@ tr.kt .rank{color:#fff;background:var(--accent)}
         <p class="note" id="mcNote"></p>
       </div>
       <div>
-        <p class="subhead">방금 돌린 가을 <small>Simulated postseasons</small></p>
+        <p class="subhead" id="mcSampleHead">방금 돌린 가을 <small>Simulated postseasons</small></p>
         <ul class="mc-tick" id="mcTick"></ul>
-        <p class="subhead">라운드별 진출 확률 <small>Path to the title</small></p>
+        <p class="subhead" id="mcResultHead">라운드별 진출 확률 <small>Path to the title</small></p>
         <div class="tablebox"><table class="heat" id="mcFunnel"></table></div>
       </div>
     </div>
-    <p class="subhead">경기마다 바뀐 우승 확률 <small>After every game</small></p>
+    <p class="subhead" id="mcHistoryHead">경기마다 바뀐 우승 확률 <small>After every game</small></p>
     <div class="histbox" id="mcHistBox"><svg class="hist" id="mcHist" role="img" aria-label="가을야구 경기마다 팀별 우승 확률 변화"></svg></div>
     <p class="note" id="mcHistNote"></p>
     <details class="help">
@@ -638,7 +638,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
         <li><b>선발</b> — 그날 선발의 실점 지표(평균자책·FIP 평균, 이닝 적으면 리그 평균 쪽으로)를 예상 이닝만큼 반영. 발표된 선발이 있으면 그 투수, 없으면 로테이션 앞 4명 중 <b>4일 이상 쉰</b> 가장 좋은 투수가 나갑니다. 모두 덜 쉬었으면 짧은 휴식 등판(선발 실점 +12%).</li>
         <li><b>불펜</b> — 선발 외 상위 7명(필승조 3명 가중). 직전 3일 동안 치른 경기 1개당 불펜 실점 +3%(연투 피로) — 길게 싸우고 올라온 팀일수록 불리합니다.</li>
         <li><b>팀 단위</b> — 시즌 득실 피타고리안 65% + 최근 60경기 35%, 가을야구 득실차로 최대 ±3%p. 홈 팀 +2%p(선수 단위에선 홈 득점 +3.5%).</li>
-        <li><b>시리즈</b> — 와일드카드(4위 1승 안고 최대 2경기) → 준PO·PO(5전 3선승, 홈 2-2-1) → 한국시리즈(7전 4선승, 홈 2-3-2). 끝난 경기 결과는 그대로, 진행 중인 경기는 지금 점수·이닝·아웃에서 남은 이닝만 굴립니다.</li>
+        <li><b>시리즈</b> — 확정된 KT–삼성 한국시리즈만 7전 4선승·홈 2–3–2로 계산합니다. 종료된 WC·준PO·PO는 다시 추첨하지 않고, 선수 기록·실제 등판일·피로 계산에만 활용합니다. 끝난 KS 결과는 고정하고 진행 중인 경기는 현재 점수·이닝·아웃부터 이어서 계산합니다.</li>
         <li>선수별 가을 OPS·자책을 시즌 150타석·25이닝 기준에 수축해 반영합니다. 연습경기는 확인된 투수 등판일만 휴식 계산에 사용합니다.</li>
         <li>시드를 고정한 난수라 같은 데이터면 몇 번을 열어도 같은 숫자가 나옵니다. <b>▶ 머신 다시 돌리기</b>는 새 시드로 돌려 '운'의 폭(대개 ±0.5%p 안팎)을 보여줍니다.</li>
         <li>넣지 않은 것: 부상·엔트리 변경, 불펜 개별 등판 순서, 수비·구장 효과, 정규시즌 1위 팀의 휴식(실전 감각) 효과. 무승부는 굴리지 않습니다(실제 무승부는 반영).</li>
@@ -779,7 +779,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   </div>
 </footer>
 
-<script src="scripts/psmodel.js?v=20261101-player-refresh"></script>
+<script src="scripts/psmodel.js?v=20261101-ks-only"></script>
 <script>
 (function(){
   'use strict';
@@ -787,7 +787,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   const $ = id => document.getElementById(id);
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 ---------- */
-  const BUILD = '20261101-player-refresh';
+  const BUILD = '20261101-ks-only';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1156,11 +1156,19 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   let mcOrder = null, mcAnim = 0, mcSeen = false, mcSeed = null, mcPrevChamp = null;
   function mcView(acc, total){
     const n = acc.n || 1, pc = o => { const r = {}; Object.keys(o).forEach(k => { r[k] = 100 * o[k] / n; }); return r; };
-    return { n: acc.n, total, champ: pc(acc.champ), reach: { SPO: pc(acc.reach.SPO), PO: pc(acc.reach.PO), KS: pc(acc.reach.KS) }, win: { WC: pc(acc.win.WC), SPO: pc(acc.win.SPO), PO: pc(acc.win.PO), KS: pc(acc.win.KS) }, recent: acc.recent || [] };
+    return { n: acc.n, total, len: pc(acc.len?.KS || {}), champ: pc(acc.champ), reach: { SPO: pc(acc.reach.SPO), PO: pc(acc.reach.PO), KS: pc(acc.reach.KS) }, win: { WC: pc(acc.win.WC), SPO: pc(acc.win.SPO), PO: pc(acc.win.PO), KS: pc(acc.win.KS) }, recent: acc.recent || [] };
   }
   function drawMachine(v){
     const seeds = SIM.res.seeds;
-    if(!mcOrder) mcOrder = seeds.slice().sort((a, b) => (SIM.res.champ[b] || 0) - (SIM.res.champ[a] || 0));
+    const ksOnly=SIM.res.mode==='KS', teams=SIM.res.teams || seeds;
+    if(!mcOrder || mcOrder.length!==teams.length || mcOrder.some(t=>!teams.includes(t))) mcOrder = teams.slice().sort((a, b) => (SIM.res.champ[b] || 0) - (SIM.res.champ[a] || 0));
+    $('mcKicker').textContent=ksOnly?'KT vs Samsung · Korean Series':'Postseason machine';
+    if(ksOnly){
+      $('mcIntro').innerHTML='KT–삼성의 한국시리즈만 <b>20,000번</b> 계산합니다. 7전 4선승·홈 2–3–2이며, 확정된 승패는 고정하고 남은 경기만 시뮬레이션합니다. 선수 기록·실제 등판에 따른 휴식과 피로를 반영합니다.';
+      $('mcSampleHead').innerHTML='방금 돌린 한국시리즈 <small>Simulated Korean Series</small>';
+      $('mcResultHead').innerHTML='한국시리즈 최종 결과 <small>Best of seven</small>';
+      $('mcHistoryHead').innerHTML='한국시리즈 경기별 우승 확률 <small>After each KS game</small>';
+    }
     const ul = $('mcBars');
     if(ul.children.length !== mcOrder.length || ul.dataset.k !== mcOrder.join()){
       ul.dataset.k = mcOrder.join();
@@ -1178,12 +1186,16 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     // 방금 돌린 가을
     $('mcTick').innerHTML = v.recent.slice().reverse().map(([no, p]) => {
       const step = (code, w, s) => '<span class="ar">→</span>' + '<span>' + esc(M.META[code].abbr) + '</span>' + tb(w) + '<span class="sc">' + esc(s) + '</span>';
-      return '<li><span class="no">#' + no.toLocaleString() + '</span>' + step('WC', p[0], p[1]).replace('<span class="ar">→</span>', '') + step('SPO', p[2], p[3]) + step('PO', p[4], p[5]) + step('KS', p[6], p[7]) + '<span class="cup">' + esc(p[6]) + ' 우승</span></li>';
+      return '<li><span class="no">#' + no.toLocaleString() + '</span>' + (ksOnly ? step('KS',p[6],p[7]).replace('<span class="ar">→</span>','') : step('WC', p[0], p[1]).replace('<span class="ar">→</span>', '') + step('SPO', p[2], p[3]) + step('PO', p[4], p[5]) + step('KS', p[6], p[7])) + '<span class="cup">' + esc(p[6]) + ' 우승</span></li>';
     }).join('') || '<li>머신이 돌면 가상 가을야구가 여기 한 줄씩 지나갑니다.</li>';
     // 라운드별 진출
     const cell = (x, kind) => kind === 'bye' ? '<td class="hv bye">—</td>' : kind === 'lock' ? '<td class="hv lock">직행</td>'
       : (x <= 0.0005 ? '<td class="hv zero">–</td>' : '<td class="hv" style="--h:' + (x / 100).toFixed(3) + '">' + pf(x) + '</td>');
     const gone = eliminated();
+    if(ksOnly){
+      $('mcFunnel').innerHTML='<thead><tr><th>팀</th><th>우승</th><th>4–0</th><th>4–1</th><th>4–2</th><th>4–3</th></tr></thead><tbody>'+teams.map(t=>'<tr'+(t==='KT'?' class="kt"':'')+'><td>'+tb(t)+'</td><td class="cup">'+(v.n?pf(v.champ[t]||0):'—')+'</td>'+[0,1,2,3].map(n=>cell(v.len[t+' 4-'+n]||0)).join('')+'</tr>').join('')+'</tbody>';
+      return;
+    }
     $('mcFunnel').innerHTML = '<thead><tr><th>팀</th><th>준PO</th><th>PO</th><th>KS</th><th>우승</th></tr></thead><tbody>' + seeds.map((t, i) => {
       const k = i + 1;
       if(gone.has(t)) return '<tr style="opacity:.45"><td>' + tb(t) + ' <span class="muted" style="font-size:11px">' + k + '위</span></td><td colspan="4" class="muted" style="text-align:center">탈락</td></tr>';
@@ -1197,9 +1209,10 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   function machineFinal(){
     if(!SIM) return;
     mcSeed = M.P.SEED;
-    const r = SIM.res, acc = { n: r.n, champ: {}, reach: { SPO: {}, PO: {}, KS: {} }, win: { WC: {}, SPO: {}, PO: {}, KS: {} }, recent: [] };
+    const r = SIM.res, acc = { n: r.n, champ: {}, reach: { SPO: {}, PO: {}, KS: {} }, win: { WC: {}, SPO: {}, PO: {}, KS: {} }, len:{KS:{}}, recent: [] };
     Object.keys(r.champ).forEach(t => { acc.champ[t] = r.champ[t] * r.n / 100; });
     ['SPO', 'PO', 'KS'].forEach(c => Object.keys(r.reach[c]).forEach(t => { acc.reach[c][t] = r.reach[c][t] * r.n / 100; }));
+    Object.entries(r.len.KS || {}).forEach(([k,v])=>{acc.len.KS[k]=v*r.n/100;});
     acc.recent = (r.samples || []).slice(-6).map((p, i, a) => [r.n - a.length + 1 + i, p]);
     drawMachine(mcView(acc, r.n));
     // 바뀐 숫자 깜빡
@@ -1242,11 +1255,11 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   }
 
   function renderHist(){
-    const svg = $('mcHist'), h = D.psOdds && D.psOdds.hist, seeds = SIM ? SIM.res.seeds : (D.psm && D.psm.seeds) || [];
+    const svg = $('mcHist'), ksOnly=SIM?.res.mode==='KS', h = ksOnly && D.psOdds?.now?.mode!=='KS' ? null : D.psOdds && D.psOdds.hist, seeds = SIM ? (SIM.res.teams || SIM.res.seeds) : (D.psm && D.psm.seeds) || [];
     const note = $('mcHistNote');
     if(!h || h.length < 2){
       svg.innerHTML = ''; svg.setAttribute('viewBox', '0 0 10 1'); $('mcHistBox').style.display = 'none';
-      note.textContent = '가을야구 첫 경기가 끝나면 경기마다 우승 확률이 어떻게 움직였는지 여기에 그려집니다.' + (h && h[0] ? ' (시작 시점: ' + seeds.map(t => t + ' ' + pf(h[0].champ[t] || 0)).join(' · ') + ')' : '');
+      note.textContent = (ksOnly ? 'KT–삼성 확정 대진 기준입니다. 한국시리즈 첫 경기가 끝나면 경기별 변화를 표시합니다.' : '가을야구 첫 경기가 끝나면 경기마다 우승 확률이 어떻게 움직였는지 여기에 그려집니다.') + (h && h[0] ? ' (시작 시점: ' + seeds.map(t => t + ' ' + pf(h[0].champ[t] || 0)).join(' · ') + ')' : '');
       return;
     }
     $('mcHistBox').style.display = '';
@@ -1277,8 +1290,8 @@ tr.kt .rank{color:#fff;background:var(--accent)}
 
   function renderModelTable(){
     const m = D.psm; if(!m || !m.teams) return;
-    const lg = m.lg, seeds = m.seeds, ps = (D.psStats && D.psStats.teams) || {};
-    $('mcModel').innerHTML = '<thead><tr><th>팀</th><th>타선 wRC+</th><th>선발 4명 실점</th><th>불펜 7명 실점</th><th>팀 기대승률</th><th>가을 득실</th></tr></thead><tbody>' +
+    const lg = m.lg, seeds = SIM?.res.teams || m.seeds, ps = (D.psStats && D.psStats.teams) || {};
+    $('mcModel').innerHTML = '<thead><tr><th>팀</th><th>타선 지수</th><th>선발 4명 실점</th><th>불펜 7명 실점</th><th>팀 기대승률</th><th>가을 득실</th></tr></thead><tbody>' +
       seeds.map(t => { const x = m.teams[t], p = ps[t];
         return '<tr' + (t === 'KT' ? ' class="kt"' : '') + '><td>' + tb(t) + '</td><td>' + Math.round(x.off * 100) + '</td><td>' + x.spq.toFixed(2) + '</td><td>' + x.pen.toFixed(2) + '</td><td>' + x.t.toFixed(3).replace(/^0/, '') +
           '</td><td>' + (p ? (p.rs - p.ra > 0 ? '+' : '') + (p.rs - p.ra) + ' (' + p.g + '경기)' : '—') + '</td></tr>'; }).join('') +
@@ -1445,7 +1458,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   let pwTeam = null;
   function renderPower(){
     const m = D.psm; if(!m || !m.teams) return;
-    const lg = m.lg, seeds = m.seeds, ps = (D.psStats && D.psStats.teams) || {};
+    const lg = m.lg, seeds = SIM?.res.teams || m.seeds, ps = (D.psStats && D.psStats.teams) || {};
     const idx = { off: t => 100 * m.teams[t].off / lg.off, sp: t => 100 * lg.sp / m.teams[t].spq, pen: t => 100 * lg.pen / m.teams[t].pen, team: t => 100 * m.teams[t].t / .5 };
     const best = {}; Object.keys(idx).forEach(k => { best[k] = seeds.slice().sort((a, b) => idx[k](b) - idx[k](a))[0]; });
     const cell = (k, t) => { const v = idx[k](t), d = Math.max(-30, Math.min(30, v - 100));
