@@ -5,6 +5,8 @@ const path = require('path');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (ktwiz-board live fetcher)' };
 const { fetchTeam, TEAM_CODE } = require('./roster');
+const { fetchKboRecord } = require('./kbo-record');
+const { enrich } = require('./postseason-inputs');
 const PSModel = require('./psmodel');   // 포스트시즌 우승 확률 머신 (화면과 같은 파일)
 const API = 'https://api-gw.sports.naver.com';
 
@@ -451,13 +453,14 @@ async function focusGame(g, prevF) {
 }
 
 // 가을야구 개인 기록 — 끝난 가을야구 경기마다 박스스코어를 한 번씩 받아 누적 (경기 id로 캐시)
-async function psStatsUpdate(ps, prev) {
-  const st = prev && prev.v === 1 ? JSON.parse(JSON.stringify(prev)) : { v: 1, done: [], bat: {}, pit: {}, lineups: {}, teams: {} };
+async function psStatsUpdate(ps, prev, options = {}) {
+  const st = prev && prev.v === 2 ? JSON.parse(JSON.stringify(prev)) : { v: 2, done: [], bat: {}, pit: {}, lineups: {}, teams: {}, sources: {} };
   const todo = psGamesOf(ps).filter(g => isDone(g) && st.done.indexOf(g.id) < 0);
   for (const g of todo) {
     try {
-      const rd = ((await j(`${API}/schedule/games/${g.id}/record`)).result || {}).recordData;
-      if (!rd || !rd.battersBoxscore) continue;
+      // 공식 기록으로 통일: 부분적인 네이버 박스에는 루타·사구·희비가 없어 OPS를 정확히 계산할 수 없다.
+      const rd = await fetchKboRecord(g);
+      if(!['away','home'].every(side => rd.battersBoxscore[side]?.length && rd.pitchersBoxscore?.[side]?.length)) throw Error('incomplete boxscore');
       for (const side of ['away', 'home']) {
         const team = g[side], my = side === 'home' ? g.hs : g.as, op = side === 'home' ? g.as : g.hs;
         const T = st.teams[team] || (st.teams[team] = { g: 0, w: 0, l: 0, d: 0, rs: 0, ra: 0 });
@@ -467,6 +470,8 @@ async function psStatsUpdate(ps, prev) {
           const k = team + '|' + b.name;
           const x = st.bat[k] || (st.bat[k] = { n: b.name, t: team, g: 0, ab: 0, h: 0, hr: 0, rbi: 0, r: 0, bb: 0, k: 0, sb: 0 });
           if (!seenB.has(k)) { x.g++; seenB.add(k); }
+          if(b.extraAvailable) for(const f of ['hp','sf','sh','d2','d3']) x[f] = (x[f] || 0) + (b[f] || 0);
+          x.extraAvailable = b.extraAvailable === true && x.extraAvailable !== false;
           x.ab += b.ab || 0; x.h += b.hit || 0; x.hr += b.hr || 0; x.rbi += b.rbi || 0; x.r += b.run || 0; x.bb += b.bb || 0; x.k += b.kk || 0; x.sb += b.sb || 0;
         }
         for (const p of (rd.pitchersBoxscore || {})[side] || []) {
@@ -482,8 +487,10 @@ async function psStatsUpdate(ps, prev) {
         if (nine.length === 9 && (!prevLu || prevLu.date <= g.date)) st.lineups[team] = { id: g.id, date: g.date, names: nine.map(b => b.name) };
       }
       st.done.push(g.id);
+      (st.sources || (st.sources = {}))[g.id] = rd.source || 'naver';
     } catch (e) { console.error('psStats fail', g.id, e.message); }
   }
+  if(prev && prev.v !== 2 && (prev.done || []).some(id => !st.done.includes(id))) return prev;
   return st;
 }
 
@@ -493,7 +500,7 @@ async function psModelFor(today, standings, pythag, psStats, prev) {
   const seeds = standings.slice().sort((a, b) => a.rank - b.rank).slice(0, 5).map(t => t.name);
   const lineups = {};
   for (const [t, lu] of Object.entries((psStats && psStats.lineups) || {})) lineups[t] = lu.names;
-  const luKey = Object.keys(lineups).sort().map(t => t + ':' + psStats.lineups[t].id).join(',');
+  const luKey = Object.keys(lineups).sort().map(t => t + ':' + psStats.lineups[t].id).join(',') + '|' + (psStats?.done || []).join(',');
   if (prev && prev.v === PSModel.VERSION && prev.date === today && prev.luKey === luKey && prev.seeds && prev.seeds.join() === seeds.join()) return prev;
   const raw = {};
   for (const [name, code] of Object.entries(TEAM_CODE)) {
@@ -532,7 +539,7 @@ function psOddsFor(psm, ps, focus, prev, nowKST) {
   if (!now) return prev || null;
   delete now.samples;
   const fin = psGamesOf(ps).filter(isDone).map(g => g.id + ':' + g.as + '-' + g.hs);
-  const hkey = ['v' + PSModel.VERSION, PSModel.SCHEDULE_VERSION, psm.date, psm.luKey, fin.join(',')].join('|');
+  const hkey = ['v' + PSModel.VERSION, PSModel.SCHEDULE_VERSION, psm.psForm?.key || '', psm.date, psm.luKey, fin.join(',')].join('|');
   const hist = prev && prev.hkey === hkey ? prev.hist : PSModel.history({ model: psm, seeds: psm.seeds, rounds: input.rounds }, { n: 10000 });
   return { v: PSModel.VERSION, at: nowKST, hkey, now, hist };
 }
@@ -669,7 +676,10 @@ async function main() {
     try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
     try { prev.ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); }
     delete prev.agAdj; delete prev.roster; delete prev.seeds;   // 정규시즌 전용 값(예전 수집본) 정리
-    // 가을 기록·머신 입력·우승 확률은 풀 수집 때 갱신된 값을 그대로 둔다(경기가 끝나면 첫 수집이 풀 수집)
+    // 종료 후 누락된 박스스코어를 재시도한다(점수 확정보다 개인 기록 제공이 늦을 수 있음).
+    try { prev.psStats = await psStatsUpdate(prev.ps, prev.psStats); } catch(e) { console.error('psStats retry', e.message); }
+    prev.psm = PSModel.applyPostseason(enrich(prev.psm), prev.psStats);
+    try { prev.psOdds = psOddsFor(prev.psm, prev.ps, prev.focus, prev.psOdds, prev.updatedKST); } catch(e) { console.error('psOdds retry', e.message); }
     if (yt2.length) prev.youtube = yt2;
     if (nw2.length) prev.news = nw2;
     // 순위는 경기 결과 자체 집계로 갱신 (네이버 순위표는 종료 후 반영이 늦음)
@@ -797,6 +807,7 @@ async function main() {
   try { psStats = await psStatsUpdate(ps, prev && prev.psStats); } catch (e) { console.error('psStats fail', e.message); }
   let psm = (prev && prev.psm) || null;
   try { psm = await psModelFor(today, finalStandings, pythag, psStats, prev && prev.psm); } catch (e) { console.error('psm fail', e.message); }
+  psm = PSModel.applyPostseason(enrich(psm), psStats);
   const stampKST = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
   let psOdds = (prev && prev.psOdds) || null;
   try { psOdds = psOddsFor(psm, ps, focus, prev && prev.psOdds, stampKST); } catch (e) { console.error('psOdds fail', e.message); }
@@ -887,7 +898,13 @@ async function kboFallback(today, prev, file, now) {
   if (todayPs) {
     const k = kg.find(x => same(x, todayPs));
     const keep = prev.focus && prev.focus.id === todayPs.id ? prev.focus : { lineups: null, starters: null };
-    prev.focus = Object.assign({}, keep, todayPs, { round: PS_ROUND[String(todayPs.id).slice(0, 4)] || null, state: k && k.state, final: false });
+    prev.focus = Object.assign({}, keep, todayPs, { round: PS_ROUND[String(todayPs.id).slice(0, 4)] || null, state: k && k.state, final: !!(keep.final && isDone(todayPs)) });
+  }
+  // 네이버 장애 중에도 KBO 공식 박스스코어를 재시도해 개인 기록까지 채운다.
+  try { prev.psStats = await psStatsUpdate(prev.ps, prev.psStats, {preferKbo:true}); } catch(e) { console.error('KBO stats fail',e.message); }
+  prev.psm = PSModel.applyPostseason(enrich(prev.psm), prev.psStats);
+  if(todayPs && isDone(todayPs) && !prev.focus.final) {
+    try { const rd=await fetchKboRecord(todayPs); prev.focus.box={batters:{away:rd.battersBoxscore.away.map(mapBat),home:rd.battersBoxscore.home.map(mapBat)},pitchers:{away:rd.pitchersBoxscore.away.map(mapPit),home:rd.pitchersBoxscore.home.map(mapPit)},keys:[]}; prev.focus.final=true; } catch(e) {console.error('KBO focus box fail',e.message);}
   }
   const stamp = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
   try { prev.psOdds = psOddsFor(prev.psm, prev.ps, prev.focus, prev.psOdds, stamp); } catch (e) { console.error('psOdds fail', e.message); }

@@ -166,6 +166,7 @@
         rs: py ? py.rs : null, ra: py ? py.ra : null, g: (opt.games && opt.games[t]) || 144,
         lineup: lu.map(h => ({ n: h.n, pos: h.pos, pa: h.pa, wrc: h.wrc, avg: h.avg, ops: h.ops, hr: h.hr, war: h.war })),
         luFrom: want && want.length ? 'ps' : 'season', entry: !!ent,
+        hAll: Object.fromEntries(Hs.map(h => [h.n, {n:h.n,pos:h.pos,pa:h.pa,wrc:h.wrc,avg:h.avg,ops:h.ops,hr:h.hr,war:h.war}])),
         sp, rp,
         pAll: Object.fromEntries(Ps.filter(p => p.ip >= 3).map(p => [p.n, [p.q, p.ips || 0]]))
       };
@@ -177,6 +178,50 @@
     const teams = {};
     (opt.only || names).forEach(t => { if (T[t]) teams[t] = T[t]; });
     return { v: VERSION, lg, teams };
+  }
+
+  // 확인된 가을 개인 기록을 시즌 기준에 수축해 반영한다. 원래 시즌 기준은 보존해 반복 적용해도 누적 보정되지 않는다.
+  function applyPostseason(model, stats) {
+    if(!model || !stats || !stats.done?.length) return model;
+    const m=JSON.parse(JSON.stringify(model));
+    for(const [team,T] of Object.entries(m.teams)) {
+      if(!T.psBase) T.psBase=JSON.parse(JSON.stringify({off:T.off,spq:T.spq,pen:T.pen,lineup:T.lineup,sp:T.sp,rp:T.rp,pAll:T.pAll,hAll:T.hAll || {}}));
+      const b=T.psBase, pool=Object.assign({},Object.fromEntries(b.lineup.map(h=>[h.n,h])),b.hAll);
+      const names=stats.lineups?.[team]?.names;
+      T.lineup=JSON.parse(JSON.stringify(names?.length===9 ? names.map(n=>pool[n] || {n,pa:0,wrc:100,avg:null,ops:null,prior:'league-average'}) : b.lineup));
+      let original=0,adjusted=0;
+      for(const h of T.lineup) {
+        const season=h.offPrior || (h.wrc*h.pa+100*150)/(h.pa+150)/100;
+        original+=season;
+        const x=stats.bat?.[team+'|'+h.n];
+        if(x && x.extraAvailable && x.ab>0) {
+          const pa=x.ab+x.bb+(x.hp||0)+(x.sf||0), tb=x.h+(x.d2||0)+2*(x.d3||0)+3*x.hr;
+          const obp=(x.h+x.bb+(x.hp||0))/Math.max(1,pa), slg=tb/x.ab, ops=obp+slg;
+          // 시즌 OPS가 없는 선수는 임의 시즌 수치를 만들지 않고 중립 전력으로 둔다.
+          const ratio=h.ops>0 ? ((h.ops*150+ops*pa)/(150+pa))/h.ops : 1;
+          adjusted+=season*ratio;
+          h.ps={ab:x.ab,h:x.h,avg:x.h/x.ab,ops,pa,weight:pa/(150+pa),applied:h.ops>0};
+        } else adjusted+=season;
+      }
+      // 타순 변경은 wRC+ 기준으로, 최근 타격은 OPS 비율을 150타석 시즌 사전값으로 수축한다.
+      const baseOff=b.lineup.reduce((v,h)=>v+(h.wrc*h.pa+100*150)/(h.pa+150)/100,0)/Math.max(1,b.lineup.length);
+      T.off=+(b.off*(adjusted/Math.max(1,T.lineup.length))/baseOff).toFixed(4);
+      T.luFrom=names?.length===9?'ps':T.luFrom;
+      const adjustPitch=p=>{
+        const out=JSON.parse(JSON.stringify(p)),x=stats.pit?.[team+'|'+p.n],ip=(x?.outs||0)/3;
+        if(ip>0) {out.q=+((p.q*25+9*x.er)/(25+ip)).toFixed(3);out.ps={ip:+ip.toFixed(2),era:9*x.er/ip,k:x.k,weight:ip/(25+ip)};}
+        return out;
+      };
+      T.sp=b.sp.map(adjustPitch);T.rp=b.rp.map(adjustPitch);T.pAll=JSON.parse(JSON.stringify(b.pAll));
+      for(const [name,a] of Object.entries(T.pAll)) {const x=stats.pit?.[team+'|'+name],ip=(x?.outs||0)/3;if(ip>0)a[0]=+((b.pAll[name][0]*25+9*x.er)/(25+ip)).toFixed(3);}
+      const weighted=(ps,field)=>{let a=0,w=0;ps.forEach((p,i)=>{const n=p.ip*(field==='pen'&&i<3?1.5:1);a+=n*p.q;w+=n;});return w?a/w:b[field];};
+      T.spq=+weighted(T.sp.slice(0,4),'spq').toFixed(3);T.pen=+weighted(T.rp,'pen').toFixed(3);
+    }
+    const encoded=JSON.stringify([stats.done,stats.bat,stats.pit,stats.lineups]);let hash=2166136261;
+    for(let i=0;i<encoded.length;i++)hash=Math.imul(hash^encoded.charCodeAt(i),16777619);
+    m.psForm={v:1,key:(hash>>>0).toString(16),games:stats.done.length,
+      through:Object.values(stats.lineups||{}).map(x=>x.date).sort().at(-1),hitterPriorPa:150,pitcherPriorIp:25};
+    return m;
   }
 
   /* ---------- 한 경기 ---------- */
@@ -296,6 +341,13 @@
       const f = base.form[t];
       base.formAdj[t] = f.g ? clamp(f.rd / f.g * 0.01 * Math.min(1, f.g / 4), -P.FORM_MAX, P.FORM_MAX) : 0;
     });
+    // 변형 연습경기는 득실·ERA에 합산하지 않고 확인된 등판일만 휴식/피로 계산에 사용한다.
+    const asOf = input.asOf || Object.values(R).flatMap(r=>r.games||[]).filter(g=>isLive(g)||done(g)).map(g=>g.date).sort().at(-1) || '';
+    for(const x of m.practice?.pitching || []) {
+      if(x.date > asOf) continue;
+      if(!base.days[x.team])continue;
+      mark(x.team,x.name,dnum(x.date));if(!base.days[x.team].includes(dnum(x.date)))base.days[x.team].push(dnum(x.date));
+    }
     // 진행 중인 경기의 현재 승률 (모든 시뮬레이션이 같은 값을 쓴다)
     ROUNDS.forEach(code => {
       const B = base.rounds[code];
@@ -462,7 +514,7 @@
         [g.away, g.home].forEach(t => { if (r.teams.indexOf(t) < 0) r.teams.push(t); });
         r.games.push(g);
       });
-      const res = simulate({ model: input.model, seeds: input.seeds, rounds }, { n: opt.n || 10000, seed: opt.seed || P.SEED });
+      const res = simulate({ model: input.model, seeds: input.seeds, rounds, asOf: all[k-1]?.date || '2026-10-13' }, { n: opt.n || 10000, seed: opt.seed || P.SEED });
       if (!res) return null;
       const g = all[k - 1];
       if (g) nOf[g.rc] = (nOf[g.rc] || 0) + 1;
@@ -475,5 +527,5 @@
     return out;
   }
 
-  return { VERSION, SCHEDULE_VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
+  return { VERSION, SCHEDULE_VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, applyPostseason, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
 });

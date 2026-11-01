@@ -1,0 +1,56 @@
+{
+  "checked": "2026-11-01",
+  "hitters": {
+    "삼성": [
+      {
+        "n": "구자욱",
+        "pos": "외야수",
+        "pa": 497,
+        "avg": 0.371,
+        "ops": 1.039,
+        "hr": 15,
+        "source": "https://www.koreabaseball.com/Record/Player/HitterDetail/Basic.aspx?playerId=62404"
+      },
+      {
+        "n": "김영웅",
+        "pos": "내야수",
+        "pa": 203,
+        "avg": 0.167,
+        "ops": 0.496,
+        "hr": 5,
+        "source": "https://www.koreabaseball.com/Record/Player/HitterDetail/Basic.aspx?playerId=52430"
+      }
+    ]
+  },
+  "pitchers": {
+    "KT": [
+      {
+        "n": "대니엘",
+        "ip": 55,
+        "g": 10,
+        "era": 2.13,
+        "hr": 2,
+        "bb": 18,
+        "hp": 2,
+        "k": 69,
+        "qs": 6,
+        "w": 5,
+        "l": 2,
+        "source": "https://www.koreabaseball.com/Record/Player/PitcherDetail/Basic.aspx?playerId=56002"
+      },
+      {
+        "n": "로건",
+        "ip": 92.66666666666667,
+        "g": 17,
+        "era": 3.59,
+        "hr": 11,
+        "bb": 27,
+        "hp": 4,
+        "k": 83,
+        "w": 7,
+        "l": 5,
+        "source": "https://www.koreabaseball.com/Record/Player/PitcherDetail/Basic.aspx?playerId=55912"
+      }
+    ]
+  }
+}

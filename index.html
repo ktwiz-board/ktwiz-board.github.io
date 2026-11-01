@@ -639,6 +639,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
         <li><b>불펜</b> — 선발 외 상위 7명(필승조 3명 가중). 직전 3일 동안 치른 경기 1개당 불펜 실점 +3%(연투 피로) — 길게 싸우고 올라온 팀일수록 불리합니다.</li>
         <li><b>팀 단위</b> — 시즌 득실 피타고리안 65% + 최근 60경기 35%, 가을야구 득실차로 최대 ±3%p. 홈 팀 +2%p(선수 단위에선 홈 득점 +3.5%).</li>
         <li><b>시리즈</b> — 와일드카드(4위 1승 안고 최대 2경기) → 준PO·PO(5전 3선승, 홈 2-2-1) → 한국시리즈(7전 4선승, 홈 2-3-2). 끝난 경기 결과는 그대로, 진행 중인 경기는 지금 점수·이닝·아웃에서 남은 이닝만 굴립니다.</li>
+        <li>선수별 가을 OPS·자책을 시즌 150타석·25이닝 기준에 수축해 반영합니다. 연습경기는 확인된 투수 등판일만 휴식 계산에 사용합니다.</li>
         <li>시드를 고정한 난수라 같은 데이터면 몇 번을 열어도 같은 숫자가 나옵니다. <b>▶ 머신 다시 돌리기</b>는 새 시드로 돌려 '운'의 폭(대개 ±0.5%p 안팎)을 보여줍니다.</li>
         <li>넣지 않은 것: 부상·엔트리 변경, 불펜 개별 등판 순서, 수비·구장 효과, 정규시즌 1위 팀의 휴식(실전 감각) 효과. 무승부는 굴리지 않습니다(실제 무승부는 반영).</li>
       </ul>
@@ -778,7 +779,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   </div>
 </footer>
 
-<script src="scripts/psmodel.js?v=20261101-ks-schedule"></script>
+<script src="scripts/psmodel.js?v=20261101-player-refresh"></script>
 <script>
 (function(){
   'use strict';
@@ -786,7 +787,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   const $ = id => document.getElementById(id);
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 ---------- */
-  const BUILD = '20261101-ks-schedule';
+  const BUILD = '20261101-player-refresh';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1462,8 +1463,8 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     $('pwTeam').innerHTML =
       tbl(tb(pwTeam) + ' 선발 로테이션', ['투수', '이닝', 'ERA', 'FIP', '지수'], x.sp.map((p, i) => '<tr' + (i >= 4 ? ' class="muted"' : '') + '><td style="text-align:left"><b>' + esc(p.n) + '</b>' + (i >= 4 ? ' <span class="muted" style="font-size:11px">(5선발)</span>' : '') + '</td><td>' + p.ip + '</td><td>' + p.era.toFixed(2) + '</td><td>' + p.fip.toFixed(2) + '</td><td>' + p.q.toFixed(2) + '</td></tr>')) +
       tbl(tb(pwTeam) + ' 불펜 상위 7', ['투수', '이닝', 'ERA', '세/홀', '지수'], x.rp.map(p => '<tr><td style="text-align:left"><b>' + esc(p.n) + '</b></td><td>' + p.ip + '</td><td>' + p.era.toFixed(2) + '</td><td>' + p.sv + '/' + p.hd + '</td><td>' + p.q.toFixed(2) + '</td></tr>')) +
-      tbl(tb(pwTeam) + (x.luFrom === 'ps' ? ' 가을 선발 타순' : ' 주전 9명'), ['타자', '타석', 'OPS', 'wRC+'], x.lineup.map(h => '<tr><td style="text-align:left"><b>' + esc(h.n) + '</b> <span class="muted" style="font-size:11px">' + esc(h.pos || '') + '</span></td><td>' + h.pa + '</td><td>' + (h.ops != null ? (+h.ops).toFixed(3).replace(/^0/, '') : '—') + '</td><td>' + h.wrc + '</td></tr>'));
-    $('pwNote').innerHTML = '지수 = 실점 지표(평균자책·FIP 평균, 이닝 적으면 리그 평균 쪽으로 수축). 낮을수록 좋음. 타선은 ' + (x.luFrom === 'ps' ? '가장 최근 가을야구 경기의 실제 선발 타순' : '아직 가을 경기가 없어 시즌 타석이 많은 9명') + ' 기준. 시즌 기록: 네이버 스포츠(KBO).';
+      tbl(tb(pwTeam) + (x.luFrom === 'ps' ? ' 가을 선발 타순' : ' 주전 9명'), ['타자', '시즌 타석', '시즌 OPS', 'wRC+', '가을 타율', '가을 OPS'], x.lineup.map(h => '<tr><td style="text-align:left"><b>' + esc(h.n) + '</b> <span class="muted" style="font-size:11px">' + esc(h.pos || '') + '</span></td><td>' + h.pa + '</td><td>' + (h.ops != null ? (+h.ops).toFixed(3).replace(/^0/, '') : '—') + '</td><td>' + (h.wrc != null ? h.wrc : '—') + '</td><td>' + (h.ps ? h.ps.avg.toFixed(3).replace(/^0/, '') : '—') + '</td><td>' + (h.ps ? h.ps.ops.toFixed(3).replace(/^0/, '') : '—') + '</td></tr>'));
+    $('pwNote').innerHTML = '지수 = 실점 지표(평균자책·FIP 평균, 이닝 적으면 리그 평균 쪽으로 수축). 낮을수록 좋음. 타선은 ' + (x.luFrom === 'ps' ? '가장 최근 가을야구 경기의 실제 선발 타순' : '아직 가을 경기가 없어 시즌 타석이 많은 9명') + ' 기준. 가을 보정 기준: ' + esc(D.psm.psForm?.through || '미수집') + '. 시즌 기록: 네이버 스포츠·KBO 공식 선수 기록. 대니엘·로건의 FIP는 공식 투구 합계와 기본 상수 3.1로 계산한 추정값. 가을 기록은 KBO 공식 박스스코어 누적. 타격은 시즌 기준 150타석에 가을 OPS를, 투구는 시즌 기준 25이닝에 가을 자책을 수축 반영한 추정치입니다. wRC+ 미확보 선수는 시즌 OPS 상대값을 사용하며 wRC+를 만들어 표시하지 않습니다.' + (pwTeam === 'KT' ? '<br>KT 연습경기: 10/27 상무 7–0 · 10/28 U-23 8–2 · 10/30 U-23 11–2. 10~12번 타순·KT 투수의 상대편 등판 등 변형 경기여서 공식 타율·OPS·ERA에는 미합산. 확인된 투수 등판일만 휴식일 계산에 반영했습니다.' : '');
   }
 
   /* ==========================================================================
@@ -1628,7 +1629,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     const steps = [renderChip, renderHero, renderAside, renderGame, renderBracket, renderCal, renderPower, renderRecords, renderKT, renderStandings, renderTitle, renderNews, renderModelTable, renderHist];
     steps.forEach(fn => { try{ fn(); }catch(e){ console.error(fn.name, e); } });
     if(SIM){
-      $('mcStamp').textContent = '데이터 ' + (D.updatedKST || '') + ' 기준' + (D.source === 'kbo' ? ' · 네이버 장애로 KBO 공식 점수만 갱신 중' : '');
+      $('mcStamp').textContent = '데이터 ' + (D.updatedKST || '') + ' 기준' + (D.source === 'kbo' ? ' · KBO 공식 점수·박스스코어 예비 수집' + (D.psStats && D.psStats.v === 2 ? ' · 가을 ' + D.psStats.done.length + '경기 기록 반영' : ' · 선수 기록 재시도 중') : '');
       if(!$('mcRun').disabled){ mcOrder = null; machineFinal(); }   // 머신이 도는 중이면 끝난 뒤 다음 갱신에 반영
     } else {
       $('mcNote').textContent = '머신 입력(선수 기록)을 아직 받지 못했습니다. 다음 수집(5~10분) 후 자동으로 돌아갑니다.';

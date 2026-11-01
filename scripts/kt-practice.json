@@ -1,0 +1,151 @@
+{
+  "v": 1,
+  "checked": "2026-11-01",
+  "use": "pitcher-rest-only",
+  "reason": "10~12번 타순, 상대편 KT 투수 등판 등 변형 경기. 전체 타수·타석·자책 기록 미확보. 공식 타율·OPS·ERA와 득실 보정에는 합산하지 않음.",
+  "games": [
+    {
+      "date": "2026-10-27",
+      "opponent": "상무",
+      "rs": 7,
+      "ra": 0,
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-28",
+      "opponent": "U-23",
+      "rs": 8,
+      "ra": 2,
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-30",
+      "opponent": "U-23",
+      "rs": 11,
+      "ra": 2,
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    }
+  ],
+  "pitching": [
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "대니엘",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "전용주",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "우규민",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "김정운",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "박영현",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-27",
+      "team": "KT",
+      "name": "손동현",
+      "source": "https://www.mt.co.kr/sports/2026/10/27/202610271522771355O"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "고영표",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "로건",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "배제성",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "김민수",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "주권",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "스기모토",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-28",
+      "team": "KT",
+      "name": "오원석",
+      "source": "https://sports.khan.co.kr/article/202610282122003"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "소형준",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "오원석",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "스기모토",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "전용주",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "손동현",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "김정운",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    },
+    {
+      "date": "2026-10-30",
+      "team": "KT",
+      "name": "박영현",
+      "source": "https://www.mt.co.kr/sports/2026/10/30/202610301945775475O"
+    }
+  ]
+}
