@@ -1,0 +1,49 @@
+name: deploy-site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 새 배포가 진행 중 배포를 취소해 Pages 잠금을 남기지 않도록 순차 처리한다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate dashboard
+        run: |
+          node scripts/psmodel-schedule.test.js
+          node scripts/postseason-refresh.test.js
+          node scripts/ks-only.test.js
+      - uses: actions/configure-pages@v5
+      - name: Prepare public files with latest collected data
+        run: |
+          mkdir -p _site/scripts _site/data
+          cp index.html manifest.json robots.txt sitemap.xml sw.js version.txt _site/
+          cp scripts/psmodel.js _site/scripts/
+          cp -R img _site/img
+          git fetch --depth=1 origin data
+          git show FETCH_HEAD:data/live.json > _site/data/live.json
+          git show FETCH_HEAD:data/standings-history.json > _site/data/standings-history.json
+          node -e "const fs=require('fs'); for(const f of ['live.json','standings-history.json']) JSON.parse(fs.readFileSync('_site/data/'+f,'utf8'));"
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy public site
+        id: deployment
+        uses: actions/deploy-pages@v4
