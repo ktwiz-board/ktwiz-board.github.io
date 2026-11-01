@@ -28,6 +28,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
+  const SCHEDULE_VERSION = '20261030';
   const VERSION = 4;   // 2: 1군 엔트리에 있는 선수만 (방출·말소 선수 제외)
   const ROUNDS = ['WC', 'SPO', 'PO', 'KS'];
   const META = {
@@ -44,8 +45,10 @@
           ['2026-10-21', '18:30', 'lo', 1], ['2026-10-23', '18:30', 'hi', 1]],
     PO:  [['2026-10-25', '14:00', 'hi'], ['2026-10-26', '18:30', 'hi'], ['2026-10-28', '18:30', 'lo'],
           ['2026-10-29', '18:30', 'lo', 1], ['2026-10-31', '14:00', 'hi', 1]],
-    KS:  [['2026-11-02', '18:30', 'hi'], ['2026-11-03', '18:30', 'hi'], ['2026-11-05', '18:30', 'lo'],
-          ['2026-11-06', '18:30', 'lo', 1], ['2026-11-07', '14:00', 'lo', 1], ['2026-11-09', '18:30', 'hi', 1], ['2026-11-10', '18:30', 'hi', 1]]
+    // 2026-10-30 KBO 변경 공지: 전 일정 하루 순연, 토·일 경기는 14:00.
+    // https://www.koreabaseball.com/MediaNews/Notice/View.aspx?bdSe=12221
+    KS:  [['2026-11-03', '18:30', 'hi'], ['2026-11-04', '18:30', 'hi'], ['2026-11-06', '18:30', 'lo'],
+          ['2026-11-07', '14:00', 'lo'], ['2026-11-08', '14:00', 'lo', 1], ['2026-11-10', '18:30', 'hi', 1], ['2026-11-11', '18:30', 'hi', 1]]
   };
   const P = {
     W_PLAYER: 0.65,   // 선수 단위 비중 (나머지는 팀 득실 기반)
@@ -472,5 +475,5 @@
     return out;
   }
 
-  return { VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
+  return { VERSION, SCHEDULE_VERSION, ROUNDS, META, PREV, SCHEDULE, P, innings, rng, buildTeams, gameProb, starterFor, prepare, runner, simulate, history, dnum, dstr };
 });

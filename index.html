@@ -592,7 +592,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     <aside class="ksa" id="ksAside" aria-label="kt wiz 한국시리즈">
       <p class="k">kt wiz · Korean Series</p>
       <p class="dd" id="ksDd">—</p>
-      <p class="when" id="ksWhen">한국시리즈 1차전<small>11. 02 (월) 18:30 · 수원 kt wiz 파크</small></p>
+      <p class="when" id="ksWhen">한국시리즈 1차전<small>11. 03 (화) 18:30 · 수원 kt wiz 파크</small></p>
       <div class="pr"><span>머신이 계산한<br>KT 우승 확률</span><b id="ksPct">—</b></div>
       <p class="delta" id="ksDelta"></p>
       <ul id="ksOpp"></ul>
@@ -778,7 +778,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   </div>
 </footer>
 
-<script src="scripts/psmodel.js?v=20261014-ps1"></script>
+<script src="scripts/psmodel.js?v=20261101-ks-schedule"></script>
 <script>
 (function(){
   'use strict';
@@ -786,7 +786,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   const $ = id => document.getElementById(id);
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 ---------- */
-  const BUILD = '20261014-ps1';
+  const BUILD = '20261101-ks-schedule';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -956,7 +956,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   // 팀 색 막대
   const tbar = (name, w) => '<i class="tcol' + (name === 'KT' ? ' kt' : '') + '" style="--tc:' + colorOf(name) + ';width:' + Math.max(0, Math.min(100, w)).toFixed(2) + '%"></i>';
   const PS_REST = { '2026-10-13':'미디어데이', '2026-10-16':'미디어데이', '2026-10-19':'이동일', '2026-10-22':'이동일', '2026-10-24':'미디어데이',
-                    '2026-10-27':'이동일', '2026-10-30':'이동일', '2026-11-01':'미디어데이', '2026-11-04':'이동일', '2026-11-08':'이동일' };
+                    '2026-10-27':'이동일', '2026-10-30':'이동일', '2026-11-02':'미디어데이', '2026-11-05':'이동일', '2026-11-09':'이동일' };
   const COORD = { '수원':[37.2997,127.0097], '잠실':[37.512,127.072], '대구':[35.841,128.6819], '대전':[36.3173,127.429], '사직':[35.1941,129.0615],
                   '창원':[35.2225,128.5822], '광주':[35.1683,126.8889], '문학':[37.437,126.6933] };
 
