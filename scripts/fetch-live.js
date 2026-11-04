@@ -317,7 +317,11 @@ const psGamesOf = ps => {
 // 오늘 보여줄 경기: 오늘의 가을야구 경기(진행 중 > 예정 > 종료) → 오늘 KT 경기 → 가장 최근에 끝난 가을야구 경기
 function pickFocus(todayGames, ps, today) {
   const pool = todayGames.filter(g => isPs(g.id));
-  if(today) for(const g of psGamesOf(ps)) if(g.date===today && !pool.some(x=>x.id===g.id)) pool.push(g);
+  if(today) for(const g of psGamesOf(ps)) if(g.date===today) {
+    const at=pool.findIndex(x=>x.id===g.id);
+    if(at<0) pool.push(g);
+    else if((isDone(g)&&!isDone(pool[at])) || (isLiveG(g)&&pool[at].code==='BEFORE')) pool[at]=g;
+  }
   const kt = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
   const from = pool.length ? pool : kt;
   const g = from.find(isLiveG) || from.find(x => !isDone(x) && x.code !== 'CANCEL') || from[from.length - 1];
@@ -889,6 +893,7 @@ function mergeKboPostseason(ps, collected) {
     const r=out.rounds[g.round] || (out.rounds[g.round]={code:g.round,teams:[],wins:{},games:[]});
     const at=r.games.findIndex(x=>x.id===g.id || (x.date===g.date && x.away===g.away && x.home===g.home));
     if(at>=0 && isDone(r.games[at]) && !isDone(g)) continue; // 복구 중인 원본의 과거 상태로 확정 결과를 되돌리지 않는다.
+    if(at>=0 && isLiveG(r.games[at]) && g.code==='BEFORE') continue; // 네이버 복구 직후의 예정 응답으로 실시간 점수를 지우지 않는다.
     const next={...(at<0?{}:r.games[at]),...g}; delete next.state;
     if(at<0) r.games.push(next); else r.games[at]=next;
   }
