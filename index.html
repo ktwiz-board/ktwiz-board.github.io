@@ -14,8 +14,8 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-8MC9LN4N1R');
 </script>
-<title>wiz board — 2026 가을야구 · 한국시리즈 우승 확률 · 실시간 스코어</title>
-<meta name="description" content="kt wiz 팬이 만든 2026 KBO 포스트시즌 대시보드. 와일드카드부터 한국시리즈까지 실시간 스코어·라인업·대진, 선수 기록으로 2만 번 돌린 우승 확률 머신.">
+<title>wiz board — 2026 한국시리즈 KT vs 삼성 · 실시간 스코어·우승 확률</title>
+<meta name="description" content="2026 한국시리즈 KT vs 삼성. 차전별 결과·실시간 스코어·선수 기록과 남은 경기로 계산한 우승 확률을 한눈에 확인하세요.">
 <meta name="keywords" content="kt wiz, KT 위즈, KBO 포스트시즌, 가을야구, 한국시리즈, 우승 확률, 와일드카드, 준플레이오프, 플레이오프, 실시간 스코어">
 <meta name="author" content="wiz board">
 <meta name="robots" content="index, follow">
@@ -267,6 +267,32 @@ tbody tr:hover{background:var(--g5)}
 .ksa li b{text-align:right;font-variant-numeric:tabular-nums}
 .ksa .more{margin-top:16px;font-size:13px;font-weight:700;color:var(--g1);text-decoration:none}
 .ksa .more:hover{color:var(--ink)}
+/* 한국시리즈: 현재 승수와 일곱 경기부터 확인 */
+.ks-ribbon{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:-12px}
+.ks-ribbon h1{font-size:clamp(21px,2.5vw,32px);letter-spacing:-.05em;margin:0;font-weight:800}
+.ks-ribbon h1 span{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--g2);margin-right:12px}
+.ks-ribbon p{margin:0;color:var(--g2);font-size:12px;font-variant-numeric:tabular-nums}
+.ks-track{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.ks-game{display:flex;flex-direction:column;gap:7px;padding:14px 12px;border:1px solid var(--line);border-radius:3px;text-decoration:none;min-width:0}
+.ks-game.current{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.ks-game.done{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.ks-game.skip{opacity:.4}
+.ks-game .kg-no{font-size:12px;font-weight:700;color:var(--g2)}
+.ks-game strong{font-size:17px;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ks-game small{font-size:11px;color:var(--g2);line-height:1.5}
+.ks-game.current .kg-no{color:var(--accent)}
+.ks-pips{display:flex;justify-content:space-between;gap:10px;margin-top:14px;font-size:12px;color:var(--g2)}
+.ks-pips span{display:flex;gap:5px;align-items:center}
+.ks-pips i{width:9px;height:9px;border:1px solid var(--g3);border-radius:50%}
+.ks-pips i.won{background:var(--accent);border-color:var(--accent)}
+.ks-pips .samsung i.won{background:#8da9e4;border-color:#8da9e4}
+.data-health{grid-column:1/-1;margin:0;color:var(--g2);font-size:12px;line-height:1.6}
+.data-health.stale{color:#f2be6a}
+.ks-archive{margin-top:26px;border-top:1px solid var(--line)}
+.ks-archive summary{cursor:pointer;padding:14px 0;font-size:13px;color:var(--g2)}
+.ks-archive .psbracket{margin-top:10px}
+@media(max-width:920px){.todaybox>.wrap{gap:26px}.ksa .dd{font-size:78px}.ks-ribbon{margin-bottom:0}.ks-track{gap:6px}}
+@media(max-width:600px){.ks-ribbon{align-items:flex-start;flex-direction:column;gap:6px}.ks-track{grid-template-columns:repeat(4,minmax(0,1fr))}.ks-game{padding:11px 9px}.ks-game strong{font-size:16px}.ks-pips{max-width:320px}.todaybox>.wrap{padding-top:24px;padding-bottom:28px}}
 
 /* ---------- 우승 확률 머신 ---------- */
 .mc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,4vw,60px);align-items:start}
@@ -563,7 +589,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
 
 <header class="top" id="mast">
   <div class="wrap top__bar">
-    <a href="#today" class="logo" aria-label="wiz board, 맨 위로"><span class="it">wiz</span>board<small>Postseason 2026</small></a>
+    <a href="#today" class="logo" aria-label="wiz board, 맨 위로"><span class="it">wiz</span>board<small>Korean Series 2026</small></a>
     <a href="#today" class="statuschip" id="statusChip"><i></i><span id="statusTxt">불러오는 중</span></a>
     <button class="themebtn" type="button" id="themeBtn" aria-label="화면 모드 바꾸기"></button>
   </div>
@@ -572,7 +598,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       <a href="#today">오늘</a>
       <a href="#machine">우승 확률</a>
       <a href="#gameSec">경기 기록</a>
-      <a href="#bracketSec">대진</a>
+      <a href="#bracketSec">시리즈</a>
       <a href="#calSec">일정</a>
       <a href="#powerSec">전력</a>
       <a href="#recSec">가을 기록</a>
@@ -586,18 +612,22 @@ tr.kt .rank{color:#fff;background:var(--accent)}
 
 <main class="main">
 <!-- ① 오늘의 가을야구 -->
-<section class="todaybox" id="today" aria-label="오늘의 가을야구">
+<section class="todaybox" id="today" aria-label="한국시리즈 경기 현황">
   <div class="wrap">
+    <div class="ks-ribbon"><h1><span>2026</span>한국시리즈</h1><p>KT WIZ × SAMSUNG LIONS · 7전 4선승</p></div>
     <div id="heroGame"><p class="gh-kick">가을야구 데이터를 불러오는 중…</p></div>
     <aside class="ksa" id="ksAside" aria-label="kt wiz 한국시리즈">
-      <p class="k">kt wiz · Korean Series</p>
+      <p class="k">KT <span style="color:var(--g3)">vs</span> Samsung</p>
       <p class="dd" id="ksDd">—</p>
-      <p class="when" id="ksWhen">한국시리즈 1차전<small>11. 03 (화) 18:30 · 수원 kt wiz 파크</small></p>
+      <p class="when" id="ksWhen">시리즈 현황 불러오는 중</p>
+      <div class="ks-pips" id="ksPips"></div>
       <div class="pr"><span>머신이 계산한<br>KT 우승 확률</span><b id="ksPct">—</b></div>
       <p class="delta" id="ksDelta"></p>
       <ul id="ksOpp"></ul>
       <a class="more" href="#machine">우승 확률 머신 보기 ↓</a>
     </aside>
+    <div class="ks-track" id="ksTrack" aria-label="한국시리즈 차전별 현황"></div>
+    <p class="data-health" id="dataHealth" role="status"></p>
   </div>
 </section>
 
@@ -672,11 +702,10 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   <!-- ④ 대진 · 시리즈 -->
   <section id="bracketSec">
     <div class="sec-head">
-      <h2>대진</h2>
+      <h2>한국시리즈 경기별 현황</h2>
       <p class="kicker">Bracket &amp; series</p>
-      <p class="sub">팀 옆 %는 그 라운드를 이기고 올라갈 확률(머신). 점선 배지는 아직 정해지지 않은 자리의 가장 유력한 팀입니다.</p>
+      <p class="sub">확정된 결과와 남은 경기 일정 · 4승을 먼저 거두는 팀이 우승합니다.</p>
     </div>
-    <div class="psbracket" id="psBracket"></div>
     <p class="subhead" id="serHead">진행 중인 시리즈</p>
     <div class="series2">
       <ul class="psgames" id="serGames"></ul>
@@ -685,13 +714,14 @@ tr.kt .rank{color:#fff;background:var(--accent)}
         <p class="note" id="serNote"></p>
       </div>
     </div>
+    <details class="ks-archive"><summary>이전 라운드·전체 대진 보기</summary><div class="psbracket" id="psBracket"></div></details>
   </section>
 
   <!-- ⑤ 가을 캘린더 -->
   <section id="calSec">
     <div class="sec-head">
-      <h2>가을 캘린더</h2>
-      <p class="kicker">Road to the Korean Series</p>
+      <h2>한국시리즈 캘린더</h2>
+      <p class="kicker">Seven games. One champion.</p>
     </div>
     <div class="pscal" id="psCal"></div>
     <div class="legend"><span><i class="rp"></i>포스트시즌</span><span><i class="rk"></i>한국시리즈</span><span><i class="mb"></i>필요 시 열리는 경기</span><span><span class="tb" style="--tc:#074ca1;--tf:#fff">확정</span></span><span><span class="tb proj" style="--tc:#c30452">예상 %</span></span></div>
@@ -726,15 +756,15 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   <section id="ktSec">
     <div class="sec-head">
       <h2>kt wiz</h2>
-      <p class="kicker">Waiting in Suwon</p>
+      <p class="kicker">KT in the Korean Series</p>
       <p class="sub" id="ktSub">정규시즌 1위 — 한국시리즈 직행</p>
     </div>
     <p class="subhead">한국시리즈 예상 선발 <small>정규시즌 마지막 엔트리 기준 · 실제와 다를 수 있음</small></p>
     <div class="rot" id="ktRot"></div>
     <p class="note" id="ktRotNote"></p>
-    <p class="subhead">예상 상대별 <small>If we meet…</small></p>
+    <p class="subhead" id="ktOppHead">한국시리즈 맞대결 <small>KT vs Samsung</small></p>
     <div class="tablebox"><table class="ktopp" id="ktOpp"></table></div>
-    <p class="note">정규시즌 맞대결은 팀당 16차전. 'KT 우승'은 그 상대와 한국시리즈에서 만났을 때 KT가 이기는 비율(머신).</p>
+    <p class="note">정규시즌 맞대결은 팀당 16차전. 우승 확률은 실제 한국시리즈 결과와 남은 경기를 반영한 머신 추정치입니다.</p>
     <details class="fold">
       <summary>2026 정규시즌 결산 <small>Regular season</small></summary>
       <div class="season2">
@@ -779,7 +809,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   </div>
 </footer>
 
-<script src="scripts/psmodel.js?v=20261101-ks-only"></script>
+<script src="scripts/psmodel.js?v=20261104-ks-live"></script>
 <script>
 (function(){
   'use strict';
@@ -787,7 +817,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   const $ = id => document.getElementById(id);
 
   /* ---------- 새 배포 자동 감지 → 1회 자동 새로고침 ---------- */
-  const BUILD = '20261101-ks-only';
+  const BUILD = '20261104-ks-live';
   async function checkVersion(){
     try{
       const r = await fetch('version.txt?t=' + Date.now(), { cache: 'no-store' });
@@ -1069,7 +1099,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     const pill = live ? '<span class="gh-pill live"><i class="dot pulse"></i>LIVE · ' + esc(f.status || '') + '</span>'
       : fin ? '<span class="gh-pill end">경기 종료</span>' : cancel ? '<span class="gh-pill">경기 취소</span>' : '<span class="gh-pill">경기 전 · ' + esc(f.time) + '</span>';
     const wx = WX && today && !started ? ' · ' + WX : '';
-    let h = '<p class="gh-kick">' + (today ? '오늘의 가을야구' : '지난 경기') + ' · ' + (meta ? esc(meta.ko) + (n ? ' ' + n + '차전' : '') : '') + ' ' + pill + '</p>';
+    let h = '<p class="gh-kick">' + (today ? (code === 'KS' ? '오늘의 한국시리즈' : '오늘의 가을야구') : '지난 경기') + (code === 'KS' ? ' · ' + (n || '') + '차전' : ' · ' + (meta ? esc(meta.ko) + (n ? ' ' + n + '차전' : '') : '')) + ' ' + pill + '</p>';
     h += '<p class="gh-sub" style="margin:8px 0 0">' + fmtDate(f.date) + ' ' + esc(f.time) + ' · ' + esc(f.stadium) + esc(wx) + '</p>';
     const spA = (f.starters && f.starters.away && f.starters.away.name) || f.ap, spH = (f.starters && f.starters.home && f.starters.home.name) || f.hp;
     const side = (t, home, sp, lead) => '<div class="gh-team' + (home ? ' home' : '') + (t === 'KT' ? ' kt' : '') + '">' +
@@ -1133,11 +1163,13 @@ tr.kt .rank{color:#fff;background:var(--accent)}
   function renderAside(){
     if(!SIM){ return; }
     const res = SIM.res, t1 = res.seeds[0], ks = SIM.base.rounds.KS, s1 = ks.slots[0];
-    const started = ks.played > 0 || ks.live;
+    const started = ks.played > 0 || ks.live, t2 = (res.teams || []).find(t => t !== t1) || '삼성';
+    const a = ks.wins[t1] || 0, b = ks.wins[t2] || 0, winner = SIM.base.realWinner('KS', t1, t2);
     const d = dday(D.date, s1.d);
-    $('ksDd').textContent = started ? 'KS' : (d > 0 ? 'D-' + d : 'D-DAY');
-    $('ksWhen').innerHTML = started ? '한국시리즈 진행 중<small>' + seriesLine('KS') + '</small>'
+    $('ksDd').textContent = started ? a + '–' + b : (d > 0 ? 'D-' + d : 'D-DAY');
+    $('ksWhen').innerHTML = started ? (winner ? esc(winner) + ' 한국시리즈 우승' : a === b ? '시리즈 동률' : esc(a > b ? t1 : t2) + ' 시리즈 리드') + '<small>' + esc(t1) + ' ' + a + '승 · ' + esc(t2) + ' ' + b + '승' + (winner ? '' : ' · 우승까지 ' + (4 - Math.max(a, b)) + '승') + '</small>'
       : '한국시리즈 1차전<small>' + fmtDate(s1.d) + ' ' + esc(s1.time) + ' · 수원 kt wiz 파크 · 정규시즌 1위 ' + esc(t1) + '</small>';
+    $('ksPips').innerHTML = [t1,t2].map(t => '<span' + (t === '삼성' ? ' class="samsung"' : '') + '>' + esc(t) + ' ' + Array.from({length:4}, (_,i) => '<i' + (i < (ks.wins[t] || 0) ? ' class="won"' : '') + '></i>').join('') + '</span>').join('');
     $('ksPct').textContent = pf(res.champ[t1] || 0);
     // 직전 경기 후 변화 (수집기가 경기마다 남긴 추이)
     const h = D.psOdds && D.psOdds.hist;
@@ -1145,9 +1177,15 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       const a = h[h.length - 2].champ[t1] || 0, b = h[h.length - 1].champ[t1] || 0, df = b - a, g = h[h.length - 1];
       $('ksDelta').textContent = '직전 경기(' + M.META[g.code].short + ' ' + g.n + '차전) 후 ' + (Math.abs(df) < .05 ? '변화 없음' : (df > 0 ? '▲ ' : '▼ ') + Math.abs(df).toFixed(1) + '%p');
     } else $('ksDelta').textContent = '';
-    const opp = Object.entries(res.reach.KS || {}).filter(([t]) => t !== t1).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const opp = Object.entries(res.mode === 'KS' ? res.champ : res.reach.KS || {}).filter(([t]) => t !== t1).sort((a, b) => b[1] - a[1]).slice(0, 4);
     $('ksOpp').innerHTML = opp.map(([t, v]) => '<li>' + tb(t) + '<span class="bar">' + tbar(t, v) + '</span><b>' + pf(v) + '</b></li>').join('');
-    $('ksOpp').insertAdjacentHTML('afterbegin', '<li style="border:0;padding-bottom:0"><span class="muted" style="grid-column:1/-1;font-size:12px">한국시리즈에서 만날 확률</span></li>');
+    $('ksOpp').insertAdjacentHTML('afterbegin', '<li style="border:0;padding-bottom:0"><span class="muted" style="grid-column:1/-1;font-size:12px">' + (res.mode === 'KS' ? '상대 팀 우승 확률' : '한국시리즈에서 만날 확률') + '</span></li>');
+    const nx = res.next;
+    $('ksTrack').innerHTML = ks.slots.slice(0,7).map(s => {
+      const g = s.g, done = g && isDone(g), live = g && isLive(g), skip = winner && !done && !live;
+      const current = !skip && (live || nx && nx.code === 'KS' && nx.n === s.n);
+      return '<a class="ks-game' + (done ? ' done' : '') + (current ? ' current' : '') + (skip ? ' skip' : '') + '" href="#bracketSec"><span class="kg-no">' + s.n + '차전 · ' + (done ? '종료' : live ? 'LIVE' : skip ? '미개최' : current ? '다음 경기' : s.maybe ? '필요 시' : '예정') + '</span><strong>' + (done || live ? g.as + ' : ' + g.hs : md(s.d)) + '</strong><small>' + (done || live ? esc(g.away) + ' – ' + esc(g.home) : s.time + ' · ' + (s.side === 'hi' ? '수원' : '대구')) + (done ? '<br>' + esc(g.as > g.hs ? g.away + ' 승' : g.hs > g.as ? g.home + ' 승' : '무승부') : '') + '</small></a>';
+    }).join('');
   }
 
   /* ==========================================================================
@@ -1421,7 +1459,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
     const base = SIM.base, today = D.date;
     const addD = (d, n) => M.dstr(M.dnum(d) + n), dow = d => new Date(d + 'T00:00:00Z').getUTCDay();
     const psDay = {};
-    M.ROUNDS.forEach(code => {
+    (SIM.res.mode === 'KS' ? ['KS'] : M.ROUNDS).forEach(code => {
       const [h, l] = slotTeams(code), B = base.rounds[code], max = code === 'WC' ? 2 : code === 'KS' ? 7 : 5;
       const winner = l.sure ? base.realWinner(code, h.team, l.team) : null;
       B.slots.slice(0, Math.max(max, B.played + (B.live ? 1 : 0))).forEach((s, i) => { (psDay[s.d] = psDay[s.d] || []).push({ code, s, i, h, l, B, winner }); });
@@ -1449,7 +1487,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       html += '<div class="' + cls + '"><p class="cd-h"><span class="cd-d">' + (day === 1 || d === start ? mon + '/' : '') + day + '</span><span class="cd-w">' + W[(dow(d) + 6) % 7] + '</span>' + (isToday ? '<span class="cd-now">오늘</span>' : '') + '</p>' + body + '</div>';
     }
     $('psCal').innerHTML = html + '</div>';
-    $('calNote').innerHTML = 'KBO 발표 일정(예정) 기준. 실제 경기가 비로 밀리면 그 라운드의 남은 날짜도 함께 밀어 표시합니다. 점선 배지는 아직 정해지지 않은 자리에 올 확률이 가장 높은 팀(머신)과 그 확률, 실선은 확정. \'필요 시\'는 앞 경기에서 시리즈가 끝나지 않을 때만 열립니다.';
+    $('calNote').textContent = SIM.res.mode === 'KS' ? '한국시리즈 일정·결과입니다. 실제 편성을 우선 반영하며, 5~7차전은 앞 경기에서 우승 팀이 결정되면 열리지 않습니다.' : 'KBO 발표 일정 기준이며 실제 편성과 결과를 우선 반영합니다.';
   }
 
   /* ==========================================================================
@@ -1527,12 +1565,12 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       $('ktRotNote').textContent = '정규시즌 마지막 경기 1군 엔트리 기준 예상치이며 실제 엔트리·선발과 다를 수 있습니다. ' + t1 + ' 로테이션 앞 4명(' + ks.rotation.join(' · ') + ')을 실점 지수 순으로 세우고, 4일 이상 쉰 가장 좋은 투수가 나가는 규칙으로 배치한 예상입니다. 실제 발표 선발이 나오면 그 이름으로 바뀝니다.';
     }
     const h2h = (D.pythag && D.pythag.h2h && D.pythag.h2h[t1]) || {};
-    const opp = res.seeds.slice(1).map(t => {
+    const opp = (res.mode === 'KS' ? res.teams.filter(t => t !== t1) : res.seeds.slice(1)).map(t => {
       const meet = (res.reach.KS || {})[t] || 0, won = (res.ksPair || {})[t + '>' + t1] || 0, lost = (res.ksPair || {})[t + '>' + t] || 0;
       return { t, meet, cond: won + lost > 0 ? 100 * won / (won + lost) : null, r: h2h[t] || null };
     }).sort((a, b) => b.meet - a.meet);
-    $('ktOpp').innerHTML = '<thead><tr><th>상대</th><th>KS에서 만날 확률</th><th>만나면 KT 우승</th><th>정규시즌 맞대결</th></tr></thead><tbody>' + opp.map(o =>
-      '<tr><td>' + tb(o.t) + ' <span class="muted" style="font-size:11px">' + (res.seeds.indexOf(o.t) + 1) + '위</span></td><td>' + pf(o.meet) + '</td><td>' + (o.cond == null ? '—' : pf(o.cond)) + '</td><td>' + (o.r ? o.r.w + '승 ' + o.r.l + '패' + (o.r.d ? ' ' + o.r.d + '무' : '') : '—') + '</td></tr>').join('') + '</tbody>';
+    $('ktOpp').innerHTML = '<thead><tr><th>상대</th><th>대진</th><th>KT 우승 확률</th><th>정규시즌 맞대결</th></tr></thead><tbody>' + opp.map(o =>
+      '<tr><td>' + tb(o.t) + ' <span class="muted" style="font-size:11px">' + (res.seeds.indexOf(o.t) + 1) + '위</span></td><td>' + (res.mode === 'KS' ? '확정' : pf(o.meet)) + '</td><td>' + (o.cond == null ? '—' : pf(o.cond)) + '</td><td>' + (o.r ? o.r.w + '승 ' + o.r.l + '패' + (o.r.d ? ' ' + o.r.d + '무' : '') : '—') + '</td></tr>').join('') + '</tbody>';
   }
   function renderStandings(){
     const st = (D.standings || []).slice().sort((a, b) => a.rank - b.rank);
@@ -1637,6 +1675,14 @@ tr.kt .rank{color:#fff;background:var(--accent)}
      데이터
      ========================================================================== */
   let dataMode = 'pre';
+  function renderDataHealth(failed){
+    const el = $('dataHealth');
+    if(!D){ el.textContent = '경기 정보를 불러오지 못했습니다. 잠시 후 자동으로 다시 연결합니다.'; el.classList.add('stale'); return; }
+    const age = Date.now() - Date.parse(D.updated), stale = failed || age > (dataMode === 'live' ? 15 : 45) * 60000;
+    const games = (D.ps?.rounds?.KS?.games || []).filter(isDone), last = games.slice().sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)).pop();
+    el.classList.toggle('stale', stale);
+    el.textContent = '최근 수집 ' + (D.date || '') + ' ' + (D.updatedKST || '') + ' KST · ' + (last ? '한국시리즈 ' + games.length + '경기 결과 반영' : '한국시리즈 개막 전') + (stale ? ' · 수집 지연, 자동 재연결 중' : ' · 경기 중 자동 갱신');
+  }
   function renderAll(){
     try{ SIM = computeSim(D); }catch(e){ SIM = null; console.error(e); }
     const steps = [renderChip, renderHero, renderAside, renderGame, renderBracket, renderCal, renderPower, renderRecords, renderKT, renderStandings, renderTitle, renderNews, renderModelTable, renderHist];
@@ -1648,6 +1694,7 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       $('mcNote').textContent = '머신 입력(선수 기록)을 아직 받지 못했습니다. 다음 수집(5~10분) 후 자동으로 돌아갑니다.';
     }
     if(window.__spy) window.__spy();
+    renderDataHealth(false);
   }
   async function loadData(){
     const urls = [
@@ -1655,18 +1702,21 @@ tr.kt .rank{color:#fff;background:var(--accent)}
       {u:'https://raw.githubusercontent.com/ktwiz-board/ktwiz-board.github.io/data/data/live.json?t=' + Date.now(), o:{}},
       {u:'./data/live.json?t=' + Date.now(), o:{}}
     ];
+    let newest = null;
     for(const {u, o} of urls){
       try{
         const r = await fetch(u, Object.assign({}, o, { cache:'no-store', signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined }));
         if(!r.ok) continue;
         const j = await r.json();
         if(!j || !j.games) continue;
-        if(D && D.updated === j.updated) return;   // 바뀐 게 없으면 다시 그리지 않음
-        D = j; dataMode = j.mode || 'pre';
-        renderAll();
-        return;
+        if(!newest || Date.parse(j.updated) > Date.parse(newest.updated)) newest = j;
+        // 첫 경로의 응답이 오래됐으면 다른 수집본도 확인한다.
+        if(Date.now() - Date.parse(j.updated) < 10 * 60000) break;
       }catch(e){ /* 다음 경로 */ }
     }
+    if(newest && (!D || Date.parse(newest.updated) > Date.parse(D.updated))){
+      D = newest; dataMode = newest.mode || 'pre'; renderAll();
+    } else renderDataHealth(!newest);
   }
   const POLL = { live: 60000, pre: 180000, post: 300000 };
   let pollTimer = null;

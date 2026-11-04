@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  repository_dispatch:
+    types: [live-data]
 
 permissions:
   contents: read
@@ -29,6 +31,7 @@ jobs:
           node scripts/psmodel-schedule.test.js
           node scripts/postseason-refresh.test.js
           node scripts/ks-only.test.js
+          node scripts/kbo-recovery.test.js
       - uses: actions/configure-pages@v5
       - name: Prepare public files with latest collected data
         run: |

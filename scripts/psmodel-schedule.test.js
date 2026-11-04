@@ -22,7 +22,6 @@ for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
   if (/src=|application\/ld\+json/.test(m[1])) continue;
   new vm.Script(m[2]); n++;
 }
-assert(html.includes('11. 03 (화) 18:30 · 수원 kt wiz 파크'));
 assert(!html.includes('11. 02 (월) 18:30'));
 assert(html.includes("'2026-11-02':'미디어데이', '2026-11-05':'이동일', '2026-11-09':'이동일'"));
 assert(html.includes('scripts/psmodel.js?v=' + fs.readFileSync('version.txt','utf8').trim()));

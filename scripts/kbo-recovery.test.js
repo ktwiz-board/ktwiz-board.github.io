@@ -1,0 +1,58 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {parseKboGames,mergeKboPostseason,kboRecoveryDates,kboFallback,pickFocus,postseason}=require('./fetch-live');
+const M=require('./psmodel');
+const ks1=require('./fixtures/kbo-ks1-list.json'),ks2=require('./fixtures/kbo-ks2-list.json');
+const box=require('./fixtures/kbo-ks1-box.json');
+const baseline=require('./fixtures/postseason-nov1.json');
+const g1=parseKboGames(ks1,'2026-11-03')[0],g2=parseKboGames(ks2,'2026-11-04')[0];
+assert.equal(g1.id,'77771103SSKT02026');assert.equal(g1.round,'KS');assert.equal(g1.hs,8);assert.equal(g1.as,7);
+assert.equal(g2.ap,'페덱');assert.equal(g2.hp,'고영표');assert.equal(g2.time,'18:30');
+assert.throws(()=>parseKboGames({code:'0',game:[]},'2026-11-04'),/unavailable/);
+const prior=JSON.parse(JSON.stringify(baseline.ps));prior.rounds.PO.wins={'삼성':0,KIA:0};
+const merged=mergeKboPostseason(prior,[g1,g2]);
+assert.deepEqual(merged.rounds.KS.wins,{'삼성':0,KT:1});
+assert.deepEqual(merged.rounds.PO.wins,{KIA:2,'삼성':3});
+assert.equal(merged.rounds.KS.games.length,2);
+assert.deepEqual(mergeKboPostseason(merged,[g1,g2]),merged,'repeat collection is idempotent');
+assert.deepEqual(mergeKboPostseason(merged,[{...g1,code:'BEFORE',as:0,hs:0}]),merged,'stale upstream status cannot erase a verified result');
+assert.equal(pickFocus([],merged,'2026-11-04').id,g2.id,'today focus survives an empty secondary schedule');
+assert(!prior.rounds.KS,'input snapshot remains untouched');
+const dates=kboRecoveryDates(prior,'2026-11-04');
+assert(dates.includes('2026-11-02')&&dates.includes('2026-11-03')&&dates.includes('2026-11-11'),'recover missed results and upcoming official dates');
+assert.deepEqual(kboRecoveryDates({...merged,kboScheduleDate:'2026-11-04'},'2026-11-04'),['2026-11-03','2026-11-04']);
+const requests=[];
+const fetchOriginal=global.fetch;
+global.fetch=async(url,opt)=>{
+  const params=new URLSearchParams(opt.body);
+  let data;
+  if(String(url).includes('GetKboGameList')) {
+    const day=params.get('date');requests.push(day);
+    data=day==='20261103'?ks1:day==='20261104'?ks2:{code:'100',game:[]};
+  } else if(String(url).includes('GetBoxScoreScroll')) {
+    assert.equal(params.get('gameId'),'20261103SSKT0');assert.equal(params.get('srId'),'7');data=box;
+  } else if(String(url).includes('api-gw.sports.naver.com/schedule/games?')) data={result:{games:[]}};
+  else throw Error('Unexpected network request '+url);
+  return {ok:true,json:async()=>data};
+};
+const file=path.join(os.tmpdir(),'ktwiz-kbo-recovery-'+process.pid+'.json');
+(async()=>{
+  const prev=JSON.parse(JSON.stringify(baseline));prev.ps=prior;prev.focus={id:'55551101HTSS02026',date:'2026-11-01',round:'PO',code:'RESULT',final:true};
+  assert.deepEqual(await postseason(merged),merged,'empty Naver recovery response preserves official KS round and results');
+  assert(await kboFallback('2026-11-04',prev,file,new Date('2026-11-04T10:20:00Z')));
+  const live=JSON.parse(fs.readFileSync(file,'utf8'));
+  assert.equal(live.focus.id,g2.id);assert.equal(live.focus.round,'KS');assert.equal(live.focus.hp,'고영표');
+  assert.equal(live.games[0].id,g2.id);assert.equal(live.week[0].id,g2.id);
+  assert.equal(live.psStats.done.length,10);assert(live.psStats.done.includes(g1.id));
+  assert.equal(live.psStats.teams.KT.g,1);assert.equal(live.psStats.teams.KT.rs,8);assert.equal(live.psStats.teams['삼성'].rs,30);
+  assert.equal(live.psOdds.now.mode,'KS');assert.deepEqual(Object.keys(live.psOdds.now.champ).sort(),['KT','삼성'].sort());
+  assert.equal(live.psOdds.hist.length,2,'KS history includes recovered first game');
+  assert.equal(live.psm.psForm.through,'2026-11-03');
+  assert(live.psOdds.now.champ.KT>57.77,'actual KT 1-0 lead is reflected');
+  const done=JSON.stringify(live.psStats);
+  assert(await kboFallback('2026-11-04',live,file,new Date('2026-11-04T10:30:00Z')));
+  assert.equal(JSON.stringify(live.psStats),done,'retries never count KS1 twice');
+  const liveRow=JSON.parse(JSON.stringify(ks2));Object.assign(liveRow.game[0],{GAME_STATE_SC:'2',GAME_INN_NO:4,GAME_TB_SC:'T',B_P_NM:'고영표',T_P_NM:'구자욱'});
+  const state=parseKboGames(liveRow,'2026-11-04')[0].state;assert.equal(state.pitcher,'고영표');assert.equal(state.batter,'구자욱');
+  console.log('KBO fallback: new KS round, missing date recovery, official ID/starters, wins, focus/week, KS1 individual stats, model/history, no duplicate counting: OK',live.psOdds.now.champ);
+})().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{global.fetch=fetchOriginal;if(fs.existsSync(file))fs.unlinkSync(file);});

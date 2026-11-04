@@ -235,7 +235,7 @@ async function asianGames(today) {
 }
 
 // 포스트시즌 라운드별 경기·시리즈 전적. 대진·확률 계산은 화면 쪽에서(정규시즌 최종 순위와 결합)
-async function postseason() {
+async function postseason(previous) {
   const raw = [];
   for (const [f, t] of dateRanges(PS_FROM, PS_END, 60)) raw.push(...(await games(f, t, 500)));
   const rounds = {};
@@ -255,7 +255,8 @@ async function postseason() {
     r.games.push(m);
   }
   for (const r of Object.values(rounds)) r.games.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-  return { v: 1, rounds };
+  // 복구 직후 네이버가 빈 목록/일부 라운드만 줘도 이미 확인한 공식 대진을 잃지 않는다.
+  return mergeKboPostseason(previous,psGamesOf({v:1,rounds}));
 }
 
 async function pythagorean(today) {
@@ -314,8 +315,9 @@ const psGamesOf = ps => {
 };
 
 // 오늘 보여줄 경기: 오늘의 가을야구 경기(진행 중 > 예정 > 종료) → 오늘 KT 경기 → 가장 최근에 끝난 가을야구 경기
-function pickFocus(todayGames, ps) {
+function pickFocus(todayGames, ps, today) {
   const pool = todayGames.filter(g => isPs(g.id));
+  if(today) for(const g of psGamesOf(ps)) if(g.date===today && !pool.some(x=>x.id===g.id)) pool.push(g);
   const kt = todayGames.filter(g => g.home === 'KT' || g.away === 'KT');
   const from = pool.length ? pool : kt;
   const g = from.find(isLiveG) || from.find(x => !isDone(x) && x.code !== 'CANCEL') || from[from.length - 1];
@@ -654,6 +656,9 @@ async function main() {
     if (await kboFallback(today, prev, file, now)) return;
     throw e;
   }
+  // HTTP 200이어도 한국시리즈 경기만 빠진 응답은 정상 수집으로 처리하지 않는다.
+  const expectedPs=psGamesOf(prev && prev.ps).some(g=>g.date===today && g.code!=='CANCEL') || Object.values(PSModel.SCHEDULE).some(slots=>slots.some(s=>s[0]===today));
+  if(expectedPs && !todayGames.some(g=>isPs(g.id)) && await kboFallback(today,prev,file,now)) return;
 
   // ---- 수집 모드 결정 ----
   // live: 진행 중 경기 있음 → 5분 주기 풀 수집
@@ -673,7 +678,7 @@ async function main() {
   const prevIsCurrentSchema = prev && prev.pythag && prev.pythag.v === 9 && prev.sched && prev.sched.v === 6 && prev.cancelled && prev.titleRace && prev.psm && prev.psm.v === PSModel.VERSION;
   if (mode === 'post' && prev && prev.mode === 'post' && prev.date === today && prevIsCurrentSchema) {
     const [yt2, nw2] = await Promise.all([fetchYoutube(), fetchNews()]);
-    try { prev.ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+    try { prev.ps = await postseason(prev.ps); } catch (e) { console.error('ps fail', e.message); }
     try { prev.ag = await asianGames(today); } catch (e) { console.error('ag fail', e.message); }
     delete prev.agAdj; delete prev.roster; delete prev.seeds;   // 정규시즌 전용 값(예전 수집본) 정리
     // 종료 후 누락된 박스스코어를 재시도한다(점수 확정보다 개인 기록 제공이 늦을 수 있음).
@@ -709,11 +714,11 @@ async function main() {
   // 2) 가을야구 대진·시리즈 전적 (실패 시 직전 값 유지) — 포커스 경기 선택에 필요해 먼저 받는다
   const standings = {};   // (예전: 프리뷰 순위 보조 지표) 정규시즌이 끝나 자체 집계만 쓴다
   let ps = (prev && prev.ps) || null;
-  try { ps = await postseason(); } catch (e) { console.error('ps fail', e.message); }
+  try { ps = await postseason(ps); } catch (e) { console.error('ps fail', e.message); }
 
   // 2.5) 오늘의 경기(포커스): 가을야구 경기 → KT 경기 → 가장 최근에 끝난 가을야구 경기
   let focus = (prev && prev.focus) || null;
-  try { focus = await focusGame(pickFocus(todayGames, ps), prev && prev.focus); } catch (e) { console.error('focus fail', e.message); }
+  try { focus = await focusGame(pickFocus(todayGames, ps,today), prev && prev.focus); } catch (e) { console.error('focus fail', e.message); }
 
   // 3) KT 주간 일정 (오늘 ~ +7일)
   const week = (await games(today, ymd(addDays(now, 7))))
@@ -851,8 +856,66 @@ async function main() {
 }
 
 /* ---------- 예비 경로: KBO 공식 메인 경기 목록 ----------
-   네이버 API가 막혔을 때(2026-10-26 17시~이튿날 08시 응답 없음) 점수·상태·이닝·볼카운트·선발/승패 투수만 받아
-   직전 수집본(경기·가을 대진·포커스 경기)을 갱신하고 우승 확률을 다시 굴린다. 라인업·박스스코어·문자중계는 이전 값 유지. */
+   기존 대진에 없던 라운드도 공식 경기 ID로 생성한다. 장애 중 놓친 날짜와 다음 일정을 회수하고,
+   승수·개인 기록·포커스·확률까지 함께 갱신한다. */
+function parseKboGames(d, date) {
+  if (String(d.code) !== '100' || !Array.isArray(d.game)) throw Error('KBO game list unavailable');
+  const nm = s => String(s || '').trim();
+  const prefixes = {4:'4444',3:'3333',5:'5555',7:'7777'};
+  return d.game.map(g => {
+    const cancel = String(g.CANCEL_SC_ID || '0') !== '0';
+    const st = String(g.GAME_STATE_SC);
+    const code = cancel ? 'CANCEL' : st === '3' ? 'RESULT' : st === '2' ? 'STARTED' : 'BEFORE';
+    const inn = +g.GAME_INN_NO || 0, half = g.GAME_TB_SC === 'B' ? '말' : '초';
+    const kboId = String(g.G_ID || ''), prefix = prefixes[+g.SR_ID];
+    const id = prefix && /^\d{8}[A-Z0-9]{4}\d$/.test(kboId) ? prefix + kboId.slice(4) + kboId.slice(0,4) : kboId;
+    return {
+      id, date: /^\d{8}$/.test(String(g.G_DT)) ? String(g.G_DT).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3') : date,
+      time: nm(g.G_TM), stadium: nm(g.S_NM), round: prefix ? PS_ROUND[prefix] : null, source:'kbo',
+      away: nm(g.AWAY_NM), home: nm(g.HOME_NM), as: +g.T_SCORE_CN || 0, hs: +g.B_SCORE_CN || 0, code,
+      status: cancel ? '취소' : code === 'STARTED' ? `${inn}회${half}` : code === 'RESULT' ? '경기종료' : '경기전',
+      ap: nm(g.T_PIT_P_NM), hp: nm(g.B_PIT_P_NM), wp: nm(g.W_PIT_P_NM), lp: nm(g.L_PIT_P_NM),
+      state: code === 'STARTED' ? { inn, half, out: Math.min(3, +g.OUT_CN || 0), b: +g.BALL_CN || 0, s: +g.STRIKE_CN || 0,
+        bases: [g.B1_BAT_ORDER_NO, g.B2_BAT_ORDER_NO, g.B3_BAT_ORDER_NO].map(x => +x > 0),
+        pitcher: nm(half === '초' ? g.B_P_NM : g.T_P_NM), batter: nm(half === '초' ? g.T_P_NM : g.B_P_NM) } : null
+    };
+  });
+}
+function mergeKboPostseason(ps, collected) {
+  const out = JSON.parse(JSON.stringify(ps || {v:1,rounds:{}}));
+  out.rounds ||= {};
+  for(const g of collected) {
+    if(!g.round || !isPs(g.id)) continue;
+    const r=out.rounds[g.round] || (out.rounds[g.round]={code:g.round,teams:[],wins:{},games:[]});
+    const at=r.games.findIndex(x=>x.id===g.id || (x.date===g.date && x.away===g.away && x.home===g.home));
+    if(at>=0 && isDone(r.games[at]) && !isDone(g)) continue; // 복구 중인 원본의 과거 상태로 확정 결과를 되돌리지 않는다.
+    const next={...(at<0?{}:r.games[at]),...g}; delete next.state;
+    if(at<0) r.games.push(next); else r.games[at]=next;
+  }
+  for(const r of Object.values(out.rounds)) {
+    r.games.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    r.teams=[...new Set(r.games.flatMap(g=>[g.away,g.home]))];
+    r.wins=Object.fromEntries(r.teams.map(t=>[t,0]));
+    for(const g of r.games) {
+      delete g.tie;
+      if(!isDone(g)) continue;
+      if(g.as>g.hs) r.wins[g.away]++; else if(g.hs>g.as) r.wins[g.home]++; else g.tie=true;
+    }
+  }
+  return out;
+}
+function kboRecoveryDates(ps, today) {
+  const start=PSModel.dnum(today), dates=new Set([today,PSModel.dstr(start-1)]);
+  const prior=psGamesOf(ps);
+  const last=prior.filter(isDone).map(g=>g.date).sort().at(-1);
+  // 최대 2주까지 회수하되, 기존의 미완료 경기 날짜는 더 오래됐어도 다시 확인한다.
+  const from=Math.max(start-14,last?PSModel.dnum(last)+1:PSModel.dnum(PS_FROM));
+  for(let n=from;n<=start;n++) dates.add(PSModel.dstr(n));
+  for(const g of prior) if(g.date<=today && !isDone(g) && g.code!=='CANCEL') dates.add(g.date);
+  // 일정은 하루 한 번 미리 확인. 날짜 상수로 가짜 경기나 결과를 만들지 않는다.
+  if(ps?.kboScheduleDate!==today) for(let n=start+1;n<=Math.min(start+7,PSModel.dnum(PS_END));n++) dates.add(PSModel.dstr(n));
+  return [...dates].filter(d=>d>=PS_FROM && d<=PS_END).sort();
+}
 async function kboGames(date) {
   const r = await fetch('https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList', {
     method: 'POST', signal: AbortSignal.timeout(15000),
@@ -861,50 +924,34 @@ async function kboGames(date) {
     body: `leId=1&srId=0,1,3,4,5,6,7,8,9&date=${date.replace(/-/g, '')}`
   });
   if (!r.ok) throw new Error('kbo ' + r.status);
-  const d = await r.json();
-  const nm = s => String(s || '').trim();
-  return (d.game || []).map(g => {
-    const cancel = String(g.CANCEL_SC_ID || '0') !== '0';
-    const st = String(g.GAME_STATE_SC);
-    const code = cancel ? 'CANCEL' : st === '3' ? 'RESULT' : st === '2' ? 'STARTED' : 'BEFORE';
-    const inn = +g.GAME_INN_NO || 0, half = g.GAME_TB_SC === 'B' ? '말' : '초';
-    return {
-      away: nm(g.AWAY_NM), home: nm(g.HOME_NM), as: +g.T_SCORE_CN || 0, hs: +g.B_SCORE_CN || 0, code,
-      status: cancel ? '취소' : code === 'STARTED' ? `${inn}회${half}` : code === 'RESULT' ? '경기종료' : '경기전',
-      ap: nm(g.T_PIT_P_NM), hp: nm(g.B_PIT_P_NM), wp: nm(g.W_PIT_P_NM), lp: nm(g.L_PIT_P_NM),
-      state: code === 'STARTED' ? { inn, half, out: Math.min(3, +g.OUT_CN || 0), b: +g.BALL_CN || 0, s: +g.STRIKE_CN || 0,
-        bases: [g.B1_BAT_ORDER_NO, g.B2_BAT_ORDER_NO, g.B3_BAT_ORDER_NO].map(x => +x > 0),
-        pitcher: nm(code === 'STARTED' && half === '초' ? g.B_P_NM : g.T_P_NM), batter: nm(half === '초' ? g.T_P_NM : g.B_P_NM) } : null
-    };
-  });
+  return parseKboGames(await r.json(),date);
 }
 async function kboFallback(today, prev, file, now) {
   if (!prev || !prev.psm) return false;
-  // 오늘 + 어제(밤새 장애가 이어졌을 때 어제 결과도 채우기)
-  const yday = ymd(addDays(new Date(Date.parse(today + 'T00:00:00Z')), -1));
-  let kg, ky = [];
+  let kg;
   try { kg = await kboGames(today); } catch (e) { console.error('kbo fail', e.message); return false; }
-  try { ky = await kboGames(yday); } catch (e) {}
-  const same = (a, b) => a.away === b.away && a.home === b.home;
-  const upd = (g, k) => { const o = Object.assign({}, g, { as: k.as, hs: k.hs, code: k.code, status: k.status, wp: k.wp || g.wp, lp: k.lp || g.lp, ap: g.ap || k.ap, hp: g.hp || k.hp }); delete o.state; return o; };
-  const psAll = [];
-  for (const r of Object.values((prev.ps && prev.ps.rounds) || {})) {
-    r.games = r.games.map(g => { const k = (g.date === today ? kg : g.date === yday ? ky : []).find(x => same(x, g)); return k ? upd(g, k) : g; });
-    psAll.push(...r.games);
+  const collected=kg.slice(); let complete=true;
+  for(const d of kboRecoveryDates(prev.ps,today)) {
+    if(d===today) continue;
+    try {collected.push(...await kboGames(d));} catch(e) {complete=false;console.error('KBO recovery fail',d,e.message);}
   }
-  // 오늘 경기 목록: 가을 대진에 있는 경기는 그 id·구장을 이어 쓴다
-  prev.games = kg.map(k => { const g = psAll.find(x => x.date === today && same(x, k)); return g ? Object.assign({}, g) : Object.assign({ id: '', date: today, time: '', stadium: '' }, k, { state: undefined }); });
-  const todayPs = prev.games.find(g => g.id && psAll.some(x => x.id === g.id) && g.code !== 'CANCEL') || null;
-  if (todayPs) {
-    const k = kg.find(x => same(x, todayPs));
-    const keep = prev.focus && prev.focus.id === todayPs.id ? prev.focus : { lineups: null, starters: null };
-    prev.focus = Object.assign({}, keep, todayPs, { round: PS_ROUND[String(todayPs.id).slice(0, 4)] || null, state: k && k.state, final: !!(keep.final && isDone(todayPs)) });
+  prev.ps=mergeKboPostseason(prev.ps,collected);
+  if(complete) prev.ps.kboScheduleDate=today;
+  const same = (a, b) => a.away === b.away && a.home === b.home;
+  const psAll=psGamesOf(prev.ps);
+  prev.games=kg.map(k=>{const g={...k};delete g.state;return g;});
+  prev.week=psAll.filter(g=>g.date>=today && g.date<=ymd(addDays(now,7)) && g.code!=='CANCEL' && (g.away==='KT'||g.home==='KT'));
+  const focusGameNow=pickFocus(prev.games,prev.ps,today);
+  if (focusGameNow) {
+    const k = kg.find(x => same(x, focusGameNow));
+    const keep = prev.focus && prev.focus.id === focusGameNow.id ? prev.focus : { lineups: null, starters: null };
+    prev.focus = Object.assign({}, keep, focusGameNow, { round: PS_ROUND[String(focusGameNow.id).slice(0, 4)] || null, state: k && k.state, final: !!(keep.final && isDone(focusGameNow)) });
   }
   // 네이버 장애 중에도 KBO 공식 박스스코어를 재시도해 개인 기록까지 채운다.
   try { prev.psStats = await psStatsUpdate(prev.ps, prev.psStats, {preferKbo:true}); } catch(e) { console.error('KBO stats fail',e.message); }
   prev.psm = PSModel.applyPostseason(enrich(prev.psm), prev.psStats);
-  if(todayPs && isDone(todayPs) && !prev.focus.final) {
-    try { const rd=await fetchKboRecord(todayPs); prev.focus.box={batters:{away:rd.battersBoxscore.away.map(mapBat),home:rd.battersBoxscore.home.map(mapBat)},pitchers:{away:rd.pitchersBoxscore.away.map(mapPit),home:rd.pitchersBoxscore.home.map(mapPit)},keys:[]}; prev.focus.final=true; } catch(e) {console.error('KBO focus box fail',e.message);}
+  if(focusGameNow && isDone(focusGameNow) && !prev.focus.final) {
+    try { const rd=await fetchKboRecord(focusGameNow); prev.focus.box={batters:{away:rd.battersBoxscore.away.map(mapBat),home:rd.battersBoxscore.home.map(mapBat)},pitchers:{away:rd.pitchersBoxscore.away.map(mapPit),home:rd.pitchersBoxscore.home.map(mapPit)},keys:[]}; prev.focus.final=true; } catch(e) {console.error('KBO focus box fail',e.message);}
   }
   const stamp = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
   try { prev.psOdds = psOddsFor(prev.psm, prev.ps, prev.focus, prev.psOdds, stamp); } catch (e) { console.error('psOdds fail', e.message); }
@@ -920,4 +967,4 @@ async function kboFallback(today, prev, file, now) {
 
 // 직접 실행하면 수집, require하면 함수만 (테스트·예측 도구용)
 if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });
-module.exports = { kboGames, postseason, focusGame, pickFocus, psStatsUpdate, psModelFor, psOddsFor };
+module.exports = { kboGames, parseKboGames, mergeKboPostseason, kboRecoveryDates, kboFallback, postseason, focusGame, pickFocus, psStatsUpdate, psModelFor, psOddsFor };
